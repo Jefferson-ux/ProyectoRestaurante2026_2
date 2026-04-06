@@ -1,0 +1,21 @@
+/build/
+/nbproject/private/
+/dist/
+nbbinaries/
+nbdist/
+nbactions.xml
+.nb-gradle/
+Thumbs.db
+*.log
+.env
+# Archivos de configuración del IDE que varían por usuario
+nbproject/genfiles.properties
+nbproject/project.properties.bak
+
+# Archivos temporales de edición
+*~
+*.swp
+
+# Carpeta de logs de NetBeans (si existe)
+nbproject/private/
+
