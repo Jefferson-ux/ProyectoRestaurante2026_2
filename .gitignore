@@ -1,13 +1,7 @@
 # Bloqueo total de carpetas de compilación
 build/
 dist/
-nbproject/private/
 
-# Bloqueo de configuración local de NetBeans (LO MÁS IMPORTANTE)
-nbproject/project.properties
-nbproject/genfiles.properties
-nbproject/project.xml
-lib/nblibraries.properties
 
 # Archivos de sistema y temporales
 Thumbs.db
