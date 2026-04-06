@@ -1,21 +1,18 @@
-/build/
-/nbproject/private/
-/dist/
-nbbinaries/
-nbdist/
-nbactions.xml
-.nb-gradle/
-Thumbs.db
-*.log
-.env
-# Archivos de configuración del IDE que varían por usuario
-nbproject/genfiles.properties
-nbproject/project.properties.bak
-
-# Archivos temporales de edición
-*~
-*.swp
-
-# Carpeta de logs de NetBeans (si existe)
+# Bloqueo total de carpetas de compilación
+build/
+dist/
 nbproject/private/
 
+# Bloqueo de configuración local de NetBeans (LO MÁS IMPORTANTE)
+nbproject/project.properties
+nbproject/genfiles.properties
+nbproject/project.xml
+lib/nblibraries.properties
+
+# Archivos de sistema y temporales
+Thumbs.db
+*.log
+*.swp
+
+# Archivos de variables de entorno
+*.env
