@@ -55,10 +55,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
         
         //Posicion
         this.setLocationRelativeTo(null);
-       
-        //Metodo para cargar el combobox
-        cargarUnidadMedida();
-        
+               
         //definir los encabezados de la tabla
         String titulos[]={"DNI","Nombre del empleado","Apellidos del empleado","Fecha de nacimiento","Fecha de registro", "direccion","correo", "telefono", "genero"};
         
@@ -68,13 +65,21 @@ public class Frm_Empleado extends javax.swing.JFrame {
         //Establecer el modelo a la JTable
         JTABLE_Mant_Empleado.setModel(modeloTablaEmpleado);
         
-        //Desabilitar campo de codigo (solo se mostrara no se escribe)
-        txtdniempleado.setEnabled(false);
-        BTN_Cancel.setEnabled(false);
-        BTN_Nuevo.setEnabled(false);
-        BTN_Guardar.setEnabled(false);
-        BTN_Modificar.setEnabled(false);
-        BTN_Desactivar.setEnabled(false);
+        // Ocultar columnas sensibles o internas: solo visual, no afecta modelo
+        // Ocultar columna "id_empleado"
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setMinWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setMaxWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setWidth(0);
+
+        // Ocultar columna "Correo Secundario"
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setMinWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setMaxWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setWidth(0);   
+
+    // Ocultar columna "Observacion"
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(11).setMinWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(11).setMaxWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(11).setWidth(0);
     }
 
     @SuppressWarnings("unchecked")
@@ -85,34 +90,42 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        txtdniempleado = new javax.swing.JTextField();
+        txtcodigoempleado = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         txtfechanacimiento = new javax.swing.JTextField();
         jComboBox_genero = new javax.swing.JComboBox<>();
         txtNombreEmpleado = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        txttelefeono = new javax.swing.JTextField();
+        txttelefono2 = new javax.swing.JTextField();
         txtApellidoEmpleado = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
         txtfecharegistro = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
         txtdireccion = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
-        txtcorreo = new javax.swing.JTextField();
+        txtcorreo2 = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        txtdniempleado1 = new javax.swing.JTextField();
+        jLabel14 = new javax.swing.JLabel();
+        txtcorreo1 = new javax.swing.JTextField();
+        txtobservaciones = new javax.swing.JTextField();
+        txttelefono1 = new javax.swing.JTextField();
+        jLabel15 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         JTABLE_Mant_Empleado = new javax.swing.JTable();
         BTN_EXCEL = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
-        TXT_BuscarProductos = new javax.swing.JTextField();
+        TXT_BuscarEmpleados = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         BTN_Cerrar1 = new javax.swing.JButton();
         BTN_PDF = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         BTN_VerEmpleados = new javax.swing.JButton();
-        BTN_Desactivar = new javax.swing.JButton();
+        BTN_Cambiar_Estado = new javax.swing.JButton();
         BTN_Modificar = new javax.swing.JButton();
         BTN_Guardar = new javax.swing.JButton();
         BTN_Nuevo = new javax.swing.JButton();
@@ -132,23 +145,23 @@ public class Frm_Empleado extends javax.swing.JFrame {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel2.setText("DNI DEL EMPLEADO");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 110, -1));
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 20, 110, -1));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel3.setText("Fecha de nacimiento");
         jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 140, -1));
 
-        txtdniempleado.setEditable(false);
-        txtdniempleado.setBackground(new java.awt.Color(255, 255, 255));
-        txtdniempleado.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        txtdniempleado.setForeground(new java.awt.Color(0, 0, 204));
-        txtdniempleado.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtdniempleado.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtdniempleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 120, 30));
+        txtcodigoempleado.setEditable(false);
+        txtcodigoempleado.setBackground(new java.awt.Color(255, 255, 255));
+        txtcodigoempleado.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtcodigoempleado.setForeground(new java.awt.Color(0, 0, 204));
+        txtcodigoempleado.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtcodigoempleado.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.add(txtcodigoempleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 120, 30));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel6.setText("Nombre del Empleado");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 20, 140, -1));
+        jLabel6.setText("CODIGO");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 140, -1));
 
         txtfechanacimiento.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txtfechanacimiento.setForeground(new java.awt.Color(0, 0, 204));
@@ -163,7 +176,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jPanel1.add(txtfechanacimiento, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, 140, 30));
 
         jComboBox_genero.addActionListener(this::jComboBox_generoActionPerformed);
-        jPanel1.add(jComboBox_genero, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 200, 120, 30));
+        jPanel1.add(jComboBox_genero, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 250, 120, 30));
 
         txtNombreEmpleado.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txtNombreEmpleado.setForeground(new java.awt.Color(0, 0, 204));
@@ -174,26 +187,26 @@ public class Frm_Empleado extends javax.swing.JFrame {
                 txtNombreEmpleadoKeyTyped(evt);
             }
         });
-        jPanel1.add(txtNombreEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 40, 190, 30));
+        jPanel1.add(txtNombreEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 40, 190, 30));
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel7.setText("Apellido del Empleado");
-        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 20, 140, -1));
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 20, 140, -1));
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel8.setText("Genero");
-        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 170, 100, -1));
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 230, 100, -1));
 
-        txttelefeono.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        txttelefeono.setForeground(new java.awt.Color(0, 0, 204));
-        txttelefeono.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txttelefeono.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        txttelefeono.addKeyListener(new java.awt.event.KeyAdapter() {
+        txttelefono2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txttelefono2.setForeground(new java.awt.Color(0, 0, 204));
+        txttelefono2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txttelefono2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txttelefono2.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                txttelefeonoKeyTyped(evt);
+                txttelefono2KeyTyped(evt);
             }
         });
-        jPanel1.add(txttelefeono, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 200, 220, 30));
+        jPanel1.add(txttelefono2, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 250, 220, 30));
 
         txtApellidoEmpleado.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txtApellidoEmpleado.setForeground(new java.awt.Color(0, 0, 204));
@@ -204,7 +217,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
                 txtApellidoEmpleadoKeyTyped(evt);
             }
         });
-        jPanel1.add(txtApellidoEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 40, 140, 30));
+        jPanel1.add(txtApellidoEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 40, 140, 30));
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel9.setText("Fecha de Registro");
@@ -222,8 +235,8 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jPanel1.add(txtfecharegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 120, 140, 30));
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel10.setText("Direccion");
-        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 90, 100, -1));
+        jLabel10.setText("obervaciones");
+        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 150, 100, -1));
 
         txtdireccion.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txtdireccion.setForeground(new java.awt.Color(0, 0, 204));
@@ -234,26 +247,83 @@ public class Frm_Empleado extends javax.swing.JFrame {
                 txtdireccionKeyTyped(evt);
             }
         });
-        jPanel1.add(txtdireccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 120, 200, 30));
+        jPanel1.add(txtdireccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 120, 190, 30));
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel11.setText("Correo");
-        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 100, -1));
+        jLabel11.setText("Correo2");
+        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 240, 100, -1));
 
-        txtcorreo.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        txtcorreo.setForeground(new java.awt.Color(0, 0, 204));
-        txtcorreo.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtcorreo.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        txtcorreo.addKeyListener(new java.awt.event.KeyAdapter() {
+        txtcorreo2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtcorreo2.setForeground(new java.awt.Color(0, 0, 204));
+        txtcorreo2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtcorreo2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtcorreo2.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtcorreoKeyTyped(evt);
+                txtcorreo2KeyTyped(evt);
             }
         });
-        jPanel1.add(txtcorreo, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 200, 220, 30));
+        jPanel1.add(txtcorreo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 260, 220, 30));
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel12.setText("Telefono");
-        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 170, 100, -1));
+        jLabel12.setText("Telefono2");
+        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 230, 100, -1));
+
+        jLabel13.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel13.setText("Nombre del Empleado");
+        jPanel1.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 20, 140, -1));
+
+        txtdniempleado1.setEditable(false);
+        txtdniempleado1.setBackground(new java.awt.Color(255, 255, 255));
+        txtdniempleado1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtdniempleado1.setForeground(new java.awt.Color(0, 0, 204));
+        txtdniempleado1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtdniempleado1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.add(txtdniempleado1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 40, 120, 30));
+
+        jLabel14.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel14.setText("Correo");
+        jPanel1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 100, -1));
+
+        txtcorreo1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtcorreo1.setForeground(new java.awt.Color(0, 0, 204));
+        txtcorreo1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtcorreo1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtcorreo1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtcorreo1KeyTyped(evt);
+            }
+        });
+        jPanel1.add(txtcorreo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 200, 220, 30));
+
+        txtobservaciones.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtobservaciones.setForeground(new java.awt.Color(0, 0, 204));
+        txtobservaciones.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtobservaciones.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtobservaciones.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtobservacionesKeyTyped(evt);
+            }
+        });
+        jPanel1.add(txtobservaciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 180, 170, 50));
+
+        txttelefono1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txttelefono1.setForeground(new java.awt.Color(0, 0, 204));
+        txttelefono1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txttelefono1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txttelefono1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txttelefono1KeyTyped(evt);
+            }
+        });
+        jPanel1.add(txttelefono1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 200, 220, 30));
+
+        jLabel15.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel15.setText("Direccion");
+        jPanel1.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 90, 100, -1));
+
+        jLabel16.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel16.setText("Telefono");
+        jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 170, 100, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 730, 300));
 
@@ -293,13 +363,13 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jLabel4.setText("Ingresar el Nombre de Empleado");
         jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 10, -1, 30));
 
-        TXT_BuscarProductos.addActionListener(this::TXT_BuscarProductosActionPerformed);
-        TXT_BuscarProductos.addKeyListener(new java.awt.event.KeyAdapter() {
+        TXT_BuscarEmpleados.addActionListener(this::TXT_BuscarEmpleadosActionPerformed);
+        TXT_BuscarEmpleados.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                TXT_BuscarProductosKeyReleased(evt);
+                TXT_BuscarEmpleadosKeyReleased(evt);
             }
         });
-        jPanel2.add(TXT_BuscarProductos, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 13, 290, -1));
+        jPanel2.add(TXT_BuscarEmpleados, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 13, 290, -1));
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
@@ -324,10 +394,10 @@ public class Frm_Empleado extends javax.swing.JFrame {
         BTN_VerEmpleados.addActionListener(this::BTN_VerEmpleadosActionPerformed);
         jPanel3.add(BTN_VerEmpleados, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 30, 165, 50));
 
-        BTN_Desactivar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Desactivar.setText("     QUITAR");
-        BTN_Desactivar.addActionListener(this::BTN_DesactivarActionPerformed);
-        jPanel3.add(BTN_Desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 280, 165, 48));
+        BTN_Cambiar_Estado.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Cambiar_Estado.setText("CAMBIAR ESTADO");
+        BTN_Cambiar_Estado.addActionListener(this::BTN_Cambiar_EstadoActionPerformed);
+        jPanel3.add(BTN_Cambiar_Estado, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 280, 165, 48));
 
         BTN_Modificar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Modificar.setText("    MODIFICAR");
@@ -370,7 +440,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
     private void JTABLE_Mant_EmpleadoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTABLE_Mant_EmpleadoMouseClicked
         int filaSeleccionada = JTABLE_Mant_Empleado.getSelectedRow();
         BTN_Modificar.setEnabled(true);
-        BTN_Desactivar.setEnabled(true);
+        BTN_Cambiar_Estado.setEnabled(true);
         BTN_Guardar.setEnabled(false);
         BTN_Cancel.setVisible(false);
         BTN_Cancel.setEnabled(false);
@@ -390,14 +460,14 @@ public class Frm_Empleado extends javax.swing.JFrame {
             
             
             // Mostrar en los controles
-            txtdniempleado.setText(dni);
+            txtcodigoempleado.setText(dni);
             txtNombreEmpleado.setText(nombres);
             txtApellidoEmpleado.setText(apellidos);
             txtfechanacimiento.setText(fechanacimiento);
             txtfecharegistro.setText(fecharegistro);
             txtdireccion.setText(direccion);
-            txtcorreo.setText(correo);
-            txttelefeono.setText(telefono);
+            txtcorreo2.setText(correo);
+            txttelefono2.setText(telefono);
 
             // Guardar valores originales para comparación
             dniOriginal = dni;
@@ -483,13 +553,47 @@ public class Frm_Empleado extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_BTN_EXCELActionPerformed
 
-    private void TXT_BuscarProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TXT_BuscarProductosActionPerformed
+    private void TXT_BuscarEmpleadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TXT_BuscarEmpleadosActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_TXT_BuscarProductosActionPerformed
+    }//GEN-LAST:event_TXT_BuscarEmpleadosActionPerformed
 
-    private void TXT_BuscarProductosKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TXT_BuscarProductosKeyReleased
-
-    }//GEN-LAST:event_TXT_BuscarProductosKeyReleased
+    private void TXT_BuscarEmpleadosKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TXT_BuscarEmpleadosKeyReleased
+        try {
+            String texto = TXT_BuscarEmpleados.getText().trim();
+            // Si el campo está vacio, listar todos
+            if (texto.isEmpty()) {
+                listarEmpleados();
+                return;
+            }
+            // Limpiar la tabla
+            modeloTablaEmpleado.setRowCount(0);
+            
+            ResultSet rs = PR.buscarEmpleados(texto);
+            
+            boolean hayResultados = false;
+            while (rs.next()) {
+            hayResultados = true;
+            Object[] fila = {
+                rs.getInt("id_empleado"),
+                rs.getString("dni_empleado"),
+                rs.getString("apellido_empleado"),
+                rs.getString("nombre_empleado"),
+                rs.getDate("fecha_nacimiento"),
+                rs.getString("direccion_empleado"),
+                rs.getString("telefono_principal"),
+                rs.getString("correo_principal"),
+                rs.getString("nombre_genero") 
+            };
+            modeloTablaEmpleado.addRow(fila);
+        }
+        if (!hayResultados) {
+             // Lógica para manejar búsqueda sin éxito
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error al filtrar empleados: " + e.getMessage(), 
+                "Error", JOptionPane.ERROR_MESSAGE); //
+    }
+    }//GEN-LAST:event_TXT_BuscarEmpleadosKeyReleased
 
     private void BTN_Cerrar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_Cerrar1ActionPerformed
         int confirmacion = JOptionPane.showConfirmDialog(this, 
@@ -592,58 +696,50 @@ public class Frm_Empleado extends javax.swing.JFrame {
     }//GEN-LAST:event_BTN_PDFActionPerformed
 
     private void BTN_VerEmpleadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerEmpleadosActionPerformed
-        this.listarProductos();
-        this.BTN_Nuevo.setEnabled(true);
-        this.BTN_Guardar.setEnabled(false);
-        this.BTN_Desactivar.setEnabled(false);
-        this.BTN_Modificar.setEnabled(false);
+        this.listarEmpleados();
     }//GEN-LAST:event_BTN_VerEmpleadosActionPerformed
 
-    private void BTN_DesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_DesactivarActionPerformed
-       
-    }//GEN-LAST:event_BTN_DesactivarActionPerformed
+    private void BTN_Cambiar_EstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_Cambiar_EstadoActionPerformed
+        
+    }//GEN-LAST:event_BTN_Cambiar_EstadoActionPerformed
 
     private void BTN_ModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ModificarActionPerformed
+        // 1. Obtener la fila seleccionada de tu JTable de empleados
+    int filaSeleccionada = JTABLE_Mant_Empleado.getSelectedRow(); 
+
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Seleccione un empleado de la tabla.", 
+            "Aviso", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // 2. Obtener el código del empleado (asumiendo que está en la columna 0)
+    int codigoEmpleado = Integer.parseInt(JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 0).toString());
+
+    // 3. Ventana de confirmación
+    int confirmacion = JOptionPane.showConfirmDialog(this, 
+        "¿Está seguro de dar de baja al empleado seleccionado?", 
+        "Confirmar baja", JOptionPane.YES_NO_OPTION);
+
+    if (confirmacion == JOptionPane.YES_OPTION) {
         try {
-            String nuevodni = txtdniempleado.getText().trim();
-            String nuevonombresEmpleados = txtNombreEmpleado.getText().trim();
-            String nuevoapellidosEmpleados = txtApellidoEmpleado.getText().trim();
-            String nuevofechanac = txtfechanacimiento.getText().trim();
-            String nuevofechareg = txtfecharegistro.getText().trim();
-            String nuevodireccion = txtdireccion.getText().trim();
-            String nuevocorreo = txtcorreo.getText().trim();
-            String nuevotele = txttelefeono.getText().trim();
-        
-        // Obtener Género del ComboBox
-        String nombreGenero = (String) jComboBox_genero.getSelectedItem();
+            // 4. Llamar al método de tu clase lógica PR
+            // Nota: Asegúrate de tener el método 'darDeBajaEmpleado' en EmpleadoMethod.java
+            PR.darDeBajaEmpleado(codigoEmpleado); 
 
-        // 2. Validar campos obligatorios (DNI, Nombres, Apellidos son críticos)
-        if (nuevodni.isEmpty() || nuevonombresEmpleados.isEmpty() || nuevoapellidosEmpleados.isEmpty() || nuevofechanac.isEmpty() || nuevofechareg.isEmpty() || nuevodireccion.isEmpty() || nuevocorreo.isEmpty() || nuevotele.isEmpty() || nombreGenero == null) {
-            JOptionPane.showMessageDialog(this, "DNI, Nombres, Apellidos y Género son obligatorios.", "Validación", JOptionPane.WARNING_MESSAGE);
-            return;
+            JOptionPane.showMessageDialog(this, "✅ Empleado dado de baja correctamente.");
+            
+            // 5. Refrescar la tabla y limpiar el formulario
+            listarEmpleados(); 
+            limpiarCampos(); 
+
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al dar de baja: " + ex.getMessage(), 
+                "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        // 3. Validar longitud del DNI (Debe ser 8 según tu SQL)
-        if (nuevodni.length() != 8) {
-            JOptionPane.showMessageDialog(this, "El DNI debe tener exactamente 8 dígitos.", "Validación", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // . Definir el estado (Por defecto 1 si está activo)
-        int estado = 1; 
-
-        // . Llamar al método de modificación del DAO (EmpleadoMethod)
-        // idSeleccionado debe ser el ID obtenido al seleccionar la fila de la tabla
-        EmpleadoMethod.modificarEmpleado(dni, nombres, apellidos, fNac, fReg, 
-                                         direccion, correo1, tel1, idGenero, estado);
-
-        JOptionPane.showMessageDialog(this, "Empleado actualizado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-        // . Refrescar tabla y limpiar campos
-        listarEmpleados(); // Tu método para recargar la JTable
-        limpiarCamposEmpleado();
-
-        } 
+    }
     }//GEN-LAST:event_BTN_ModificarActionPerformed
 
     private void BTN_GuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BTN_GuardarMouseClicked
@@ -651,87 +747,56 @@ public class Frm_Empleado extends javax.swing.JFrame {
     }//GEN-LAST:event_BTN_GuardarMouseClicked
 
     private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
-        try {  
-            // 1. Obtener datos del formulario
-            //Variable para el jcombobox y el nombre (solo para Strings y jcombox)
-            String nombreProducto = txtNombreProducto.getText().trim();
-            String nombreUnidad = (String) jComboBox_unidad_medida.getSelectedItem();
-            
-            if (nombreProducto.isEmpty()){
-                JOptionPane.showMessageDialog(this, "El nombre del producto no puede estar vacio.", "Validación", JOptionPane.WARNING_MESSAGE);
-                txtNombreProducto.requestFocus();
-                return;
-            }
-            if (txtPreciounitario.getText().trim().isEmpty()){
-                JOptionPane.showMessageDialog(this, "El precio del producto no puede estar vacio.", "Validación", JOptionPane.WARNING_MESSAGE);
-                txtPreciounitario.requestFocus();
-                return;
-            }
-            if (txtstockActual.getText().trim().isEmpty()){
-                JOptionPane.showMessageDialog(this, "El stock actual del producto no puede estar vacio.", "Validación", JOptionPane.WARNING_MESSAGE);
-                txtstockActual.requestFocus();
-                return;
-            }
-            if (txtstockMinimo.getText().trim().isEmpty()){
-                JOptionPane.showMessageDialog(this, "El stock minimo del producto no puede estar vacio.", "Validación", JOptionPane.WARNING_MESSAGE);
-                txtstockMinimo.requestFocus();
-                return;
-            }
-            if (nombreUnidad == null || nombreUnidad.trim().isEmpty()){
-                JOptionPane.showMessageDialog(this, "Seleccione una unidad de medida valida.", "Validación", JOptionPane.WARNING_MESSAGE);
-                txtNombreProducto.requestFocus();
-                return;
-            }
-            
-            
-            //Proceso de transformación de String a int o Double (Solo para los campos que tienen numeros)
-            double precioUnitario;
-            int stockActual;
-            int stockMinimo; 
-            try {
-                precioUnitario = Double.parseDouble(txtPreciounitario.getText().trim().replace(",", "."));
-                stockActual = Integer.parseInt(txtstockActual.getText().trim());
-                stockMinimo = Integer.parseInt(txtstockMinimo.getText().trim());
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, """
-                                                    Error: Uno de los campos num\u00e9ricos tiene un formato incorrecto.
-                                                    Aseg\u00farese de usar solo n\u00fameros (y punto para decimales en el precio).""", 
-                        "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
-          
-            
-            // 3. Obtener el código de la facultad desde la vista
-            int codigoUnidad = UM.obtenerCodigoUnidad(nombreUnidad);
-            if (codigoUnidad == -1) {
-                JOptionPane.showMessageDialog(this, "No se encontró la unidad de medida seleccionada.", "Error", JOptionPane.ERROR_MESSAGE);
-             return;
-            }
-            
-            // 4. Insertar usando método de clase (que valida duplicados)
-            PR.insertarProducto(nombreProducto, precioUnitario, stockMinimo, stockActual, codigoUnidad);
+    try {
+    String dni = txtdniempleado1.getText().trim();
+    String apellidos = txtApellidoEmpleado.getText().trim();
+    String nombres = txtNombreEmpleado.getText().trim();
+    String direccion = txtdireccion.getText().trim();
+    String telefono = txttelefono1.getText().trim();
+    String correo = txtcorreo1.getText().trim();
+    String generoSeleccionado = jComboBox_genero.getSelectedItem().toString();
 
-            // 5. Confirmar éxito
-            JOptionPane.showMessageDialog(this, "Producto registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+    // 2. Validaciones de campos obligatorios
+    if (dni.isEmpty() || apellidos.isEmpty() || nombres.isEmpty() || correo.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Complete los campos obligatorios (*).", 
+            "Validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    
+    int idGenero = PR.obtenerIdGenero(generoSeleccionado);
+    
+    if (idGenero == -1) {
+        JOptionPane.showMessageDialog(this, "Género no válido.");
+        return;
+    } 
 
-            // 6. Refrescar tabla
-            listarProductos();
+    // 4. Ejecutar Inserción o Actualización
+    if (txtcodigoempleado.getText().isEmpty()) {
+        // INSERTAR: Pasamos null en el parámetro de fecha
+        PR.insertarEmpleado(dni, nombres, apellidos, null, 
+                           direccion, telefono, null, correo, idGenero);
+    } else {
+        // ACTUALIZAR: Pasamos null en el parámetro de fecha
+        int idEmpleado = Integer.parseInt(txtcodigoempleado.getText());
+        PR.actualizarEmpleado(idEmpleado, nombres, apellidos, null,
+                             direccion, correo, telefono, null, idGenero);
+    }
 
-             // 7. Limpiar campos
-            this.limpiarCamposProducto();
+    // 5. Refrescar interfaz y limpiar cajas
+    listarEmpleados();
+    limpiarCampos();
 
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error al guardar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+} catch (IllegalArgumentException ex) {
+    JOptionPane.showMessageDialog(this, ex.getMessage(), "Atención", JOptionPane.WARNING_MESSAGE);
+} catch (SQLException ex) {
+    JOptionPane.showMessageDialog(this, "Error de SQL: " + ex.getMessage(), 
+        "Error", JOptionPane.ERROR_MESSAGE);
+}
     }//GEN-LAST:event_BTN_GuardarActionPerformed
 
     private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
-        limpiarCamposProducto();
-        BTN_Cancel.setVisible(true);
-        BTN_Nuevo.setVisible(false);
+        limpiarCampos();
+        BTN_Guardar.setEnabled(true);
     }//GEN-LAST:event_BTN_NuevoActionPerformed
 
     private void BTN_CancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_CancelActionPerformed
@@ -740,7 +805,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
         JTABLE_Mant_Empleado.setCellSelectionEnabled(true);
 
         BTN_Guardar.setEnabled(true);
-        BTN_Desactivar.setEnabled(false);
+        BTN_Cambiar_Estado.setEnabled(false);
         BTN_Modificar.setEnabled(false);
         BTN_Nuevo.setVisible(true);
         BTN_Nuevo.setEnabled(true);
@@ -748,9 +813,9 @@ public class Frm_Empleado extends javax.swing.JFrame {
         JTABLE_Mant_Empleado.setEnabled(true);
     }//GEN-LAST:event_BTN_CancelActionPerformed
 
-    private void txttelefeonoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txttelefeonoKeyTyped
+    private void txttelefono2KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txttelefono2KeyTyped
         // TODO add your handling code here:
-    }//GEN-LAST:event_txttelefeonoKeyTyped
+    }//GEN-LAST:event_txttelefono2KeyTyped
 
     private void txtApellidoEmpleadoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtApellidoEmpleadoKeyTyped
         // TODO add your handling code here:
@@ -768,13 +833,27 @@ public class Frm_Empleado extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtdireccionKeyTyped
 
-    private void txtcorreoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtcorreoKeyTyped
+    private void txtcorreo2KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtcorreo2KeyTyped
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtcorreoKeyTyped
+    }//GEN-LAST:event_txtcorreo2KeyTyped
 
     private void jComboBox_generoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_generoActionPerformed
-        // TODO add your handling code here:
+        
+
+
     }//GEN-LAST:event_jComboBox_generoActionPerformed
+
+    private void txtcorreo1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtcorreo1KeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtcorreo1KeyTyped
+
+    private void txtobservacionesKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtobservacionesKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtobservacionesKeyTyped
+
+    private void txttelefono1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txttelefono1KeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txttelefono1KeyTyped
 
     /**
      * @param args the command line arguments
@@ -798,13 +877,13 @@ public class Frm_Empleado extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new Frm_Producto().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new Frm_Empleado().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BTN_Cambiar_Estado;
     private javax.swing.JButton BTN_Cancel;
     private javax.swing.JButton BTN_Cerrar1;
-    private javax.swing.JButton BTN_Desactivar;
     private javax.swing.JButton BTN_EXCEL;
     private javax.swing.JButton BTN_Guardar;
     private javax.swing.JButton BTN_Modificar;
@@ -812,12 +891,16 @@ public class Frm_Empleado extends javax.swing.JFrame {
     private javax.swing.JButton BTN_PDF;
     private javax.swing.JButton BTN_VerEmpleados;
     private javax.swing.JTable JTABLE_Mant_Empleado;
-    private javax.swing.JTextField TXT_BuscarProductos;
+    private javax.swing.JTextField TXT_BuscarEmpleados;
     private javax.swing.JComboBox<String> jComboBox_genero;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -832,30 +915,18 @@ public class Frm_Empleado extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField txtApellidoEmpleado;
     private javax.swing.JTextField txtNombreEmpleado;
-    private javax.swing.JTextField txtcorreo;
+    private javax.swing.JTextField txtcodigoempleado;
+    private javax.swing.JTextField txtcorreo1;
+    private javax.swing.JTextField txtcorreo2;
     private javax.swing.JTextField txtdireccion;
-    private javax.swing.JTextField txtdniempleado;
+    private javax.swing.JTextField txtdniempleado1;
     private javax.swing.JTextField txtfechanacimiento;
     private javax.swing.JTextField txtfecharegistro;
-    private javax.swing.JTextField txttelefeono;
+    private javax.swing.JTextField txtobservaciones;
+    private javax.swing.JTextField txttelefono1;
+    private javax.swing.JTextField txttelefono2;
     // End of variables declaration//GEN-END:variables
-    
-    //llenar elementos en el jcombobox el metodo viene de la clase
-    //y la consulta de la vista
-    private void cargarGenero() {
-        try {
-            jComboBox_genero.removeAllItems();
-            jComboBox_genero.addItem("<<Seleccionar>>"); // Opción por defecto
-
-            ResultSet rs = UM.listarGenero();
-            while (rs.next()) {
-                jComboBox_genero.addItem(rs.getString("Genero"));
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar el genero: " + e.getMessage());
-        }
-    }
-    
+   
     //método para mostrar registros en el jtable
     private void listarEmpleados() {
         try {
@@ -868,37 +939,42 @@ public class Frm_Empleado extends javax.swing.JFrame {
 
             while (rs.next()) {
             Object fila[] = {
-                rs.getInt("ID"), 
+                rs.getInt("Codigo de Empleado"),
+                rs.getString("DNI"),
                 rs.getString("Nombre de Empleado"),
                 rs.getString("Apellido de Empleado"), 
                 rs.getString("Fecha de Nacimiento"), 
                 rs.getString("Fecha de Registro"),    
                 rs.getString("Lugar de Residencia"),    
                 rs.getString("Correo Principal"),    
+                rs.getString("Correo Secundario"),    
                 rs.getString("Teléfono Principal"),    
-                rs.getInt("Genero")
+                rs.getString("Teléfono Secundario"),    
+                rs.getInt("Género"),
+                rs.getString("Observaciones"),   
             };
                 modeloTablaEmpleado.addRow(fila);
             }
 
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar la tabla de empleados: " + e.getMessage(), "Error de Datos", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error al listar empleados: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    private void limpiarCamposEmpleado() {
-            txtdniempleado.setText("");
-            txtNombreEmpleado.setText("");
-            txtApellidoEmpleado.setText("");
-            txtfechanacimiento.setText("");
-            txtdireccion.setText("");
-            txtcorreo.setText("");
-            txttelefeono.setText("");
-            jComboBox_genero.setSelectedIndex(0); // O -1 si quieres dejarlo vacío
-            BTN_Guardar.setEnabled(true);
-            BTN_Cancel.setEnabled(true);
-            BTN_Nuevo.setEnabled(false);
-            BTN_Modificar.setEnabled(false);
-            BTN_Desactivar.setEnabled(false);
-            BTN_VerEmpleados.setEnabled(false);
-        }
+    
+    /* Limpiar Cajas de Empleado */
+    private void limpiarCampos() {
+        txtcodigoempleado.setText("");          
+        txtdniempleado1.setText("");             
+        txtNombreEmpleado.setText("");         
+        txtApellidoEmpleado.setText("");       
+        txtfechanacimiento.setText(null);  
+        txtdireccion.setText("");       
+        txtcorreo1.setText("");         
+        txtcorreo2.setText("");         
+        txttelefono1.setText("");       
+        txttelefono2.setText("");       
+        jComboBox_genero.setSelectedIndex(0); 
+        txtobservaciones.setText(""); 
+    }       
 }

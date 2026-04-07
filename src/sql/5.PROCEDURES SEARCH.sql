@@ -1,7 +1,6 @@
 USE db_restaurant;
 /* ============================================================
    1. CARGO
-   Valida duplicado por nombre_cargo (sin distinción de case)
    ============================================================ */
 DROP PROCEDURE IF EXISTS buscar_cargo;
 DELIMITER //
@@ -20,7 +19,6 @@ DELIMITER ;
 
 /* ============================================================
    2. CATEGORIA
-   (Ya existía — se incluye aquí para tener todo unificado)
    ============================================================ */
 DROP PROCEDURE IF EXISTS buscar_categoria;
 DELIMITER //
@@ -35,13 +33,8 @@ END //
 DELIMITER ;
 
 
-
-
-
-
 /* ============================================================
    3. CLIENTE
-   Valida duplicado por DNI (único en la tabla)
    ============================================================ */
 DROP PROCEDURE IF EXISTS buscar_cliente;
 DELIMITER //
@@ -57,16 +50,8 @@ END //
 DELIMITER ;
 
 
-
-
-
-
-
 /* ============================================================
    4. CONTRATO
-   Valida que el empleado y el turno existan antes de insertar.
-   Un empleado puede tener múltiples contratos, por eso no se
-   valida duplicado de id_empleado sino solo integridad.
    ============================================================ */
 DROP PROCEDURE IF EXISTS buscar_contrato;
 DELIMITER //
@@ -85,15 +70,8 @@ END //
 DELIMITER ;
 
 
-
-
-
-
-
 /* ============================================================
    5. USUARIO
-   Valida duplicado por codigo (único en la tabla).
-   Valida que el cargo exista y esté activo antes de insertar.
    ============================================================ */
 DROP PROCEDURE IF EXISTS buscar_usuario;
 DELIMITER $$
@@ -116,8 +94,6 @@ DELIMITER ;
 
 /* ============================================================
    6. PEDIDO
-   Valida que la fecha no sea NULL ni futura.
-   Valida existencia de cliente, empleado y tipo de pedido.
    ============================================================ */
 DROP PROCEDURE IF EXISTS buscar_pedido;
 DELIMITER $$
@@ -141,8 +117,6 @@ DELIMITER ;
 
 /* ============================================================
    7. MESA
-   Valida que el número de mesa sea único y tenga formato M-X.
-   Valida que la capacidad sea mayor a 0.
    ============================================================ */
 DROP PROCEDURE IF EXISTS buscar_mesa;
 DELIMITER $$
@@ -158,41 +132,26 @@ END$$
 DELIMITER ;
 
 
-
-
-
-
-
 /* ============================================================
    8. EMPLEADO
-   Valida duplicado por DNI.
-   Valida formato de correos y teléfonos.
    ============================================================ */
-DROP PROCEDURE IF EXISTS buscar_pedido;
+DROP PROCEDURE IF EXISTS buscar_empleado;
 DELIMITER $$
 
-CREATE PROCEDURE buscar_pedido (
+CREATE PROCEDURE buscar_empleado (
     IN p_param VARCHAR(100)
 )
 BEGIN
     SELECT *
-    FROM vista_pedido
-    WHERE `Cliente` LIKE CONCAT('%', p_param, '%')
-       OR `Empleado` LIKE CONCAT('%', p_param, '%')
-       OR `Tipo de Pedido` LIKE CONCAT('%', p_param, '%');
+    FROM vista_empleado
+    WHERE `Nombre de Empleado` LIKE CONCAT('%', p_param, '%')
+       OR `Apellido de Empleado` LIKE CONCAT('%', p_param, '%');
 END$$
 DELIMITER ;
 
 
-
-
-
-
-
 /* ============================================================
    9. DETALLE PEDIDO
-   Valida que la cantidad sea mayor a 0.
-   Valida que el precio unitario sea válido.
    ============================================================ */
 DROP PROCEDURE IF EXISTS buscar_detalle_pedido;
 DELIMITER $$

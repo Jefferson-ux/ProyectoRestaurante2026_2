@@ -1,7 +1,6 @@
 USE db_restaurant;
 /* ============================================================
    1. CARGO
-   Valida duplicado por nombre_cargo (sin distinción de case)
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_cargo;
 DELIMITER $$
@@ -36,7 +35,6 @@ DELIMITER ;
 
 /* ============================================================
    2. CATEGORIA
-   (Ya existía — se incluye aquí para tener todo unificado)
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_categoria;
 DELIMITER $$
@@ -69,7 +67,6 @@ DELIMITER ;
 
 /* ============================================================
    3. CLIENTE
-   Valida duplicado por DNI (único en la tabla)
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_cliente;
 DELIMITER $$
@@ -111,12 +108,8 @@ END$$
 DELIMITER ;
 
 
-
-/* ============================================================---------------------------------------------------------------------------------------
+/* ============================================================
    4. CONTRATO
-   Valida que el empleado y el turno existan antes de insertar.
-   Un empleado puede tener múltiples contratos, por eso no se
-   valida duplicado de id_empleado sino solo integridad.
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_contrato;
 DELIMITER $$
@@ -191,9 +184,7 @@ DELIMITER ;
 
 
 /* ============================================================
-   5. USUARIO
-   Valida duplicado por codigo (único en la tabla).
-   Valida que el cargo exista y esté activo antes de insertar.
+   5. DETALLE_PEDIDO
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_usuario;
 DELIMITER $$
@@ -253,9 +244,7 @@ DELIMITER ;
 
 
 /* ============================================================
-   6. PEDIDO
-   Valida que la fecha no sea NULL ni futura.
-   Valida existencia de cliente, empleado y tipo de pedido.
+   6. EMPLEADO
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_pedido;
 DELIMITER $$
@@ -396,113 +385,72 @@ END$$
 
 DELIMITER ;
 
-
-
-
-
-
 /* ============================================================
    8. EMPLEADO
-   Valida duplicado por DNI.
-   Valida formato de correos y teléfonos.
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_empleado;
 DELIMITER $$
 
 CREATE PROCEDURE insertar_empleado(
-    IN p_dni CHAR(8),
-    IN p_nombres VARCHAR(255),
-    IN p_apellidos VARCHAR(255),
-    IN p_fecha_nacimiento DATE,
-    IN p_fecha_registro DATE,
-    IN p_lugar_residencia VARCHAR(255),
-    IN p_correo1 VARCHAR(255),
-    IN p_correo2 VARCHAR(255),
-    IN p_telefono1 VARCHAR(20),
-    IN p_telefono2 VARCHAR(20),
-    IN p_observacion VARCHAR(500),
-    IN p_id_genero INT
+    IN p_dni_empleado           CHAR(8),
+    IN p_nombre_empleado        VARCHAR(255),
+    IN p_apellido_empleado      VARCHAR(255),
+    IN p_fecha_nacimiento       DATE,
+    IN p_fecha_registro         DATE,
+    IN p_direccion_empleado     VARCHAR(255),
+    IN p_correo_principal       VARCHAR(255),
+    IN p_correo_secundario      VARCHAR(255),
+    IN p_telefono_principal     VARCHAR(20),
+    IN p_telefono_secundario    VARCHAR(20),
+    IN p_id_genero              INT
 )
 BEGIN
-    DECLARE v_existe INT;
-	DECLARE v_msg VARCHAR(500);
 
-    SELECT COUNT(*) INTO v_existe
-    FROM empleado
-    WHERE dni_empleado = p_dni;
-
-    IF v_existe > 0 THEN
-    	SET v_msg = CONCAT('El empleado con DNI ', p_dni, ' ya existe.');
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT =  v_msg,
-        MYSQL_ERRNO = 1018;
-
+    -- 1. Validar que el DNI no exista (Corregido paréntesis y typos)
+    IF EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = p_dni_empleado) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este DNI ya está registrado';
     END IF;
 
-    IF p_correo1 NOT REGEXP '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El correo electrónico 1 no tiene un formato válido.',
-        MYSQL_ERRNO = 1019;
+    -- 2. Validar que el Correo Principal no exista
+    IF EXISTS (SELECT 1 FROM empleado WHERE correo_principal = p_correo_principal) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este Correo Principal ya está registrado.';
     END IF;
 
-    IF p_correo2 IS NOT NULL AND p_correo2 NOT REGEXP '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El correo electrónico 2 no tiene un formato válido.',
-        MYSQL_ERRNO = 1020;
+    -- 3. Validar que el Correo Secundario no exista (Solo si no es NULL)
+    IF p_correo_secundario IS NOT NULL AND EXISTS (SELECT 1 FROM empleado WHERE correo_secundario = p_correo_secundario) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este Correo Secundario ya está registrado.';
     END IF;
 
-    IF p_telefono1 NOT REGEXP '^[0-9]{9}$' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El teléfono 1 no tiene un formato válido.',
-        MYSQL_ERRNO = 1021;
+    -- 4. Validar formato básico de correos
+    IF p_correo_principal NOT LIKE '%@%.%' 
+    OR (p_correo_secundario IS NOT NULL AND p_correo_secundario NOT LIKE '%@%.%') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este formato de Correo no es válido.';
     END IF;
 
-    IF p_telefono2 IS NOT NULL AND p_telefono2 NOT REGEXP '^[0-9]{9}$' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El teléfono 2 no tiene un formato válido.',
-        MYSQL_ERRNO = 1022;
+    -- 5. Validar que teléfonos no sean iguales
+    IF p_telefono_secundario IS NOT NULL AND p_telefono_principal = p_telefono_secundario THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Teléfono Principal y Secundario no pueden ser iguales.';
     END IF;
 
-    INSERT INTO empleado(
-        dni_empleado,
-        nombre_empleado,
-        apellido_empleado,
-        fecha_nacimiento,
-        fecha_registro,
-        direccion_empleado,
-        correo_principal,
-        correo_secundario,
-        telefono_principal,
-        telefono_secundario,
-        observacion_empleado,
-        id_genero,
-        estado
-    )
-    VALUES(
-        p_dni,
-        p_nombres,
-        p_apellidos,
-        p_fecha_nacimiento,
-        p_fecha_registro,
-        p_lugar_residencia,
-        p_correo1,
-        p_correo2,
-        p_telefono1,
-        p_telefono2,
-        p_observacion,
-        p_id_genero,
-        DEFAULT
+    -- 6. Inserción (Corregida cantidad de columnas y valores)
+    INSERT INTO empleado (
+        dni_empleado, nombre_empleado, apellido_empleado, fecha_nacimiento, fecha_registro,
+        direccion_empleado, correo_principal, correo_secundario, telefono_principal, 
+        telefono_secundario, id_genero, estado
+    ) VALUES (
+        p_dni_empleado, p_nombre_empleado, p_apellido_empleado, p_fecha_nacimiento, 
+        p_fecha_registro, p_direccion_empleado, p_correo_principal, p_correo_secundario, 
+        p_telefono_principal, p_telefono_secundario, p_id_genero, 1
     );
-
-    SELECT 'Empleado registrado correctamente.' AS mensaje;
 
 END$$
 
 DELIMITER ;
-
-
-
-
+    
+CALL insertar_empleado(
+    '76543210', 'Juan Carlos', 'Pérez Rodríguez', '1990-05-15', '2026-04-06',            
+    'Av. Las Palmeras 123', 'juan.perez@gmail.com', NULL, '987654321', NULL, 1                        
+);
 
 
 /* ============================================================

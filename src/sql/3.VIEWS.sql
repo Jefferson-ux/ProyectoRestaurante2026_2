@@ -4,10 +4,10 @@ USE db_restaurant;
 /*===================   VISTAS  ==================*/
 /*================================================*/
 
-/* vista_cargo */
-USE db_restaurant;
+/* ============================================================
+   1. CARGO
+   ============================================================ */
 
-/* vista_cargo */
 CREATE OR REPLACE VIEW vista_cargo AS
 SELECT
     id_cargo AS `ID`,
@@ -16,8 +16,9 @@ FROM cargo
 WHERE estado = 1;
 
 
-
-/* vista_categoria */
+/* ============================================================
+   2. CATEGORIA
+   ============================================================ */
 CREATE OR REPLACE VIEW vista_categoria AS
 SELECT
     id_categoria AS `ID`,
@@ -26,8 +27,9 @@ FROM categoria
 WHERE estado = 1;
 
 
-
-/* vista_cliente */
+/* ============================================================
+   3. CLIENTE
+   ============================================================ */
 CREATE OR REPLACE VIEW vista_cliente AS
 SELECT
     dni_cliente         AS `DNI`,
@@ -40,8 +42,9 @@ FROM cliente
 WHERE estado = 1;
 
 
-
-/* vista_contrato */
+/* ============================================================
+   4. CONTRATO
+   ============================================================ */
 CREATE OR REPLACE VIEW vista_contrato AS
 SELECT
     c.id_contrato   AS `ID`,
@@ -65,8 +68,9 @@ WHERE
     c.estado = 1;
 
 
-
-/* vista_detalle_pedido */
+/* ============================================================
+   5. DETALLE_PEDIDO
+   ============================================================ */
 CREATE OR REPLACE VIEW vista_detalle_pedido AS
 SELECT
     d.id_detalle 		AS `ID`, 
@@ -82,31 +86,32 @@ INNER JOIN pedido p      ON d.id_pedido = p.id_pedido
 INNER JOIN plato_menu pm ON d.id_plato_menu = pm.id_plato_menu;
 
 
-
-/* vista_empleado */
+/* ============================================================
+   6. EMPLEADO
+   ============================================================ */
 CREATE OR REPLACE VIEW vista_empleado AS
 SELECT
+    e.id_empleado               AS "Codigo de Empleado",
     e.dni_empleado              AS `DNI`,
     e.nombre_empleado           AS `Nombre de Empleado`,
     e.apellido_empleado         AS `Apellido de Empleado`,
-    e.fecha_nacimiento AS `Fecha de Nacimiento`,
-    e.fecha_registro   AS `Fecha de Registro`,
-    e.direccion_empleado AS `Lugar de Residencia`,
+    e.fecha_nacimiento          AS `Fecha de Nacimiento`,
+    e.fecha_registro            AS `Fecha de Registro`,
+    e.direccion_empleado        AS `Lugar de Residencia`,
     e.correo_principal          AS `Correo Principal`,
-    e.correo_secundario          AS `Correo Secundario`,
-    e.telefono_principal AS `Teléfono Principal`,
-    e.telefono_secundario AS `Teléfono Secundario`,
+    e.correo_secundario         AS `Correo Secundario`,
+    e.telefono_principal        AS `Teléfono Principal`,
+    e.telefono_secundario       AS `Teléfono Secundario`,
     g.nombre_genero             AS `Género`,
-    e.observacion_empleado 		 AS `Observaciones`
+    e.observacion_empleado      AS `Observaciones`
 FROM empleado e
 INNER JOIN genero g ON e.id_genero = g.id_genero
 WHERE  e.estado = 1;
 
 
-
-
-
-/* vista_factura */
+/* ============================================================
+   7. FACTURA
+   ============================================================ */
 CREATE OR REPLACE VIEW vista_factura AS
 SELECT
     f.numero_comprobante AS `Número de Comprobante`,

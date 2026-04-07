@@ -2,34 +2,67 @@
 /***************************************
 1. EMPLEADO
 *****************************************/
-DROP PROCEDURE IF EXISTS Desactivar_Empleado;
-DELIMITER //
-CREATE PROCEDURE Desactivar_Empleado(IN dni_empleado INT)
+DROP PROCEDURE IF EXISTS cambiar_estado_empleado;
+DELIMITER $$
+
+CREATE PROCEDURE cambiar_estado_empleado (
+    IN p_id_empleado    INT,
+    IN p_nuevo_estado   TINYINT
+)
 BEGIN
-    DECLARE existe INT DEFAULT 0;
-    DECLARE yaDesactivado INT DEFAULT 0;
-    /* Verificar si el Empleado existe */
-    SELECT COUNT(*) INTO existe
-    FROM Empleado WHERE dni_empleado = dni_empleado;
-    IF existe = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: El código de Empleado no existe. ';
-    ELSE
-        /* Verificar si ya está desactivada */
-        SELECT COUNT(*) INTO yaDesactivado
-        FROM Empleado
-        WHERE dni_empleado = dni_empleado AND estado = 0;
-        IF yaDesactivado > 0 THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El Empleado ya está desactivado.';
-        ELSE
-            /* Proceder con la desactivación */
-            UPDATE Empleado
-            SET estado = 0
-            WHERE dni_empleado = dni_empleado;
-        END IF;
+    -- Verificar que el empleado exista
+    IF NOT EXISTS (
+        SELECT 1 FROM empleado WHERE id_empleado = p_id_empleado
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El empleado no existe.';
     END IF;
-END //
+
+    -- Validar que el nuevo estado sea 0 o 1
+    IF p_nuevo_estado NOT IN (0, 1) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El estado debe ser 0 o 1.';
+    END IF;
+
+    -- Actualizar estado del empleado
+    UPDATE empleado
+    SET estado = p_nuevo_estado
+    WHERE id_empleado = p_id_empleado;
+END$$
+
+DELIMITER ;
+
+-- Ejemplo:
+
+-- Para DAR DE BAJA (Inactivo) al empleado con ID 1
+CALL cambiar_estado_empleado(1, 0);
+
+-- Para REACTIVAR (Activo) al empleado con ID 1
+CALL cambiar_estado_empleado(1, 1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /***************************************
 2. PRODUCTO
