@@ -230,7 +230,8 @@ SELECT
   telefono_proveedor AS `Teléfono de contacto`,
   correo_proveedor AS `Correo de contacto`,
   direccion_proveedor AS `Dirección`,
-  observacion_proveedor AS `Observaciones`
+  observacion_proveedor AS `Observaciones`,
+  estado AS  `Estado`
 FROM proveedor;
 
 

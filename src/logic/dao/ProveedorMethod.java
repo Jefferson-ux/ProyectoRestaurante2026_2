@@ -31,10 +31,17 @@ public class ProveedorMethod {
     
     /* VIEWS --> MOSTRAR DATOS */
     public ResultSet listarProveedor() throws SQLException{
-        String sql = "Select * from vista_Proveedor";/*SQL Query*/
+        String sql = "Select * from vista_Proveedor WHERE `Estado` = 1";/*SQL Query*/
         Statement st = conn.createStatement(); /*Creamos la sentencia*/
         return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
     }
+    
+    public ResultSet listarProveedorInactivo() throws SQLException{
+        String sql = "Select * from vista_Proveedor WHERE `Estado` = 0";/*SQL Query*/
+        Statement st = conn.createStatement(); /*Creamos la sentencia*/
+        return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
+    }
+    
        /* SEARCH --> BUSCAR DATOS */
     public ResultSet buscarProovedor(String nombre) throws SQLException{
         String sql = "CALL buscar_Proveedor(?)";/*Llamada al procedimiento*/
@@ -44,8 +51,8 @@ public class ProveedorMethod {
     }       
     
     /* INSERT--> AGREGAR DATOS */
-    public void insertarProveedor(String ruc, String razon_social, String telefono, String correo, String direccion) throws SQLException{
-        String sql = "CALL insertar_proveedor(?,?,?,?,?)";//Llamada al procedimiento
+    public void insertarProveedor(String ruc, String razon_social, String telefono, String correo, String direccion, String observacion) throws SQLException{
+        String sql = "CALL insertar_proveedor(?,?,?,?,?,?)";//Llamada al procedimiento
         try 
             (PreparedStatement ps =conn.prepareCall(sql)){
             ps.setString(1, ruc);
@@ -53,6 +60,7 @@ public class ProveedorMethod {
             ps.setString(3, telefono);
             ps.setString(4, correo);
             ps.setString(5, direccion);
+            ps.setString(6, observacion);
             
             ps.execute();
             System.out.println("Proveedor insertada con éxito");
@@ -61,17 +69,41 @@ public class ProveedorMethod {
 
 
        /* UPDATE --> ACTUALIZAR DATOS */
-     public void modificarProveedor(String ruc, String nuevaRazonSocial, String nuevoTelefono, String nuevoCorreo, String nuevaDireccion) throws SQLException{
-        String sql = "CALL Update_Proveedor(?,?,?,?,?)";/*Llamada al procedimiento*/
+     public void modificarProveedor(int id,String ruc, String nuevaRazonSocial, String nuevoTelefono, String nuevoCorreo, String nuevaDireccion, String nuevaObservacion) throws SQLException{
+        String sql = "CALL Update_Proveedor(?,?,?,?,?,?,?)";/*Llamada al procedimiento*/
         try (PreparedStatement ps = conn.prepareCall(sql)){
-            ps.setString(1, ruc);
-            ps.setString(2, nuevaRazonSocial);
-            ps.setString(3, nuevoTelefono);
-            ps.setString(4, nuevoCorreo);
-            ps.setString(5, nuevaDireccion);
+            ps.setInt(1, id);
+            ps.setString(2, ruc);
+            ps.setString(3, nuevaRazonSocial);
+            ps.setString(4, nuevoTelefono);
+            ps.setString(5, nuevoCorreo);
+            ps.setString(6, nuevaDireccion);
+            ps.setString(7, nuevaObservacion);
             ps.executeUpdate();
             System.out.println("Proveedor modificada");
         }                   
 
+    }
+     
+     public void reactivarProveedor(int codigoProveedor) throws SQLException {
+        if (codigoProveedor <= 0) {
+            throw new IllegalArgumentException("El código del proveedor es inválido.");
+        }
+        String sql = "{CALL CambiarEstadoProveedor(?, ?)}";
+        CallableStatement cs = conn.prepareCall(sql);
+        cs.setInt(1, codigoProveedor);  // Código del proveedor
+        cs.setInt(2, 1);              // Estado: 1 = activo
+        cs.execute();
+    }
+     
+     public void desactivarProveedor(int codigoProveedor) throws SQLException {
+        if (codigoProveedor <= 0) {
+            throw new IllegalArgumentException("El código del proveedor es inválido.");
+        }
+        String sql = "{CALL CambiarEstadoProveedor(?, ?)}";
+        CallableStatement cs = conn.prepareCall(sql);
+        cs.setInt(1, codigoProveedor);  // Código del proveedor
+        cs.setInt(2, 0);              // Estado: 0 = desactivado
+        cs.execute();
     }
 }

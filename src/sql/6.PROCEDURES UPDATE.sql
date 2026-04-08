@@ -1,7 +1,7 @@
 /**************************************
 1.- CARGO
 **************************************/
-
+USE db_restaurant;
 -- 1. Primero definimos el delimitador
 DELIMITER //
 

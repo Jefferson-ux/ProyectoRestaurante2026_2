@@ -244,7 +244,8 @@ BEGIN
        OR `Razón Social (Nombre del Proveedor)` LIKE CONCAT('%', p_param, '%')
        OR `Teléfono de contacto` LIKE CONCAT('%', p_param, '%')
        OR `Correo de contacto` LIKE CONCAT('%', p_param, '%')
-       OR `Dirección` LIKE CONCAT('%', p_param, '%');
+       OR `Dirección` LIKE CONCAT('%', p_param, '%')
+       OR `Observaciones` LIKE CONCAT('%',p_param,'%');
 END$$
 DELIMITER ;
 
