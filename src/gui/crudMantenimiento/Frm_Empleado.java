@@ -65,21 +65,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
         //Establecer el modelo a la JTable
         JTABLE_Mant_Empleado.setModel(modeloTablaEmpleado);
         
-        // Ocultar columnas sensibles o internas: solo visual, no afecta modelo
-        // Ocultar columna "id_empleado"
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setMinWidth(0);
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setMaxWidth(0);
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setWidth(0);
 
-        // Ocultar columna "Correo Secundario"
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setMinWidth(0);
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setMaxWidth(0);
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setWidth(0);   
-
-    // Ocultar columna "Observacion"
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(11).setMinWidth(0);
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(11).setMaxWidth(0);
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(11).setWidth(0);
     }
 
     @SuppressWarnings("unchecked")

@@ -11,16 +11,16 @@ import gui.menu.Frm_LoginAcesso;
 
 
 public class Frm_PinSeguridad extends javax.swing.JFrame {
-    
+
 
     //Variable para contar el número de intentos
     private byte intentos_validos = 0;
     private final byte intentos_permitidos = 4;
-    
-    
+
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Frm_PinSeguridad.class.getName());
     public Frm_PinSeguridad() {
-        this.setUndecorated(true); 
+        this.setUndecorated(true);
         FlatLightLaf.setup();
         initComponents();
         this.setLocationRelativeTo(null);
@@ -28,23 +28,23 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
         this.setResizable(false);
         btningresar.setEnabled(false);
         btn_delete.setText("");
-        
-        
+
+
         TXTPASS.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             public void changedUpdate(javax.swing.event.DocumentEvent e) { validarLongitud(); }
             public void removeUpdate(javax.swing.event.DocumentEvent e) { validarLongitud(); }
             public void insertUpdate(javax.swing.event.DocumentEvent e) { validarLongitud(); }
         });
-        
-        
+
+
     }
 
     private void validarLongitud() {
     String pass = new String(TXTPASS.getPassword());
     btningresar.setEnabled(pass.length() >= 4);
 }
-    
-    
+
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -233,62 +233,62 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
 
     private void btn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn1ActionPerformed
         String PassActual = String.valueOf(TXTPASS.getPassword());
-            TXTPASS.setText(PassActual+"1" );       
+            TXTPASS.setText(PassActual+"1" );
     }//GEN-LAST:event_btn1ActionPerformed
 
     private void btn2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn2ActionPerformed
         String PassActual = String.valueOf(TXTPASS.getPassword());
-            TXTPASS.setText(PassActual+"2" );             
+            TXTPASS.setText(PassActual+"2" );
     }//GEN-LAST:event_btn2ActionPerformed
 
     private void btn3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn3ActionPerformed
         String PassActual = String.valueOf(TXTPASS.getPassword());
-            TXTPASS.setText(PassActual+"3" );             
+            TXTPASS.setText(PassActual+"3" );
     }//GEN-LAST:event_btn3ActionPerformed
 
     private void btn4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn4ActionPerformed
         String PassActual = String.valueOf(TXTPASS.getPassword());
-            TXTPASS.setText(PassActual+"4" );             
+            TXTPASS.setText(PassActual+"4" );
     }//GEN-LAST:event_btn4ActionPerformed
 
     private void btn5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn5ActionPerformed
         String PassActual = String.valueOf(TXTPASS.getPassword());
-            TXTPASS.setText(PassActual+"5" );               
+            TXTPASS.setText(PassActual+"5" );
     }//GEN-LAST:event_btn5ActionPerformed
 
     private void btn6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn6ActionPerformed
         String PassActual = String.valueOf(TXTPASS.getPassword());
-            TXTPASS.setText(PassActual+"6" );              
+            TXTPASS.setText(PassActual+"6" );
     }//GEN-LAST:event_btn6ActionPerformed
 
     private void btn7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn7ActionPerformed
         String PassActual = String.valueOf(TXTPASS.getPassword());
-            TXTPASS.setText(PassActual+"7" );              
+            TXTPASS.setText(PassActual+"7" );
     }//GEN-LAST:event_btn7ActionPerformed
 
     private void btn8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn8ActionPerformed
         String PassActual = String.valueOf(TXTPASS.getPassword());
-            TXTPASS.setText(PassActual+"8" );             
+            TXTPASS.setText(PassActual+"8" );
     }//GEN-LAST:event_btn8ActionPerformed
 
     private void btn9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn9ActionPerformed
         String PassActual = String.valueOf(TXTPASS.getPassword());
-            TXTPASS.setText(PassActual+"9" );               
+            TXTPASS.setText(PassActual+"9" );
     }//GEN-LAST:event_btn9ActionPerformed
 
     private void btningresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btningresarActionPerformed
         String pass = new String(TXTPASS.getPassword());
-        
-        
-        byte intentos_restantes = (byte) (intentos_permitidos-intentos_validos); 
-        
+
+
+        byte intentos_restantes = (byte) (intentos_permitidos-intentos_validos);
+
         if (pass.equals(pinCorrecto)) {
             JOptionPane.showMessageDialog(this, "Bienvenido al sistema académico\nAcceso concedido correctamente","Acceso permitido",JOptionPane.INFORMATION_MESSAGE);
-            
+
             Frm_LoginAcesso menu = new Frm_LoginAcesso();
             menu.setVisible(true);
             this.dispose();
-            
+
         } else {
             intentos_validos++;
             JOptionPane.showMessageDialog(this, "PIN incorrecto, tiene "+intentos_restantes+" intentos restantes.","Acceso denegado",JOptionPane.WARNING_MESSAGE);
@@ -297,14 +297,14 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Ha superado el número de intentos permitidos","Acceso denegado",JOptionPane.ERROR_MESSAGE);
                 System.exit(0);
             }
-            
+
 
         }
     }//GEN-LAST:event_btningresarActionPerformed
 
     private void btn0ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn0ActionPerformed
         String PassActual = String.valueOf(TXTPASS.getPassword());
-            TXTPASS.setText(PassActual+"0" );             
+            TXTPASS.setText(PassActual+"0" );
     }//GEN-LAST:event_btn0ActionPerformed
 
     private void btncloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncloseActionPerformed
@@ -339,7 +339,7 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

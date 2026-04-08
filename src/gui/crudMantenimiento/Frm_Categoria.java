@@ -76,6 +76,7 @@ CategoriaMethod methods;
         BTN_VerCategorias = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         txtnombrecategoria = new javax.swing.JTextField();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
         jScrollPane1 = new javax.swing.JScrollPane();
         JTABLE_Mant_Categoria = new javax.swing.JTable();
         BTN_Nuevo = new javax.swing.JButton();
@@ -93,7 +94,6 @@ CategoriaMethod methods;
         BTN_Back = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -140,6 +140,7 @@ CategoriaMethod methods;
             }
         });
         jPanel1.add(txtnombrecategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 60, 330, 30));
+        jPanel1.add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 60, -1, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 790, 110));
 
@@ -288,8 +289,6 @@ CategoriaMethod methods;
 
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 820, 540));
-
-        pack();
     }// </editor-fold>//GEN-END:initComponents
 
 
@@ -472,7 +471,7 @@ CategoriaMethod methods;
     if (opcion == JOptionPane.YES_OPTION) {
       try {
        // 3. Llamar al método que ejecuta el procedure de desactivación
-        this.methods.downFacultades(codigo);
+        this.methods.desactivarCategoria(codigo);
        // 4. Mostrar mensaje de éxito
         JOptionPane.showMessageDialog(this,"Mesa desactivada correctamente.","Operación exitosa",JOptionPane.INFORMATION_MESSAGE);
        // 5. Actualizar tabla y limpiar campos
@@ -736,6 +735,7 @@ CategoriaMethod methods;
     private javax.swing.JButton BTN_VerCategorias;
     private javax.swing.JTable JTABLE_Mant_Categoria;
     private javax.swing.JTextField TXT_BuscarCategorias;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;

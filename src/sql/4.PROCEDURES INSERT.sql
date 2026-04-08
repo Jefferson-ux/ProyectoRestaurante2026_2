@@ -184,7 +184,7 @@ DELIMITER ;
 
 
 /* ============================================================
-   5. DETALLE_PEDIDO
+   5. USUARIO
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_usuario;
 DELIMITER $$
@@ -244,7 +244,7 @@ DELIMITER ;
 
 
 /* ============================================================
-   6. EMPLEADO
+   6. PEDIDO
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_pedido;
 DELIMITER $$
@@ -469,34 +469,35 @@ CREATE PROCEDURE insertar_detalle_pedido(
     IN p_observacion VARCHAR(500)
 )
 BEGIN
+    -- 1. Validaciones de lógica simple
     IF p_cantidad <= 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Cantidad inválida',
-        MYSQL_ERRNO = 1023;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La cantidad debe ser mayor a cero.', MYSQL_ERRNO = 1023;
+    ELSEIF p_precio_unitario < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El precio no puede ser negativo.', MYSQL_ERRNO = 1024;
+    
+    -- 2. Validación de existencia y estado (La desratización técnica)
+    ELSEIF (SELECT COUNT(*) FROM plato_menu WHERE id_plato_menu = p_id_plato_menu AND estado = 1) = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El plato no existe o no está disponible.', MYSQL_ERRNO = 1025;
+    
+    ELSE
+        -- 3. Inserción limpia
+        INSERT INTO detalle_pedido(
+            id_pedido,
+            id_plato_menu,
+            cantidad,
+            precio_unitario,
+            observacion_detalle
+        )
+        VALUES(
+            p_id_pedido,
+            p_id_plato_menu,
+            p_cantidad,
+            p_precio_unitario,
+            IFNULL(p_observacion, 'Sin observaciones')
+        );
+
+        SELECT 'Detalle agregado con éxito.' AS mensaje;
     END IF;
-
-    IF p_precio_unitario < 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Precio unitario inválido',
-        MYSQL_ERRNO = 1024;
-    END IF;
-
-    INSERT INTO detalle_pedido(
-        id_pedido,
-        id_plato_menu,
-        cantidad,
-        precio_unitario,
-        observacion_detalle
-    )
-    VALUES(
-        p_id_pedido,
-        p_id_plato_menu,
-        p_cantidad,
-        p_precio_unitario,
-        p_observacion
-    );
-
-    SELECT 'Detalle del pedido registrado.' AS mensaje;
 
 END$$
 

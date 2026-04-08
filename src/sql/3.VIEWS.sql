@@ -32,14 +32,19 @@ WHERE estado = 1;
    ============================================================ */
 CREATE OR REPLACE VIEW vista_cliente AS
 SELECT
-    dni_cliente         AS `DNI`,
-    nombre_cliente      AS `Nombre de Cliente`,
-    apellido_cliente    AS `Apellido de Cliente`,
-    correo_cliente      AS `Correo`,
-    telefono_cliente    AS `Teléfono Personal`,
+    id_cliente, -- Lo añadimos para facilitar la búsqueda
+    dni_cliente AS `DNI`,
+    -- Creamos el campo para el ComboBox
+    CONCAT(dni_cliente, ' - ', nombre_cliente, ' ', apellido_cliente) AS `Info_Cliente`,
+    nombre_cliente AS `Nombre de Cliente`,
+    apellido_cliente AS `Apellido de Cliente`,
+    correo_cliente AS `Correo`,
+    telefono_cliente AS `Teléfono Personal`,
     observacion_cliente AS `Observaciones`
 FROM cliente
 WHERE estado = 1;
+
+
 
 
 /* ============================================================
@@ -73,17 +78,24 @@ WHERE
    ============================================================ */
 CREATE OR REPLACE VIEW vista_detalle_pedido AS
 SELECT
-    d.id_detalle 		AS `ID`, 
+    d.id_detalle 		AS `ID detalle`, 
+    p.id_pedido                 AS `ID pedido`,
+    
     pm.nombre_plato         AS `Nombre de Platillo`,
     d.cantidad           AS `Cantidad Pedida`,
     -- Formato de fecha para MySQL
     DATE_FORMAT(p.fecha_pedido, '%d/%m/%Y') AS `Fecha del pedido`,
     -- Formato de moneda para MySQL
-    CONCAT('S/ ', FORMAT(d.precio_unitario, 2)) AS `Precio Unitario`,
-    d.observacion_detalle 		 AS `Observaciones`
+    CONCAT('S/ ', FORMAT(d.precio_unitario, 2)) AS `Precio Formateado`,
+    d.precio_unitario AS `Precio Unitario`,
+    (d.precio_unitario * d.cantidad) AS `Subtotal`,
+    IFNULL(d.observacion_detalle,'Sin Observaciones')   AS `Observaciones`
 FROM detalle_pedido d
 INNER JOIN pedido p      ON d.id_pedido = p.id_pedido
 INNER JOIN plato_menu pm ON d.id_plato_menu = pm.id_plato_menu;
+
+SELECT * FROM vista_detalle_pedido;
+
 
 
 /* ============================================================
@@ -236,20 +248,23 @@ INNER JOIN proveedor pr
 
 
 
-/* vista_reserva */
 CREATE OR REPLACE VIEW vista_reserva AS
 SELECT
-    r.id_reserva 	AS `ID`,
-    r.fecha_registro AS `Fecha de Registro`,
-    TIME_FORMAT(r.fecha_inicio, '%H:%i') AS `Horario de Inicio`,
-    TIME_FORMAT(r.fecha_fin, '%H:%i') AS `Horario de Fin`,
-    r.cantidad_personas AS `Cantidad de Personas`,
+    r.id_reserva     AS `ID`,
+    -- El día que irán a comer (extraído de fecha_inicio)
+    DATE_FORMAT(r.fecha_inicio, '%d/%m/%Y') AS `Día de Reserva`,
+    -- Las horas (como ya las tenías)
+    TIME_FORMAT(r.fecha_inicio, '%H:%i') AS `Entrada`,
+    TIME_FORMAT(r.fecha_fin, '%H:%i')    AS `Salida`,
+    r.cantidad_personas AS `Pax`,
+    m.numero_mesa       AS `Mesa`,
     CONCAT(c.nombre_cliente, ' ', c.apellido_cliente) AS `Cliente`,
-    m.numero_mesa AS `Número de Mesa`
+    -- Dejamos el registro al final como dato informativo
+    DATE_FORMAT(r.fecha_registro, '%d/%m/%Y') AS `Fecha de Registro`
 FROM reserva r
 INNER JOIN cliente c ON r.id_cliente = c.id_cliente
 INNER JOIN mesa m ON r.id_mesa = m.id_mesa
-	WHERE r.estado = 1;
+WHERE r.estado = 1;
 
 
 

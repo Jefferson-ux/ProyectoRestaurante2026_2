@@ -621,7 +621,7 @@ public class Panel_Mesa extends javax.swing.JPanel {
         if (opcion == JOptionPane.YES_OPTION) {
             try {
                 // 3. Llamar al método que ejecuta el procedure de desactivación
-                this.methods.downFacultades(codigo);
+                this.methods.desactivarMesa(codigo);
                 // 4. Mostrar mensaje de éxito
                 JOptionPane.showMessageDialog(this,"Mesa desactivada correctamente.","Operación exitosa",JOptionPane.INFORMATION_MESSAGE);
                 // 5. Actualizar tabla y limpiar campos

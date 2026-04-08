@@ -9,15 +9,12 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
 public class PlatoMenuMethod {
-
     private final Connection conn;
-
     public PlatoMenuMethod() {
          //===========================================//
         //Crear la conexión al iniciar el formulario //
        //===========================================//
            ConnectionDB connection = new ConnectionDB();
-
 
          //=====================================//
         //Verificar que la conexion sea exitosa//
@@ -25,14 +22,12 @@ public class PlatoMenuMethod {
             this.conn = connection.getConnection();
 
             if (connection.getConnection() == null) {
-            JOptionPane.showConfirmDialog(null, "No se puede conectar a la base de datos", "Error de conexión", 1);
+            JOptionPane.showConfirmDialog(null, "No se puede conectar a la base de datos",
+             "Error de conexión", 1);
         }
     }
 
-
-
-
-             //======================================//
+          //======================================//
         // Métodos del Formulario de Mesa - CRUD//
        //======================================//
 
@@ -43,7 +38,6 @@ public class PlatoMenuMethod {
         return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
     }
 
-
        /* SEARCH --> BUSCAR DATOS */
     public ResultSet buscarPlatoMenu(String nombre) throws SQLException{
         String sql = "{CALL buscar_plato_menu(?)}";/*Llamada al procedimiento*/
@@ -52,9 +46,9 @@ public class PlatoMenuMethod {
         return cs.executeQuery();
     }
 
-
        /* INSERT--> AGREGAR DATOS */
-    public void insertarPlatoMenu(String nombre, String descripcion, double precio, int id_categoria) throws SQLException{
+    public void insertarPlatoMenu(String nombre, String descripcion,
+             double precio, int id_categoria) throws SQLException{
         if (existePlatoConNombre(nombre, 0)) {
     throw new IllegalArgumentException("Ya existe un plato con ese nombre en el menú.");
 }
@@ -70,9 +64,9 @@ public class PlatoMenuMethod {
         }
     }
 
-
        /* UPDATE --> ACTUALIZAR DATOS */
-     public void modificarPlatoMenu(int id, String nombre,String descripcion,double precio,int id_categoria) throws SQLException{
+     public void modificarPlatoMenu(int id, String nombre,String descripcion,double precio,
+                int id_categoria) throws SQLException{
          if (existePlatoConNombre(nombre, id)) {
     throw new IllegalArgumentException("Ya existe un plato con ese nombre en el menú.");
 }
@@ -89,40 +83,30 @@ public class PlatoMenuMethod {
 
     }
 
-
-
-
        /* DESACTIVATE --> DESACTIVAR DATOS */
-     public void downFacultades(int id) throws SQLException{
-        String sql = "CALL vera_DesactivarFacultad(?)";/*Llamada al procedimiento*/
+     public void desactivarPlatoMenu(int id) throws SQLException{
+        String sql = "{CALL Desactivar_PlatoMenu(?)}";/*Llamada al procedimiento*/
         try
             (PreparedStatement ps =conn.prepareCall(sql)){
             ps.setInt(1,id);
             ps.executeUpdate();
-            System.out.println("Facultad desactivada");
+            System.out.println("Plato quitado del menú");
         }
     }
 
-
-     
-     
+    /* Método para verificar si un plato ya existe con un nombre específico */
      public boolean existePlatoConNombre(String nombre, int codigoPlato) throws SQLException {
     String sql = "SELECT 1 FROM Plato_Menu "
                + "WHERE LOWER(nombre_plato) = LOWER(?) "
                + "AND id_plato_menu <> ?";
-    
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, nombre.trim());
-        ps.setInt(2, codigoPlato);
-        try (ResultSet rs = ps.executeQuery()) {
-            return rs.next();
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, nombre.trim());
+                ps.setInt(2, codigoPlato);
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next();
+                }
+            }
         }
-    }
-}
-     
-     
-     
-     
 
          //======================================//
         // Métodos de los COMBOBOX - VIEW de FK //

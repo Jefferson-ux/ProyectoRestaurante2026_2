@@ -623,7 +623,33 @@ public class Panel_PlatoMenu extends javax.swing.JPanel {
     }//GEN-LAST:event_BTN_ModificarActionPerformed
 
     private void BTN_DesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_DesactivarActionPerformed
-        // TODO add your handling code here:
+         // 1. Validar que se haya seleccionado una facultad
+        String codStr = txtcodigoplato.getText().trim();
+        if (codStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this,"Seleccione un plato en la tabla para quitarlo del menú.","Campo requerido",JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int codigo = Integer.parseInt(codStr); // Convertir a entero
+        // 2. Confirmar la acción con el usuario
+        int opcion = JOptionPane.showConfirmDialog(this,"¿Está seguro de que desea desactivar este plato?","Confirmar desactivación",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+        if (opcion == JOptionPane.YES_OPTION) {
+            try {
+                // 3. Llamar al método que ejecuta el procedure de desactivación
+                this.methods.desactivarPlatoMenu(codigo);
+                // 4. Mostrar mensaje de éxito
+                JOptionPane.showMessageDialog(this,"Plato desactivado correctamente.","Operación exitosa",JOptionPane.INFORMATION_MESSAGE);
+                // 5. Actualizar tabla y limpiar campos
+                this.MostrarPlatosMenu();
+                // Limpia los campos de texto
+                txtcodigoplato.setText("");
+                //txtprecio.setText("");
+                BTN_Desactivar.setEnabled(false);
+                BTN_Modificar.setEnabled(false);
+            } catch (SQLException ex) {
+                // 6. Captura cualquier error lanzado por el procedure (por SIGNAL)
+                JOptionPane.showMessageDialog(this,"Error al quitar el plato:\n" + ex.getMessage(),"Error de base de datos",JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_BTN_DesactivarActionPerformed
 
 

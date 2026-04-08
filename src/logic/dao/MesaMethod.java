@@ -89,13 +89,13 @@ public class MesaMethod {
 
 
        /* DESACTIVATE --> DESACTIVAR DATOS */
-     public void downFacultades(int id) throws SQLException{
-        String sql = "CALL vera_DesactivarFacultad(?)";/*Llamada al procedimiento*/
+     public void desactivarMesa(int id) throws SQLException{
+        String sql = "{CALL Desactivar_Mesa(?)}";/*Llamada al procedimiento*/
         try 
             (PreparedStatement ps =conn.prepareCall(sql)){
             ps.setInt(1,id);
             ps.executeUpdate();
-            System.out.println("Facultad desactivada");
+            System.out.println("Mesa inhabilitada");
         }   
     }                     
   
