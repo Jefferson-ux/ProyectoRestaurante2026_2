@@ -463,73 +463,63 @@ DROP PROCEDURE IF EXISTS Update_Empleado;
 DELIMITER $$
 
 CREATE PROCEDURE Update_Empleado (
-    IN p_id_empleado            INT,
+    IN p_dni_empleado           CHAR(8),      -- Cambiado de INT a CHAR para tu DNI
     IN p_nombre_empleado        VARCHAR(100),
     IN p_apellido_empleado      VARCHAR(100),
     IN p_fecha_nacimiento       DATE,
-    IN p_fecha_registro         DATE,
     IN p_direccion_empleado     VARCHAR(150),
     IN p_correo_principal       VARCHAR(150),
     IN p_correo_secundario      VARCHAR(150),
-    IN p_telefono_principal     VARCHAR(15),
-    IN p_telefono_secundario    VARCHAR(15),
-    IN p_id_genero              INT
+    IN p_telefono_principal      VARCHAR(15),
+    IN p_telefono_secundario     VARCHAR(15),
+    IN p_id_genero               INT,
+    IN p_observacion_empleado    VARCHAR(500) -- Agregado para coincidir con tu UI
 )
 BEGIN
-
-    -- Validar que el empleado exista
-    IF NOT EXISTS (SELECT 1 FROM empleado WHERE id_empleado = p_id_empleado) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El empleado no existe.';
+    -- 1. Validar que el empleado exista por DNI
+    IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = p_dni_empleado) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El empleado con este DNI no existe.';
     END IF;
 
-    -- Validar que el nuevo correo principal no esté duplicado en otro empleado
+    -- 2. Validar duplicados de correo principal (excluyendo al empleado actual)
     IF EXISTS (
         SELECT 1 FROM empleado 
-        WHERE correo_principal = p_correo_principal AND id_empleado <> p_id_empleado
+        WHERE correo_principal = p_correo_principal AND dni_empleado <> p_dni_empleado
     ) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este correo principal ya está registrado para otro empleado.';
     END IF;
 
-    -- Validar que el nuevo correo secundario no esté duplicado en otro empleado
-    IF p_correo_secundario IS NOT NULL AND EXISTS (
-        SELECT 1 FROM empleado 
-        WHERE correo_secundario = p_correo_secundario AND id_empleado <> p_id_empleado
-    ) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo secundario ya está registrado para otro empleado.';
-    END IF;
-
-    -- Validar formato básico del correo principal (debe contener @ y un punto)
+    -- 3. Validar formato básico de correos
     IF p_correo_principal NOT LIKE '%@%.%' THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Formato de correo principal no válido.';
     END IF;
 
-    -- Validar formato del correo secundario solo si se ha ingresado uno
-    IF p_correo_secundario IS NOT NULL AND p_correo_secundario NOT LIKE '%@%.%' THEN
+    IF p_correo_secundario IS NOT NULL AND p_correo_secundario <> '' AND p_correo_secundario NOT LIKE '%@%.%' THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Formato de correo secundario no válido.';
     END IF;
 
-    -- Validar que Teléfonos no sean iguales
-    IF p_telefono_secundario IS NOT NULL AND p_telefono_principal = p_telefono_secundario THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Telefono Principal y Telefono Secundario no pueden ser iguales.';
+    -- 4. Validar que Teléfonos no sean iguales
+    IF p_telefono_secundario IS NOT NULL AND p_telefono_secundario <> '' AND p_telefono_principal = p_telefono_secundario THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El Teléfono Principal y Secundario no pueden ser iguales.';
     END IF;
 
-    -- Actualización de los datos del empleado
+    -- 5. Actualización de los datos
     UPDATE empleado
     SET
         nombre_empleado = p_nombre_empleado,
         apellido_empleado = p_apellido_empleado,
         fecha_nacimiento = p_fecha_nacimiento,
-        fecha_registro = p_fecha_registro,    
+        -- NOTA: No actualizamos fecha_registro para evitar errores de truncamiento
         direccion_empleado = p_direccion_empleado,
+        correo_principal = p_correo_principal,
+        correo_secundario = p_correo_secundario,
         telefono_principal = p_telefono_principal,
         telefono_secundario = p_telefono_secundario,
-        correo_principal = p_correo_principal,
-        correo_secundario = p_correo_secundario, 
-        id_genero = p_id_genero
-    WHERE id_empleado = p_id_empleado;
+        id_genero = p_id_genero,
+        observacion_empleado = p_observacion_empleado
+    WHERE dni_empleado = p_dni_empleado;
 
 END$$
-
 DELIMITER ;
 
 CALL Update_Empleado(

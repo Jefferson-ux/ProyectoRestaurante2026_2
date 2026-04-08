@@ -388,6 +388,7 @@ DELIMITER ;
 /* ============================================================
    8. EMPLEADO
    ============================================================ */
+USE db_restaurant;
 DROP PROCEDURE IF EXISTS insertar_empleado;
 DELIMITER $$
 
@@ -396,17 +397,17 @@ CREATE PROCEDURE insertar_empleado(
     IN p_nombre_empleado        VARCHAR(255),
     IN p_apellido_empleado      VARCHAR(255),
     IN p_fecha_nacimiento       DATE,
-    IN p_fecha_registro         DATE,
     IN p_direccion_empleado     VARCHAR(255),
     IN p_correo_principal       VARCHAR(255),
     IN p_correo_secundario      VARCHAR(255),
-    IN p_telefono_principal     VARCHAR(20),
-    IN p_telefono_secundario    VARCHAR(20),
-    IN p_id_genero              INT
+    IN p_telefono_principal      VARCHAR(20),
+    IN p_telefono_secundario     VARCHAR(20),
+    IN p_id_genero               INT,
+    IN p_observacion_empleado    VARCHAR(500)
 )
 BEGIN
 
-    -- 1. Validar que el DNI no exista (Corregido paréntesis y typos)
+    -- 1. Validar que el DNI no exista
     IF EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = p_dni_empleado) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este DNI ya está registrado';
     END IF;
@@ -432,15 +433,19 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Teléfono Principal y Secundario no pueden ser iguales.';
     END IF;
 
-    -- 6. Inserción (Corregida cantidad de columnas y valores)
+    -- 6. Inserción
     INSERT INTO empleado (
-        dni_empleado, nombre_empleado, apellido_empleado, fecha_nacimiento, fecha_registro,
-        direccion_empleado, correo_principal, correo_secundario, telefono_principal, 
-        telefono_secundario, id_genero, estado
+        dni_empleado, nombre_empleado, apellido_empleado, fecha_nacimiento, 
+        fecha_registro, -- Esta es la columna en tu tabla
+        direccion_empleado, correo_principal, correo_secundario, 
+        telefono_principal, telefono_secundario, observacion_empleado, 
+        id_genero, estado
     ) VALUES (
         p_dni_empleado, p_nombre_empleado, p_apellido_empleado, p_fecha_nacimiento, 
-        p_fecha_registro, p_direccion_empleado, p_correo_principal, p_correo_secundario, 
-        p_telefono_principal, p_telefono_secundario, p_id_genero, 1
+        CURDATE(), -- <--- Aquí usamos la función del sistema
+        p_direccion_empleado, p_correo_principal, p_correo_secundario, 
+        p_telefono_principal, p_telefono_secundario, p_observacion_empleado, 
+        p_id_genero, 1
     );
 
 END$$
@@ -452,7 +457,7 @@ CALL insertar_empleado(
     'Av. Las Palmeras 123', 'juan.perez@gmail.com', NULL, '987654321', NULL, 1                        
 );
 
-
+ALTER TABLE empleado ADD COLUMN IF NOT EXISTS observacion_empleado VARCHAR(500);
 /* ============================================================
    9. DETALLE PEDIDO
    Valida que la cantidad sea mayor a 0.

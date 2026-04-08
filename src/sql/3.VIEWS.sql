@@ -32,14 +32,15 @@ WHERE estado = 1;
    ============================================================ */
 CREATE OR REPLACE VIEW vista_cliente AS
 SELECT
-    dni_cliente         AS `DNI`,
-    nombre_cliente      AS `Nombre de Cliente`,
-    apellido_cliente    AS `Apellido de Cliente`,
-    correo_cliente      AS `Correo`,
-    telefono_cliente    AS `Teléfono Personal`,
-    observacion_cliente AS `Observaciones`
-FROM cliente
-WHERE estado = 1;
+    c.id_cliente            AS `ID Cliente`,
+    c.dni_cliente           AS `DNI`,
+    c.nombre_cliente        AS `Nombre de Cliente`,
+    c.apellido_cliente      AS `Apellido de Cliente`,
+    c.correo_cliente        AS `Correo`,
+    c.telefono_cliente      AS `Teléfono Personal`,
+    c.observacion_cliente   AS `Observaciones`
+FROM cliente c
+WHERE c.estado_cliente = 1;
 
 
 /* ============================================================
@@ -146,9 +147,9 @@ FROM genero;
 /* vista_mesa */
 CREATE OR REPLACE VIEW vista_mesa AS
 SELECT
-    id_mesa AS `ID`,
-  numero_mesa   AS `Número de Mesa`,
-  capacidad     AS `Capacidad`
+    id_mesa         AS `ID`,
+    numero_mesa     AS `Número de Mesa`,
+    capacidad       AS `Capacidad`
 FROM mesa
 WHERE estado = 1;
 

@@ -20,7 +20,6 @@ import java.util.Date;
 import javax.swing.JFileChooser;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
-import logic.dao.MesaMethod;
 //Metodo de proveedor
 import logic.dao.ProveedorMethod;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -719,7 +718,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
             BTN_VerProveedor.setEnabled(false);
         }
     
-     public void BuscarProveedorPorNombre() {
+    public void BuscarProveedorPorNombre() {
         modeloTablaProveedor.setRowCount(0);
         String nombre = TXT_BuscarProveedor.getText().trim();
         try {

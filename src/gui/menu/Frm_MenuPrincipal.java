@@ -127,8 +127,8 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
         producto_content = new javax.swing.JPanel();
         proveedor_producto_content = new javax.swing.JPanel();
         proveedor_content = new javax.swing.JPanel();
-        reserva_content = new javax.swing.JPanel();
         jPanel12 = new javax.swing.JPanel();
+        reserva_content = new javax.swing.JPanel();
         jMenuBar2 = new javax.swing.JMenuBar();
         menuArchivo1 = new javax.swing.JMenu();
         itemSalir1 = new javax.swing.JMenuItem();
@@ -263,11 +263,11 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
         proveedor_content.setLayout(new java.awt.GridBagLayout());
         jTabbedPanePrincipal.addTab("", proveedor_content);
 
-        reserva_content.setLayout(new java.awt.GridBagLayout());
-        jTabbedPanePrincipal.addTab("", reserva_content);
-
         jPanel12.setLayout(new java.awt.GridBagLayout());
         jTabbedPanePrincipal.addTab("", jPanel12);
+
+        reserva_content.setLayout(new java.awt.GridBagLayout());
+        jTabbedPanePrincipal.addTab("", reserva_content);
 
         panelfondo.add(jTabbedPanePrincipal, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 1140, 690));
 

@@ -10,7 +10,6 @@ import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import connection.ConnectionDB;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.sql.ResultSet;
@@ -20,68 +19,56 @@ import java.util.Date;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+
 //Metodo de Empleado
 import logic.dao.EmpleadoMethod;
 //Metodo de genero para el jcombobox
-import logic.dao.GeneroMethod;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class Frm_Empleado extends javax.swing.JFrame {
+
     //Modelo para mostrar datos en ta tabla
     DefaultTableModel modeloTablaEmpleado = new DefaultTableModel();
     
     //Objeto conexión a la base de datos
-    EmpleadoMethod PR = new EmpleadoMethod();
-    GeneroMethod UM = new GeneroMethod();
-    ConnectionDB CBD = new ConnectionDB();
-
-    //Variable para comprobar cambios en mdoificar
-    private String dniOriginal;
-    private String nombreOriginal;
-    private String apellidoOriginal;
-    private String fechanacOriginal;
-    private String fecharegOriginal;
-    private String direccionOriginal;
-    private String correoOriginal;
-    private String telefonoOriginal;
-    private String generoOriginal = "";
+    EmpleadoMethod EM = new EmpleadoMethod();
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Frm_Empleado.class.getName());
-
     public Frm_Empleado() {
         initComponents();
-        
-        //Posicion
         this.setLocationRelativeTo(null);
-               
-        //definir los encabezados de la tabla
-        String titulos[]={"DNI","Nombre del empleado","Apellidos del empleado","Fecha de nacimiento","Fecha de registro", "direccion","correo", "telefono", "genero"};
+
+        this.EM = new EmpleadoMethod();
+            
+        // Definir los encabezados de la tabla
+        String titulos[] = {"ID", "DNI", "Nombres", "Apellidos", "F. de Nac", "F. de Regitro", "Dirección", 
+        "Correo Principal", "Correo Secundario", "Telefono Principal", "Telefono Secundario", "Genero", "Observaciones"};
         
-        //Asignar los tiutlos al modelo
+        // Asignar los titulos al modelo
         modeloTablaEmpleado.setColumnIdentifiers(titulos);
         
-        //Establecer el modelo a la JTable
+        // Establecer el modelo de la JTable
         JTABLE_Mant_Empleado.setModel(modeloTablaEmpleado);
-        
-        // Ocultar columnas sensibles o internas: solo visual, no afecta modelo
-        // Ocultar columna "id_empleado"
+    
+        // Ocultar la columna ID (Índice 0) de forma segura
         JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setMinWidth(0);
         JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setMaxWidth(0);
         JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setWidth(0);
-
-        // Ocultar columna "Correo Secundario"
+        
+        // Ocultar la columna ID (Índice 0) de forma segura
         JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setMinWidth(0);
         JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setMaxWidth(0);
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setWidth(0);   
-
-    // Ocultar columna "Observacion"
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(11).setMinWidth(0);
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(11).setMaxWidth(0);
-        JTABLE_Mant_Empleado.getColumnModel().getColumn(11).setWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setWidth(0);       
+    
+        // Ocultar la columna ID (Índice 0) de forma segura
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(10).setMinWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(10).setMaxWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(10).setWidth(0);      
+    
+        listarEmpleados();
+        llenarComboGenero();
     }
-
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -92,7 +79,6 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         txtcodigoempleado = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        txtfechanacimiento = new javax.swing.JTextField();
         jComboBox_genero = new javax.swing.JComboBox<>();
         txtNombreEmpleado = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
@@ -114,6 +100,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
         txttelefono1 = new javax.swing.JTextField();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
         jScrollPane1 = new javax.swing.JScrollPane();
         JTABLE_Mant_Empleado = new javax.swing.JTable();
         BTN_EXCEL = new javax.swing.JButton();
@@ -163,18 +150,6 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jLabel6.setText("CODIGO");
         jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 140, -1));
 
-        txtfechanacimiento.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        txtfechanacimiento.setForeground(new java.awt.Color(0, 0, 204));
-        txtfechanacimiento.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtfechanacimiento.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        txtfechanacimiento.addActionListener(this::txtfechanacimientoActionPerformed);
-        txtfechanacimiento.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtfechanacimientoKeyTyped(evt);
-            }
-        });
-        jPanel1.add(txtfechanacimiento, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, 140, 30));
-
         jComboBox_genero.addActionListener(this::jComboBox_generoActionPerformed);
         jPanel1.add(jComboBox_genero, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 250, 120, 30));
 
@@ -221,7 +196,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel9.setText("Fecha de Registro");
-        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 90, 130, -1));
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 90, 130, -1));
 
         txtfecharegistro.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txtfecharegistro.setForeground(new java.awt.Color(0, 0, 204));
@@ -232,7 +207,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
                 txtfecharegistroKeyTyped(evt);
             }
         });
-        jPanel1.add(txtfecharegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 120, 140, 30));
+        jPanel1.add(txtfecharegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 120, 140, 30));
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel10.setText("obervaciones");
@@ -247,7 +222,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
                 txtdireccionKeyTyped(evt);
             }
         });
-        jPanel1.add(txtdireccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 120, 190, 30));
+        jPanel1.add(txtdireccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 120, 190, 30));
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel11.setText("Correo2");
@@ -324,6 +299,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jLabel16.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel16.setText("Telefono");
         jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 170, 100, -1));
+        jPanel1.add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 122, 170, 30));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 730, 300));
 
@@ -429,75 +405,12 @@ public class Frm_Empleado extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtfechanacimientoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtfechanacimientoKeyTyped
- 
-    }//GEN-LAST:event_txtfechanacimientoKeyTyped
-
     private void txtNombreEmpleadoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNombreEmpleadoKeyTyped
  
     }//GEN-LAST:event_txtNombreEmpleadoKeyTyped
 
     private void JTABLE_Mant_EmpleadoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTABLE_Mant_EmpleadoMouseClicked
-        int filaSeleccionada = JTABLE_Mant_Empleado.getSelectedRow();
-        BTN_Modificar.setEnabled(true);
-        BTN_Cambiar_Estado.setEnabled(true);
-        BTN_Guardar.setEnabled(false);
-        BTN_Cancel.setVisible(false);
-        BTN_Cancel.setEnabled(false);
-        BTN_VerEmpleados.setEnabled(false);
-
-        if (filaSeleccionada != -1) {
-            // Obtener los datos de la fila seleccionada
-            String dni= JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 0).toString().trim();
-            String nombres = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 1).toString().trim();
-            String apellidos = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 4).toString().trim();
-            String fechanacimiento = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 6).toString().trim();
-            String fecharegistro = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 5).toString().trim();
-            String direccion = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 2).toString().trim();
-            String correo = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 2).toString().trim();
-            String telefono = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 2).toString().trim();
-            String genero = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 2).toString().trim();
-            
-            
-            // Mostrar en los controles
-            txtcodigoempleado.setText(dni);
-            txtNombreEmpleado.setText(nombres);
-            txtApellidoEmpleado.setText(apellidos);
-            txtfechanacimiento.setText(fechanacimiento);
-            txtfecharegistro.setText(fecharegistro);
-            txtdireccion.setText(direccion);
-            txtcorreo2.setText(correo);
-            txttelefono2.setText(telefono);
-
-            // Guardar valores originales para comparación
-            dniOriginal = dni;
-            nombreOriginal = nombres;
-            apellidoOriginal = apellidos;
-            fechanacOriginal = fechanacimiento;
-            fecharegOriginal = fecharegistro;
-            direccionOriginal = direccion;
-            correoOriginal = correo;
-            telefonoOriginal = telefono;
-            generoOriginal = genero;
-
-            // Buscar coincidencia en el ComboBox ignorando mayúsculas
-            boolean generoBD = false;
-            for (int i = 0; i < jComboBox_genero.getItemCount(); i++) {
-                String item = jComboBox_genero.getItemAt(i).trim();
-                if (item.equalsIgnoreCase(genero)) {
-                    jComboBox_genero.setSelectedIndex(i);
-                    generoBD = true;
-                    break;
-                }
-            }
-    
-            // 2. Convertimos la letra al texto que tiene tu ComboBox
-            if (!generoBD) {
-                JOptionPane.showMessageDialog(this,
-                    "No se encontró el genero en la lista del combo.",
-                    "Genero no encontrada", JOptionPane.WARNING_MESSAGE);
-            }
-        }
+       
     }//GEN-LAST:event_JTABLE_Mant_EmpleadoMouseClicked
 
     private void BTN_EXCELActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_EXCELActionPerformed
@@ -558,57 +471,21 @@ public class Frm_Empleado extends javax.swing.JFrame {
     }//GEN-LAST:event_TXT_BuscarEmpleadosActionPerformed
 
     private void TXT_BuscarEmpleadosKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TXT_BuscarEmpleadosKeyReleased
-        try {
-            String texto = TXT_BuscarEmpleados.getText().trim();
-            // Si el campo está vacio, listar todos
-            if (texto.isEmpty()) {
-                listarEmpleados();
-                return;
-            }
-            // Limpiar la tabla
-            modeloTablaEmpleado.setRowCount(0);
-            
-            ResultSet rs = PR.buscarEmpleados(texto);
-            
-            boolean hayResultados = false;
-            while (rs.next()) {
-            hayResultados = true;
-            Object[] fila = {
-                rs.getInt("id_empleado"),
-                rs.getString("dni_empleado"),
-                rs.getString("apellido_empleado"),
-                rs.getString("nombre_empleado"),
-                rs.getDate("fecha_nacimiento"),
-                rs.getString("direccion_empleado"),
-                rs.getString("telefono_principal"),
-                rs.getString("correo_principal"),
-                rs.getString("nombre_genero") 
-            };
-            modeloTablaEmpleado.addRow(fila);
-        }
-        if (!hayResultados) {
-             // Lógica para manejar búsqueda sin éxito
-        }
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error al filtrar empleados: " + e.getMessage(), 
-                "Error", JOptionPane.ERROR_MESSAGE); //
-    }
+        this.buscarEmpleadoPorNombre();
     }//GEN-LAST:event_TXT_BuscarEmpleadosKeyReleased
 
     private void BTN_Cerrar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_Cerrar1ActionPerformed
-        int confirmacion = JOptionPane.showConfirmDialog(this, 
-        "¿Estás seguro de que deseas cerrar el formulario?", 
-        "Confirmar salida", 
-        JOptionPane.YES_NO_OPTION);
-
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+                "¿Estás seguro de que deseas cerrar el formulario?",
+                "Confirmar salida",
+                JOptionPane.YES_NO_OPTION);
         if (confirmacion == JOptionPane.YES_OPTION) {
             try {
-            // Cerrar conexión si tienes un método cerrarConexion()
-            CBD.closeConnection();
+                // Cerrar conexión si tienes un método cerrarConexion()
+                //TODO --> conexion.cerrarConexion();
             } catch (Exception e) {
-            System.err.println("Error al cerrar la conexión: " + e.getMessage());
+                System.err.println("Error al cerrar la conexión: " + e.getMessage());
             }
-
             // Cierra el formulario actual
             dispose(); // o this.dispose() si estás dentro del formulario
         }
@@ -696,15 +573,11 @@ public class Frm_Empleado extends javax.swing.JFrame {
     }//GEN-LAST:event_BTN_PDFActionPerformed
 
     private void BTN_VerEmpleadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerEmpleadosActionPerformed
-        this.listarEmpleados();
+        listarEmpleados();
     }//GEN-LAST:event_BTN_VerEmpleadosActionPerformed
 
     private void BTN_Cambiar_EstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_Cambiar_EstadoActionPerformed
-        
-    }//GEN-LAST:event_BTN_Cambiar_EstadoActionPerformed
-
-    private void BTN_ModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ModificarActionPerformed
-        // 1. Obtener la fila seleccionada de tu JTable de empleados
+             // 1. Obtener la fila seleccionada de tu JTable de empleados
     int filaSeleccionada = JTABLE_Mant_Empleado.getSelectedRow(); 
 
     if (filaSeleccionada == -1) {
@@ -725,7 +598,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
         try {
             // 4. Llamar al método de tu clase lógica PR
             // Nota: Asegúrate de tener el método 'darDeBajaEmpleado' en EmpleadoMethod.java
-            PR.darDeBajaEmpleado(codigoEmpleado); 
+            EM.darDeBajaEmpleado(codigoEmpleado); 
 
             JOptionPane.showMessageDialog(this, "✅ Empleado dado de baja correctamente.");
             
@@ -740,6 +613,74 @@ public class Frm_Empleado extends javax.swing.JFrame {
                 "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    }//GEN-LAST:event_BTN_Cambiar_EstadoActionPerformed
+
+    private void BTN_ModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ModificarActionPerformed
+        try {
+    // 1. Obtener datos de los campos de texto
+    String dni = txtdniempleado1.getText().trim(); 
+    String nombres = txtNombreEmpleado.getText().trim();
+    String apellidos = txtApellidoEmpleado.getText().trim();
+    java.util.Date fechaNacimiento = jDateChooser1.getDate();
+    String direccion = txtdireccion.getText().trim();
+    String correo1 = txtcorreo1.getText().trim();
+    String correo2 = txtcorreo2.getText().trim();
+    String telefono1 = txttelefono1.getText().trim();
+    String telefono2 = txttelefono2.getText().trim();
+    String generoSeleccionado = jComboBox_genero.getSelectedItem().toString();
+    String observacion = txtobservaciones.getText().trim();
+
+    // 2. Validar campos obligatorios
+    if (dni.isEmpty() || nombres.isEmpty() || apellidos.isEmpty() || direccion.isEmpty() || correo1.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos obligatorios.", "Validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // 3. Validar formato de DNI (8 dígitos)
+    if (dni.length() != 8 || !dni.matches("\\d+")) {
+        JOptionPane.showMessageDialog(this, "El DNI debe tener exactamente 8 números.", "Validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // 4. Formatear la fecha para MySQL
+    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+    String fechaFormateada = (fechaNacimiento != null) ? sdf.format(fechaNacimiento) : null;
+
+    // 5. Obtener ID del género desde la lógica
+    int idGenero = EM.obtenerIdGenero(generoSeleccionado);
+
+    // 6. Confirmación de la operación
+    int confirmar = JOptionPane.showConfirmDialog(this, "¿Está seguro de actualizar los datos de este empleado?", "Confirmar Actualización", JOptionPane.YES_NO_OPTION);
+
+    if (confirmar == JOptionPane.YES_OPTION) {
+        // 7. Llamada al método de la capa lógica
+        EM.actualizarEmpleado(
+            dni, 
+            nombres, 
+            apellidos, 
+            fechaFormateada, 
+            direccion, 
+            telefono1, 
+            telefono2, 
+            correo1, 
+            correo2, 
+            idGenero, 
+            observacion
+        );
+
+        // 8. Actualizar la interfaz
+        listarEmpleados(); 
+        limpiarCampos();
+        JOptionPane.showMessageDialog(this, "Empleado actualizado con éxito.");
+    }
+
+} catch (IllegalArgumentException e) {
+    // Captura errores de validación de correo o duplicados
+    JOptionPane.showMessageDialog(this, e.getMessage(), "Atención", JOptionPane.WARNING_MESSAGE);
+} catch (SQLException e) {
+    // Captura errores de conexión o del procedimiento almacenado
+    JOptionPane.showMessageDialog(this, "Error en la base de datos: " + e.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
+}
     }//GEN-LAST:event_BTN_ModificarActionPerformed
 
     private void BTN_GuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BTN_GuardarMouseClicked
@@ -748,55 +689,115 @@ public class Frm_Empleado extends javax.swing.JFrame {
 
     private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
     try {
-    String dni = txtdniempleado1.getText().trim();
-    String apellidos = txtApellidoEmpleado.getText().trim();
-    String nombres = txtNombreEmpleado.getText().trim();
-    String direccion = txtdireccion.getText().trim();
-    String telefono = txttelefono1.getText().trim();
-    String correo = txtcorreo1.getText().trim();
-    String generoSeleccionado = jComboBox_genero.getSelectedItem().toString();
+        String dni = txtdniempleado1.getText().trim();
+        String nombres = txtNombreEmpleado.getText().trim();
+        String apellidos = txtApellidoEmpleado.getText().trim();
+        java.util.Date fechaNacimiento = jDateChooser1.getDate();
+        String direccion = txtdireccion.getText().trim();
+        String correo1 = txtcorreo1.getText().trim();
+        String correo2 = txtcorreo2.getText().trim();
+        String telefono1 = txttelefono1.getText().trim();
+        String telefono2 = txttelefono2.getText().trim();
+        String generoSeleccionado = jComboBox_genero.getSelectedItem().toString();
+        String observacion = txtobservaciones.getText().trim();
 
-    // 2. Validaciones de campos obligatorios
-    if (dni.isEmpty() || apellidos.isEmpty() || nombres.isEmpty() || correo.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Complete los campos obligatorios (*).", 
-            "Validación", JOptionPane.WARNING_MESSAGE);
+    // Validaciones de campos obligatorios
+    if (dni.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Ingrese el DNI del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
+      txtdniempleado1.requestFocus();
+      return;
+    }
+    if (nombres.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Ingrese los nombres del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
+      txtNombreEmpleado.requestFocus();
+      return;
+    }
+    if (apellidos.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Ingrese los apellidos del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
+      txtApellidoEmpleado.requestFocus();
+      return;
+    }
+    if (direccion.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Ingrese la direccion del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
+      txtdireccion.requestFocus();
+      return;
+    }
+    if (correo1.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Ingrese el correo del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
+      txtcorreo1.requestFocus();
+      return;
+    }    
+    if (telefono1.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Ingrese el telefono del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
+      txttelefono1.requestFocus();
+      return;
+    }  
+    if (fechaNacimiento == null) {
+        JOptionPane.showMessageDialog(this, "Seleccione una fecha de nacimiento");
         return;
     }
     
-    int idGenero = PR.obtenerIdGenero(generoSeleccionado);
-    
-    if (idGenero == -1) {
-        JOptionPane.showMessageDialog(this, "Género no válido.");
+    // Validacion rapida de DNI para evitar error por tipo
+    if (dni.length() != 8 || !dni.matches("\\d+")) {
+        JOptionPane.showMessageDialog(this, "Ingrese un DNI válido de 8 digitos");
         return;
-    } 
-
-    // 4. Ejecutar Inserción o Actualización
+    }
+    
+    // Validar teléfonos
+    if(!telefono2.isEmpty() && telefono1.equals(telefono2)) {
+        JOptionPane.showMessageDialog(this, "Telefono 1 y Telefono 2 no pueden ser"
+            + "iguales.", "Validacion", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    
+    // Obtener el codigo del genero
+    int id_genero = EM.obtenerIdGenero(generoSeleccionado);
+    if (id_genero == -1) {
+        JOptionPane.showMessageDialog(this, "El genero seleccionado no es valido");
+        return;
+    }
+    
+    // Convertir fecha a formato SQL
+    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+    String fechaFormateada = sdf.format(fechaNacimiento);
+    
+    // Intentar registrar (Validacion completa esta en el metodo)
     if (txtcodigoempleado.getText().isEmpty()) {
-        // INSERTAR: Pasamos null en el parámetro de fecha
-        PR.insertarEmpleado(dni, nombres, apellidos, null, 
-                           direccion, telefono, null, correo, idGenero);
-    } else {
-        // ACTUALIZAR: Pasamos null en el parámetro de fecha
-        int idEmpleado = Integer.parseInt(txtcodigoempleado.getText());
-        PR.actualizarEmpleado(idEmpleado, nombres, apellidos, null,
-                             direccion, correo, telefono, null, idGenero);
+        
+        EM.insertarEmpleado(
+            dni,
+            nombres,
+            apellidos,
+            fechaFormateada,
+            direccion,
+            telefono1,
+            telefono2,
+            correo1,
+            correo2,
+            id_genero,
+            observacion
+        );
+
+        JOptionPane.showMessageDialog(this, "Empleado registrado correctamente.");
+        listarEmpleados();
+        limpiarCampos();
+        } else {
     }
 
-    // 5. Refrescar interfaz y limpiar cajas
-    listarEmpleados();
-    limpiarCampos();
-
-} catch (IllegalArgumentException ex) {
-    JOptionPane.showMessageDialog(this, ex.getMessage(), "Atención", JOptionPane.WARNING_MESSAGE);
-} catch (SQLException ex) {
-    JOptionPane.showMessageDialog(this, "Error de SQL: " + ex.getMessage(), 
+    } catch (IllegalArgumentException ex) {
+    JOptionPane.showMessageDialog(this, ex.getMessage(), "Validacion", JOptionPane.WARNING_MESSAGE);
+    
+    } catch (SQLException ex) {
+    JOptionPane.showMessageDialog(this, "Error al guardar empleado " + ex.getMessage(), 
         "Error", JOptionPane.ERROR_MESSAGE);
-}
+    }
     }//GEN-LAST:event_BTN_GuardarActionPerformed
 
     private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
-        limpiarCampos();
+        this.limpiarCampos();
         BTN_Guardar.setEnabled(true);
+        BTN_Modificar.setEnabled(false);
+        
     }//GEN-LAST:event_BTN_NuevoActionPerformed
 
     private void BTN_CancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_CancelActionPerformed
@@ -821,10 +822,6 @@ public class Frm_Empleado extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtApellidoEmpleadoKeyTyped
 
-    private void txtfechanacimientoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtfechanacimientoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtfechanacimientoActionPerformed
-
     private void txtfecharegistroKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtfecharegistroKeyTyped
         // TODO add your handling code here:
     }//GEN-LAST:event_txtfecharegistroKeyTyped
@@ -838,7 +835,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
     }//GEN-LAST:event_txtcorreo2KeyTyped
 
     private void jComboBox_generoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_generoActionPerformed
-        
+    
 
 
     }//GEN-LAST:event_jComboBox_generoActionPerformed
@@ -893,6 +890,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
     private javax.swing.JTable JTABLE_Mant_Empleado;
     private javax.swing.JTextField TXT_BuscarEmpleados;
     private javax.swing.JComboBox<String> jComboBox_genero;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -920,7 +918,6 @@ public class Frm_Empleado extends javax.swing.JFrame {
     private javax.swing.JTextField txtcorreo2;
     private javax.swing.JTextField txtdireccion;
     private javax.swing.JTextField txtdniempleado1;
-    private javax.swing.JTextField txtfechanacimiento;
     private javax.swing.JTextField txtfecharegistro;
     private javax.swing.JTextField txtobservaciones;
     private javax.swing.JTextField txttelefono1;
@@ -930,29 +927,30 @@ public class Frm_Empleado extends javax.swing.JFrame {
     //método para mostrar registros en el jtable
     private void listarEmpleados() {
         try {
-            // 1. Configuración de la tabla
             JTABLE_Mant_Empleado.setAutoCreateRowSorter(true);
+            // Limpiar la tabla antes de volver a llenarla
             modeloTablaEmpleado.setRowCount(0);
 
-            // 2. Obtener datos
-            ResultSet rs = PR.listarEmpleados();
+            // Llamar al método ya implementado en la clase de conexión
+            ResultSet rs = this.EM.listarEmpleados();
 
+            // Recorrer los resultados y agregarlos a la tabla
             while (rs.next()) {
-            Object fila[] = {
-                rs.getInt("Codigo de Empleado"),
-                rs.getString("DNI"),
-                rs.getString("Nombre de Empleado"),
-                rs.getString("Apellido de Empleado"), 
-                rs.getString("Fecha de Nacimiento"), 
-                rs.getString("Fecha de Registro"),    
-                rs.getString("Lugar de Residencia"),    
-                rs.getString("Correo Principal"),    
-                rs.getString("Correo Secundario"),    
-                rs.getString("Teléfono Principal"),    
-                rs.getString("Teléfono Secundario"),    
-                rs.getInt("Género"),
-                rs.getString("Observaciones"),   
-            };
+                Object fila[] = {
+                    rs.getInt("Codigo de Empleado"),
+                    rs.getString("DNI"),
+                    rs.getString("Nombre de Empleado"),
+                    rs.getString("Apellido de Empleado"), 
+                    rs.getDate("Fecha de Nacimiento"), 
+                    rs.getString("Fecha de Registro"),    
+                    rs.getString("Lugar de Residencia"),    
+                    rs.getString("Correo Principal"),    
+                    rs.getString("Correo Secundario"),    
+                    rs.getString("Teléfono Principal"),    
+                    rs.getString("Teléfono Secundario"),    
+                    rs.getString("Género"),
+                    rs.getString("Observaciones"),   
+                };
                 modeloTablaEmpleado.addRow(fila);
             }
 
@@ -968,7 +966,8 @@ public class Frm_Empleado extends javax.swing.JFrame {
         txtdniempleado1.setText("");             
         txtNombreEmpleado.setText("");         
         txtApellidoEmpleado.setText("");       
-        txtfechanacimiento.setText(null);  
+        jDateChooser1.setDate(null);  
+        txtfecharegistro.setText(null);  
         txtdireccion.setText("");       
         txtcorreo1.setText("");         
         txtcorreo2.setText("");         
@@ -976,5 +975,58 @@ public class Frm_Empleado extends javax.swing.JFrame {
         txttelefono2.setText("");       
         jComboBox_genero.setSelectedIndex(0); 
         txtobservaciones.setText(""); 
-    }       
+    }
+    
+    public void buscarEmpleadoPorNombre() {
+        modeloTablaEmpleado.setRowCount(0);
+        String nombre = TXT_BuscarEmpleados.getText().trim();
+        try {
+            //Llama al método que retorna los datos de Mesaes
+            ResultSet rs = this.EM.buscarEmpleados(nombre);
+            while (rs.next()) {
+                Object[] fila = {
+                    rs.getInt("Codigo de Empleado"),
+                    rs.getString("DNI"),
+                    rs.getString("Nombre de Empleado"),
+                    rs.getString("Apellido de Empleado"), 
+                    rs.getDate("Fecha de Nacimiento"), 
+                    rs.getString("Fecha de Registro"),    
+                    rs.getString("Lugar de Residencia"),    
+                    rs.getString("Correo Principal"),    
+                    rs.getString("Correo Secundario"),    
+                    rs.getString("Teléfono Principal"),    
+                    rs.getString("Teléfono Secundario"),    
+                    rs.getString("Género"),
+                    rs.getString("Observaciones"),   
+                };
+                modeloTablaEmpleado.addRow(fila);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al buscar Mesaes:\n" + e.getMessage(),
+                    "Error de búsqueda", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    // Dentro de Frm_Empleado.java
+
+    private void llenarComboGenero() {
+    try {
+        // 1. Limpiamos por seguridad
+        jComboBox_genero.removeAllItems(); 
+        
+        // 2. Pedimos la lista a la lógica (EmpleadoMethod)
+        // Usamos java.util.List para evitar conflictos con otras librerías
+        java.util.List<String> lista = EM.listarGeneros(); 
+        
+        // 3. Agregamos un ítem inicial neutro
+        jComboBox_genero.addItem("Seleccione...");
+        
+        // 4. Llenamos con los datos de la DB
+        for (String genero : lista) {
+            jComboBox_genero.addItem(genero);
+        }
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Error al llenar combo: " + ex.getMessage());
+    }
+}
 }

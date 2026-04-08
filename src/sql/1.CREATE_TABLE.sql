@@ -59,7 +59,6 @@ CREATE TABLE mesa (
     CHECK (estado IN (0,1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Mesas del restaurante';
 
-
 CREATE TABLE cliente (
     id_cliente INT AUTO_INCREMENT PRIMARY KEY,
     dni_cliente CHAR(8) NOT NULL UNIQUE,
@@ -68,8 +67,8 @@ CREATE TABLE cliente (
     correo_cliente VARCHAR(150),
     telefono_cliente VARCHAR(15),
     observacion_cliente VARCHAR(500),
-    estado TINYINT DEFAULT 1 NOT NULL,
-    CHECK (estado IN (0,1))
+    estado_cliente TINYINT DEFAULT 1 NOT NULL,
+    CHECK (estado_cliente IN (0,1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Clientes del sistema';
 
 
