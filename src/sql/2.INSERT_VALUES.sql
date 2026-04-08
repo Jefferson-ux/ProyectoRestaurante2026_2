@@ -397,63 +397,64 @@ INSERT INTO unidad_medida (nombre_unidad_medida, abreviatura) VALUES
 
 
 /* ================================================ */
-/*  PROVEEDOR (7)                                   */
+/* PROVEEDOR (7) - ACTUALIZADO CON OBS Y ESTADO     */
 /* ================================================ */
-INSERT INTO proveedor ( ruc, razon_social , telefono_proveedor, correo_proveedor, direccion_proveedor) VALUES
-    ('20100254785','Distribuidora El Campo SAC',  '123456789',  'Imprent@gmail.com',         'Av. Los Libertadores 234, Lima'),
-    ('20304512896','Insumos del Norte EIRL',      '1093647837', 'GranjaUltralinda@gmail.com','Jr. Huallaga 456, Trujillo'),
-    ('20451236987','Agropecuaria Los Andes SA',   '123857622',  'ArtesinaFAC@hotmail.com',   'Carretera Central Km 45, Huancayo'),
-    ('20512478963','Frigorifico Central SAC',     '388756617',  'Forzaproducts@gmail.com',   'Calle Real 789, Huancayo'),
-    ('20623541897','Bebidas y Mas EIRL',          '56646789',   'EmpresaSAC@gmail.com',      'Av. Arequipa 1023, Lima'),
-    ('20714523698','Lacteos del Sur SAC',         '904998384',  'Lacteon@gmail.com',         'Av. Ejercito 550, Arequipa'),
-    ('20836547120','Importaciones Gourmet SAC',   '17762563',   'Tecnoly2002@gmail.com',     'Jr. Union 512, Lima');
+
+INSERT INTO proveedor (ruc, razon_social, telefono_proveedor, correo_proveedor, direccion_proveedor, observacion_proveedor, estado) VALUES
+    ('20100254785', 'Distribuidora El Campo SAC', '123456789', 'Imprent@gmail.com', 'Av. Los Libertadores 234, Lima', 'Proveedor principal de granos y harinas', 1),
+    ('20304512896', 'Insumos del Norte EIRL', '1093647837', 'GranjaUltralinda@gmail.com', 'Jr. Huallaga 456, Trujillo', 'Entregas solo los días martes y jueves', 1),
+    ('20451236987', 'Agropecuaria Los Andes SA', '123857622', 'ArtesinaFAC@hotmail.com', 'Carretera Central Km 45, Huancayo', NULL, 1),
+    ('20512478963', 'Frigorifico Central SAC', '388756617', 'Forzaproducts@gmail.com', 'Calle Real 789, Huancayo', 'Especialista en cortes de res y cerdo', 1),
+    ('20623541897', 'Bebidas y Mas EIRL', '56646789', 'EmpresaSAC@gmail.com', 'Av. Arequipa 1023, Lima', 'Contacto directo con preventa: Anexo 102', 1),
+    ('20714523698', 'Lacteos del Sur SAC', '904998384', 'Lacteon@gmail.com', 'Av. Ejercito 550, Arequipa', 'Crédito a 30 días previa orden de compra', 0), -- PROVEEDOR INACTIVO
+    ('20836547120', 'Importaciones Gourmet SAC', '17762563', 'Tecnoly2002@gmail.com', 'Jr. Union 512, Lima', 'Productos importados de Europa y Asia', 1);
 
 /* ================================================ */
-/*  PRODUCTO (40)                                   */
-/*  id_unidad_medida: kg=1,lt=2,und=3,              */
-/*                   bot=4,cja=5,gr=6               */
+/* PRODUCTO (40) - ACTUALIZADO CON OBSERVACIONES   */
+/* id_unidad_medida: kg=1,lt=2,und=3,               */
+/* bot=4,cja=5,gr=6              */
 /* ================================================ */
-INSERT INTO producto (nombre_producto, precio_producto, stock_minimo, stock_actual, id_unidad_medida) VALUES
-    ('Arroz blanco extra',          2.50,  10,  45, 1),
-    ('Aceite vegetal girasol',      5.80,   5,  18, 2),
-    ('Azucar rubia',                2.20,   8,  30, 1),
-    ('Harina de trigo preparada',   2.80,  10,  40, 1),
-    ('Sal de mesa yodada',          0.90,   3,  15, 1),
-    ('Pollo entero fresco',         8.50,   5,  25, 1),
-    ('Carne de res lomo fino',     18.00,   5,  20, 1),
-    ('Filete de pescado corvina',  15.00,   3,  12, 1),
-    ('Camarones frescos medianos', 35.00,   2,   8, 1),
-    ('Carne de cerdo pierna',      14.00,   4,  16, 1),
-    ('Leche entera fresca',         4.20,   6,  24, 2),
-    ('Mantequilla sin sal',        18.50,   2,   6, 1),
-    ('Queso fresco serrano',       22.00,   2,   8, 1),
-    ('Huevos de gallina',           0.45,  30, 120, 3),
-    ('Crema de leche UHT',         10.00,   3,  10, 2),
-    ('Tomate italiano',             3.50,   5,  22, 1),
-    ('Cebolla roja peruana',        2.00,   5,  18, 1),
-    ('Papa amarilla huayro',        2.80,  10,  50, 1),
-    ('Aji amarillo fresco',         6.00,   2,   9, 1),
-    ('Ajo pelado importado',        8.00,   2,   7, 1),
-    ('Pimiento rojo morrón',        5.00,   2,  10, 1),
-    ('Zanahoria baby',              1.80,   5,  20, 1),
-    ('Brocoli fresco',              4.50,   3,  12, 1),
-    ('Espinaca organica',           3.20,   2,   8, 1),
-    ('Limon sutil peruano',         3.80,   3,  14, 1),
-    ('Maiz morado seco',            4.00,   2,   9, 1),
-    ('Quinua blanca organica',      9.50,   3,  15, 1),
-    ('Lentejas importadas',         4.80,   3,  12, 1),
-    ('Frijoles canario',            5.50,   3,  11, 1),
-    ('Champiñones frescos',        12.00,   2,   7, 1),
-    ('Agua mineral sin gas',        1.50,  24,  96, 4),
-    ('Gaseosa cola 1.5L',           4.50,  12,  48, 4),
-    ('Cerveza nacional lata',       4.00,  12,  60, 3),
-    ('Vino tinto reserva',         35.00,   3,  12, 4),
-    ('Jugo naranja concentrado',    6.00,   4,  16, 2),
-    ('Cafe molido especial',       28.00,   1,   4, 1),
-    ('Te verde en bolsas',          8.50,   2,   8, 5),
-    ('Canela en rama entera',      15.00,   1,   2, 6),
-    ('Chuño blanco selecto',        4.20,   2,   9, 1),
-    ('Rocoto rojo fresco',          7.00,   1,   5, 1);
+INSERT INTO producto (nombre_producto, precio_producto, stock_minimo, stock_actual, observacion_producto, id_unidad_medida, estado) VALUES
+    ('Arroz blanco extra',          2.50,  10,  45, 'Grano largo seleccionado, marca Costeño', 1, 1),
+    ('Aceite vegetal girasol',      5.80,   5,  18, 'Botella de 1 litro premium', 2, 1),
+    ('Azucar rubia',                2.20,   8,  30, NULL, 1, 1),
+    ('Harina de trigo preparada',   2.80,  10,  40, 'Contiene polvo de hornear', 1, 1),
+    ('Sal de mesa yodada',          0.90,   3,  15, NULL, 1, 1),
+    ('Pollo entero fresco',         8.50,   5,  25, 'Peso promedio 2.2kg por unidad', 1, 1),
+    ('Carne de res lomo fino',     18.00,   5,  20, 'Corte tipo exportación', 1, 1),
+    ('Filete de pescado corvina',  15.00,   3,  12, 'Mantener a -18 grados centígrados', 1, 1),
+    ('Camarones frescos medianos', 35.00,   2,   8, 'Producto de temporada', 1, 1),
+    ('Carne de cerdo pierna',      14.00,   4,  16, NULL, 1, 1),
+    ('Leche entera fresca',         4.20,   6,  24, 'Envase Tetra Pak larga vida', 2, 1),
+    ('Mantequilla sin sal',        18.50,   2,   6, 'Marca Gloria, presentación 200g', 1, 1),
+    ('Queso fresco serrano',       22.00,   2,   8, 'Producido en Cajamarca', 1, 1),
+    ('Huevos de gallina',           0.45,  30, 120, 'Huevos rosados tamaño grande', 3, 1),
+    ('Crema de leche UHT',         10.00,   3,  10, 'Contenido graso 35%', 2, 1),
+    ('Tomate italiano',             3.50,   5,  22, 'Maduración media para ensalada', 1, 1),
+    ('Cebolla roja peruana',        2.00,   5,  18, NULL, 1, 1),
+    ('Papa amarilla huayro',        2.80,  10,  50, 'Ideal para puré o causa', 1, 1),
+    ('Aji amarillo fresco',         6.00,   2,   9, NULL, 1, 1),
+    ('Ajo pelado importado',        8.00,   2,   7, 'Presentación en bolsa al vacío', 1, 1),
+    ('Pimiento rojo morrón',        5.00,   2,  10, NULL, 1, 1),
+    ('Zanahoria baby',              1.80,   5,  20, 'Bolsas de 500 gramos', 1, 1),
+    ('Brocoli fresco',              4.50,   3,  12, 'Lavar antes de consumir', 1, 1),
+    ('Espinaca organica',           3.20,   2,   8, 'Sin pesticidas químicos', 1, 1),
+    ('Limon sutil peruano',         3.80,   3,  14, 'Cosecha del norte del país', 1, 1),
+    ('Maiz morado seco',            4.00,   2,   9, 'Variedad Canteño', 1, 1),
+    ('Quinua blanca organica',      9.50,   3,  15, 'Grano lavado y perlado', 1, 1),
+    ('Lentejas importadas',         4.80,   3,  12, 'Origen canadiense', 1, 1),
+    ('Frijoles canario',            5.50,   3,  11, NULL, 1, 1),
+    ('Champiñones frescos',        12.00,   2,   7, 'Mantener refrigerado', 1, 1),
+    ('Agua mineral sin gas',        1.50,  24,  96, 'Caja de 24 botellas de 500ml', 4, 1),
+    ('Gaseosa cola 1.5L',           4.50,  12,  48, 'Envase descartable', 4, 1),
+    ('Cerveza nacional lata',       4.00,  12,  60, 'Pack de 6 unidades', 3, 0), -- PRODUCTO INACTIVO (0)
+    ('Vino tinto reserva',         35.00,   3,  12, 'Cosecha 2021 Valle de Ica', 4, 1),
+    ('Jugo naranja concentrado',    6.00,   4,  16, 'Sin azúcar añadida', 2, 1),
+    ('Cafe molido especial',       28.00,   1,   4, 'Tueste medio artesanal', 1, 1),
+    ('Te verde en bolsas',          8.50,   2,   8, 'Caja de 25 sobres', 5, 1),
+    ('Canela en rama entera',      15.00,   1,   2, 'Importada de Sri Lanka', 6, 1),
+    ('Chuño blanco selecto',        4.20,   2,   9, 'Procesado en altura', 1, 0), -- PRODUCTO INACTIVO (0)
+    ('Rocoto rojo fresco',          7.00,   1,   5, 'Sabor muy picante', 1, 1);
 
 /* ================================================ */
 /*  PROVEEDOR_PRODUCTO (20)                         */

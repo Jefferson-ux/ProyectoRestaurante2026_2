@@ -13,26 +13,52 @@ public class ProductoMethod {
     private final Connection conn;
     
     public ProductoMethod(){
-        ConnectionDB connection = new ConnectionDB();
- 
-        this.conn = connection.getConnection();
+        //===========================================//   
+        //Crear la conexión al iniciar el formulario //
+       //===========================================//   
+           ConnectionDB connection = new ConnectionDB();
+           
+           
+         //=====================================//  
+        //Verificar que la conexion sea exitosa//
+       //=====================================//
+            this.conn = connection.getConnection();
        
-         if (connection.getConnection() == null) {
+            if (connection.getConnection() == null) {
             JOptionPane.showConfirmDialog(null, "No se puede conectar a la base de datos", "Error de conexión", 1);
         }
     }
     
+    public ResultSet combobox_ListarUnidadMedidas() throws SQLException {
+        String sql = "select `Unidad de Medida` from vista_unidad_medida";
+        Statement st =conn.createStatement(); // Creamos el statements
+        ResultSet rs=st.executeQuery(sql); // Ejecutamos la consulta
+        return rs; // Devolvemos los resultados 
+    }
+    
+    public boolean existeProductoConNombre(String nombre, int id_producto) throws SQLException {
+        String sql = "SELECT 1 FROM Producto "
+            + "WHERE LOWER(nombre_producto) = LOWER(?) "
+            + "AND id_producto <> ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, nombre.trim());
+        ps.setInt(2, id_producto); // 0 si es insertar
+        ResultSet rs = ps.executeQuery();
+        return rs.next(); // si devuelve algo, ya existe
+    }
+    
+    
     /* VIEWS --> MOSTRAR DATOS */
-           public ResultSet listarProductos() throws SQLException{
-        String sql = "Select * from vista_plato_menu";/*SQL Query*/
+        public ResultSet listarProductos() throws SQLException{
+        String sql = "Select * from vista_producto";/*SQL Query*/
         Statement st = conn.createStatement(); /*Creamos la sentencia*/
         return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
     }
        
        
        /* SEARCH --> BUSCAR DATOS */
-    public ResultSet buscarPlatoMenu(String nombre) throws SQLException{
-        String sql = "{CALL buscar_plato_menu(?)}";/*Llamada al procedimiento*/
+    public ResultSet buscarProducto(String nombre) throws SQLException{
+        String sql = "{CALL buscar_producto(?)}";/*Llamada al procedimiento*/
         CallableStatement cs = conn.prepareCall(sql);/*Usamos CallableStatement*/
         cs.setString(1, nombre);    /*Asignamos parámetros*/
         return cs.executeQuery(); 
@@ -40,43 +66,57 @@ public class ProductoMethod {
 
 
        /* INSERT--> AGREGAR DATOS */
-    public void insertarPlatoMenu(String nombre, String descripcion, double precio, int id_categoria) throws SQLException{
-        String sql = "{CALL insertar_plato_menu(?,?,?,?)}";//Llamada al procedimiento
+    public void insertarProducto(String nombre, double precio, int stock_minimo, int stock_actual, String obervacion,int id_unidad_medida) throws SQLException{
+        if(existeProductoConNombre(nombre, 0)){
+            throw  new IllegalArgumentException("Ya exsiste un producto con ese nombre.");
+        }
+        String sql = "{CALL insertar_producto(?,?,?,?,?,?)}";//Llamada al procedimiento
         try 
             (PreparedStatement ps =conn.prepareCall(sql)){
             ps.setString(1, nombre);
-            ps.setString(2, descripcion);
-            ps.setDouble(3, precio);
-            ps.setInt(4, id_categoria);
+            ps.setDouble(2, precio);
+            ps.setInt(3, stock_minimo);
+            ps.setInt(4, stock_actual);
+            ps.setString(5, obervacion);
+            ps.setInt(6, id_unidad_medida);
             ps.execute();
-            System.out.println("Plato del menú insertada con éxito");
+            System.out.println("Producto insertado con éxito");
         }
     } 
 
 
-       /* UPDATE --> ACTUALIZAR DATOS */
-     public void modificarPlatoMenu(int id, String nuevoNombre) throws SQLException{
-        String sql = "CALL vera_ModificarFacultad(?,?)";/*Llamada al procedimiento*/
-        try (PreparedStatement ps = conn.prepareCall(sql)){
-            ps.setInt(1,id);
-            ps.setString(2, nuevoNombre);
-            ps.executeUpdate();
-            System.out.println("Facultad modificada");
-        }                   
-
+    /* UPDATE --> ACTUALIZAR DATOS */
+    public void modificarProducto(int id, String nombre, double precio, int stock_minimo, int stock_actual, String observacion, int id_unidad) throws SQLException {
+        // El orden del PROCEDURE Update_Producto es: id, nombre, precio, stock_minimo, stock_actual, obs, id_unidad
+        String sql = "{CALL Update_Producto(?,?,?,?,?,?,?)}";
+       try (CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, id);
+            cs.setString(2, nombre);
+            cs.setDouble(3, precio);
+            cs.setInt(4, stock_minimo);
+            cs.setInt(5, stock_actual);
+            cs.setString(6, observacion);
+            cs.setInt(7, id_unidad);
+            cs.execute();
+        }
     }
 
 
 
 
-       /* DESACTIVATE --> DESACTIVAR DATOS */
-     public void downFacultades(int id) throws SQLException{
-        String sql = "CALL vera_DesactivarFacultad(?)";/*Llamada al procedimiento*/
-        try 
-            (PreparedStatement ps =conn.prepareCall(sql)){
-            ps.setInt(1,id);
-            ps.executeUpdate();
-            System.out.println("Facultad desactivada");
-        }   
+    //DESACTIVAR
+    public void darDeBajaProducto(int codigoProducto) throws SQLException{
+        String sql="CALL Desactivar_Producto(?)";
+        CallableStatement cs = conn.prepareCall(sql);
+        cs.setInt(1, codigoProducto); //Solo se pasa el codigo, el estado lo maneja el procedure
+        cs.execute();
+    }
+    
+    //ACtivar
+    public void activarProducto(int codigoEscuela) throws SQLException{
+        String sql = "CALL Activar_Producto(?)";
+        CallableStatement cs = conn.prepareCall(sql);
+            cs.setInt(1, codigoEscuela);
+        cs.execute();
     }
 }
