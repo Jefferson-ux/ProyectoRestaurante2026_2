@@ -456,96 +456,132 @@ CALL Update_DetallePedido(
 );
 
 
-/* ============================================================
-   6. EMPLEADO
-   ============================================================ */
-DROP PROCEDURE IF EXISTS Update_Empleado;
-DELIMITER $$
+/**************************************
+6.- EMPLEADO
+Tiene cambios en los nombres con respecto al de Oracle
+**************************************/
+DELIMITER //
 
 CREATE PROCEDURE Update_Empleado (
-    IN p_id_empleado            INT,
-    IN p_nombre_empleado        VARCHAR(100),
-    IN p_apellido_empleado      VARCHAR(100),
-    IN p_fecha_nacimiento       DATE,
-    IN p_fecha_registro         DATE,
-    IN p_direccion_empleado     VARCHAR(150),
-    IN p_correo_principal       VARCHAR(150),
-    IN p_correo_secundario      VARCHAR(150),
-    IN p_telefono_principal     VARCHAR(15),
-    IN p_telefono_secundario    VARCHAR(15),
-    IN p_id_genero              INT
+    IN p_id_empleado     INT,
+    IN p_dni             CHAR(8),
+    IN p_nombres         VARCHAR(100),
+    IN p_apellidos       VARCHAR(100),
+    IN p_fecha_nac       DATE,
+    IN p_fecha_reg       DATE,
+    IN p_direccion       VARCHAR(150),
+    IN p_correo1         VARCHAR(150),
+    IN p_correo2         VARCHAR(150),
+    IN p_telefono1       VARCHAR(15),
+    IN p_telefono2       VARCHAR(15),
+    IN p_observacion     VARCHAR(500),
+    IN p_id_genero       INT,
+    IN p_estado          TINYINT
 )
 BEGIN
+    -- Declaración de variables locales
+    DECLARE v_existe_empleado INT;
+    DECLARE v_existe_genero   INT;
+    DECLARE v_dni             CHAR(8)      DEFAULT TRIM(p_dni);
+    DECLARE v_nombre          VARCHAR(100) DEFAULT TRIM(p_nombres);
+    DECLARE v_apellido        VARCHAR(100) DEFAULT TRIM(p_apellidos);
+    DECLARE v_correo1         VARCHAR(150) DEFAULT LOWER(TRIM(p_correo1));
+    DECLARE v_observacion     VARCHAR(500) DEFAULT IFNULL(TRIM(p_observacion), 'SIN OBSERVACIONES');
 
-    -- Validar que el empleado exista
-    IF NOT EXISTS (SELECT 1 FROM empleado WHERE id_empleado = p_id_empleado) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El empleado no existe.';
+    -- 1. Validar existencia del empleado
+    SELECT COUNT(*) INTO v_existe_empleado FROM empleado WHERE id_empleado = p_id_empleado;
+    IF v_existe_empleado = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El empleado no existe.', MYSQL_ERRNO = 20100;
     END IF;
 
-    -- Validar que el nuevo correo principal no esté duplicado en otro empleado
-    IF EXISTS (
-        SELECT 1 FROM empleado 
-        WHERE correo_principal = p_correo_principal AND id_empleado <> p_id_empleado
-    ) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este correo principal ya está registrado para otro empleado.';
+    -- 2. Validar DNI (8 dígitos)
+    IF v_dni IS NULL OR v_dni NOT REGEXP '^[0-9]{8}$' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El DNI debe tener 8 dígitos.', MYSQL_ERRNO = 20101;
     END IF;
 
-    -- Validar que el nuevo correo secundario no esté duplicado en otro empleado
-    IF p_correo_secundario IS NOT NULL AND EXISTS (
-        SELECT 1 FROM empleado 
-        WHERE correo_secundario = p_correo_secundario AND id_empleado <> p_id_empleado
-    ) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo secundario ya está registrado para otro empleado.';
+    -- 3. Validar nombre y apellido
+    IF v_nombre IS NULL OR v_apellido IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Nombre y apellido son obligatorios.', MYSQL_ERRNO = 20102;
     END IF;
 
-    -- Validar formato básico del correo principal (debe contener @ y un punto)
-    IF p_correo_principal NOT LIKE '%@%.%' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Formato de correo principal no válido.';
+    -- 4. Validar fecha nacimiento
+    IF p_fecha_nac IS NULL OR p_fecha_nac >= CURDATE() THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Fecha de nacimiento inválida.', MYSQL_ERRNO = 20103;
     END IF;
 
-    -- Validar formato del correo secundario solo si se ha ingresado uno
-    IF p_correo_secundario IS NOT NULL AND p_correo_secundario NOT LIKE '%@%.%' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Formato de correo secundario no válido.';
+    -- 5. Validar fecha registro (No nula ni futura)
+    IF p_fecha_reg IS NULL OR p_fecha_reg > CURDATE() THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Fecha de registro no puede ser nula ni futura.', MYSQL_ERRNO = 20110;
     END IF;
 
-    -- Validar que Teléfonos no sean iguales
-    IF p_telefono_secundario IS NOT NULL AND p_telefono_principal = p_telefono_secundario THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Telefono Principal y Telefono Secundario no pueden ser iguales.';
+    -- 6. Validar coherencia entre nacimiento y registro
+    IF p_fecha_reg <= p_fecha_nac THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La fecha de registro debe ser posterior a la de nacimiento.', MYSQL_ERRNO = 20111;
     END IF;
 
-    -- Actualización de los datos del empleado
+    -- 7. Validar mayoría de edad al registrarse (Opcional, min 18 años)
+    IF TIMESTAMPDIFF(YEAR, p_fecha_nac, p_fecha_reg) < 18 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El empleado debe tener al menos 18 años a la fecha de registro.', MYSQL_ERRNO = 20112;
+    END IF;
+
+    -- 8. Validar correo principal
+    IF v_correo1 IS NULL OR v_correo1 NOT REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Correo principal inválido.', MYSQL_ERRNO = 20104;
+    END IF;
+
+    -- 9. Validar teléfono principal (9 dígitos)
+    IF p_telefono1 IS NULL OR p_telefono1 NOT REGEXP '^9[0-9]{8}$' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Teléfono inválido.', MYSQL_ERRNO = 20105;
+    END IF;
+
+    -- 10. Validar género
+    SELECT COUNT(*) INTO v_existe_genero FROM genero WHERE id_genero = p_id_genero;
+    IF v_existe_genero = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Género no existe.', MYSQL_ERRNO = 20106;
+    END IF;
+
+    -- 11. Validar estado
+    IF p_estado IS NULL OR p_estado NOT IN (0,1) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Estado debe ser 0 o 1.', MYSQL_ERRNO = 20108;
+    END IF;
+
+    -- Ejecutar actualización
     UPDATE empleado
-    SET
-        nombre_empleado = p_nombre_empleado,
-        apellido_empleado = p_apellido_empleado,
-        fecha_nacimiento = p_fecha_nacimiento,
-        fecha_registro = p_fecha_registro,    
-        direccion_empleado = p_direccion_empleado,
-        telefono_principal = p_telefono_principal,
-        telefono_secundario = p_telefono_secundario,
-        correo_principal = p_correo_principal,
-        correo_secundario = p_correo_secundario, 
-        id_genero = p_id_genero
+    SET dni_empleado       = v_dni,
+        nombre_empleado    = v_nombre,
+        apellido_empleado  = v_apellido,
+        fecha_nacimiento   = p_fecha_nac,
+        fecha_registro     = p_fecha_reg,
+        direccion_empleado = TRIM(p_direccion),
+        correo_principal   = v_correo1,
+        correo_secundario  = LOWER(TRIM(p_correo2)),
+        telefono_principal = TRIM(p_telefono1),
+        telefono_secundario = TRIM(p_telefono2),
+        observacion_empleado = v_observacion,
+        id_genero          = p_id_genero,
+        estado             = p_estado
     WHERE id_empleado = p_id_empleado;
 
-END$$
+END //
 
 DELIMITER ;
 
 CALL Update_Empleado(
-    2,                          
-    'Luis Alberto',           
-    'Mendoza Ríos',             
-    '1988-10-25',              
-    '2026-04-06',               
-    'Calle Las Magnolias 456', 
-    'luis.mendoza@empresa.com', 
-    NULL,                     
-    '987654321',              
-    '912345678',              
-    1                        
+    10,                      -- p_id_empleado
+    '12325678',              -- p_dni
+    'Carlos',                -- p_nombres
+    'Lopez',                 -- p_apellidos
+    '1995-05-10',            -- p_fecha_nac
+    '2024-03-20',            -- p_fecha_reg
+    'Av Lima 123',           -- p_direccion
+    'david1@gmail.com',      -- p_correo1
+    'david2@gmail.com',      -- p_correo2
+    '987656321',             -- p_telefono1
+    '912348678',             -- p_telefono2
+    NULL,                    -- p_observacion
+    1,                       -- p_id_genero
+    1                        -- p_estado
 );
-
 
 /**************************************
 7.- FACTURA
@@ -923,19 +959,21 @@ CALL Update_Plato_Menu(
 Cambio de nombres a comparación de Oracle
 **************************************/
 DELIMITER //
-
+DROP PROCEDURE IF EXISTS Update_Producto //
 CREATE PROCEDURE Update_Producto (
     IN p_id_producto       INT,
     IN p_nombre            VARCHAR(100),
     IN p_precio_unitario   DECIMAL(10,2),
     IN p_stock_minimo      INT,
     IN p_stock_actual      INT,
+    IN p_observacion       TEXT,
     IN p_id_unidad_medida  INT
 )
 BEGIN
     -- Declaración de variables locales
     DECLARE v_existencia INT;
     DECLARE v_nombre     VARCHAR(100) DEFAULT TRIM(p_nombre);
+    DECLARE v_obs        TEXT         DEFAULT TRIM(p_observacion);
 
     -- 1. Validar ID y existencia del producto
     IF p_id_producto IS NULL THEN
@@ -979,22 +1017,28 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock mínimo no puede ser mayor al stock actual.', MYSQL_ERRNO = 20147;
     END IF;
 
-    -- 7. Validar unidad de medida
-    SELECT COUNT(*) INTO v_existencia FROM unidad_medida WHERE id_unidad_medida = p_id_id_unidad_medida;
+    --7. Validar que la observacion no exeda 500 caracteres 
+    IF v_obs IS NOT NULL AND CHAR_LENGTH(v_obs) > 500 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La observación es demasiado larga (máx 500 caracteres).', MYSQL_ERRNO = 20165;
+    END IF;
+
+    -- 8. Validar unidad de medida
+    SELECT COUNT(*) INTO v_existencia FROM unidad_medida WHERE id_unidad_medida = p_id_unidad_medida;
     IF v_existencia = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La unidad de medida no existe.', MYSQL_ERRNO = 20149;
     END IF;
 
-    -- 8. Ejecutar actualización
+    -- 9. Ejecutar actualización
     UPDATE producto
     SET nombre_producto  = v_nombre,
         precio_producto  = p_precio_unitario,
         stock_minimo     = p_stock_minimo,
         stock_actual     = p_stock_actual,
+        observacion_producto = v_obs,
         id_unidad_medida = p_id_unidad_medida
     WHERE id_producto = p_id_producto;
 
-    -- 9. Verificar si hubo cambios
+    -- 10. Verificar si hubo cambios
     IF ROW_COUNT() = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No se realizaron cambios en el producto.', MYSQL_ERRNO = 20150;
     END IF;
@@ -1010,13 +1054,15 @@ Mas campos  a comparación de Oracle
 **************************************/
 DELIMITER //
 
+DROP PROCEDURE IF EXISTS Update_Proveedor //
 CREATE PROCEDURE Update_Proveedor (
     IN p_id_proveedor  INT,
     IN p_ruc           CHAR(11),
     IN p_razon_social  VARCHAR(150),
     IN p_telefono      VARCHAR(15),
     IN p_correo        VARCHAR(150),
-    IN p_direccion     VARCHAR(150)
+    IN p_direccion     VARCHAR(150),
+    IN p_observacion   TEXT
 )
 BEGIN
     -- Declaración de variables locales
@@ -1024,6 +1070,7 @@ BEGIN
     DECLARE v_ruc        CHAR(11)     DEFAULT TRIM(p_ruc);
     DECLARE v_razon      VARCHAR(150) DEFAULT TRIM(p_razon_social);
     DECLARE v_correo     VARCHAR(150) DEFAULT LOWER(TRIM(p_correo));
+    DECLARE v_obs        TEXT         DEFAULT TRIM(p_observacion);
 
     -- 1. Validar existencia del proveedor
     SELECT COUNT(*) INTO v_existencia FROM proveedor WHERE id_proveedor = p_id_proveedor;
@@ -1057,17 +1104,23 @@ BEGIN
     IF v_correo NOT REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$' THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Formato de correo inválido.', MYSQL_ERRNO = 20164;
     END IF;
+    
+    --7. Validar que la observacion no exeda 500 caracteres 
+    IF v_obs IS NOT NULL AND CHAR_LENGTH(v_obs) > 500 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La observación es demasiado larga (máx 500 caracteres).', MYSQL_ERRNO = 20165;
+    END IF;
 
-    -- 7. Ejecutar actualización
+    -- 8. Ejecutar actualización
     UPDATE proveedor
     SET ruc                 = v_ruc,
         razon_social        = v_razon,
         telefono_proveedor  = TRIM(p_telefono),
         correo_proveedor    = v_correo,
-        direccion_proveedor = TRIM(p_direccion)
+        direccion_proveedor = TRIM(p_direccion),
+        observacion_proveedor = v_obs
     WHERE id_proveedor = p_id_proveedor;
 
-    -- 8. Verificar si hubo cambios
+    -- 9. Verificar si hubo cambios
     IF ROW_COUNT() = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No se realizaron cambios en el proveedor.', MYSQL_ERRNO = 20167;
     END IF;

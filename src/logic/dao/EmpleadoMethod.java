@@ -1,4 +1,3 @@
-
 package logic.dao;
 import connection.ConnectionDB;
 import java.sql.CallableStatement;
@@ -35,11 +34,19 @@ public class EmpleadoMethod {
     /** Lista los nombres de todas los generos activos (Estado = 1
      * @return 
      * @throws java.sql.SQLException */
-    public ResultSet listarGeneros() throws SQLException {
-        String sql = "SELECT nombre_genero FROM genero";
-        st = conn.createStatement();
-        rs = st.executeQuery(sql);
-        return rs;
+    public java.util.List<String> listarGeneros() throws SQLException {
+    java.util.List<String> lista = new java.util.ArrayList<>();
+    String sql = "SELECT nombre_genero FROM genero"; 
+    
+    // El try-with-resources cierra automáticamente el Statement y ResultSet
+    try (Statement stLocal = conn.createStatement(); 
+         ResultSet rsLocal = stLocal.executeQuery(sql)) {
+        
+        while (rsLocal.next()) {
+            lista.add(rsLocal.getString("nombre_genero"));
+        }
+    }
+    return lista;
     }
     
     /** Busca el ID del género basado en su nombre
@@ -62,7 +69,7 @@ public class EmpleadoMethod {
      * @return 
      * @throws java.sql.SQLException */
     public ResultSet listarEmpleados() throws SQLException {
-        String sql = "SELECT * FROM vista_empleado WHERE estado = 1";
+        String sql = "SELECT * FROM vista_empleado";
         st = conn.createStatement();
         rs = st.executeQuery(sql);
         return rs;
@@ -88,32 +95,35 @@ public class EmpleadoMethod {
      * @param direccion
      * @param telefono1
      * @param telefono2
-     * @param correo
+     * @param correo1
+     * @param correo2
+     * @param observacion
      * @param idGenero
      * @throws java.sql.SQLException */
     public void insertarEmpleado(String dni, String nombres, String apellidos, 
                              String fechaNacimiento, String direccion, 
                              String telefono1, String telefono2, 
-                             String correo, int idGenero) throws SQLException {
+                             String correo1, String correo2, int idGenero, String observacion) throws SQLException {
 
         // Validación de formato de correo
-        if (correo == null || !correo.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+        if (correo1 == null || !correo1.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
             throw new IllegalArgumentException("El formato del correo es inválido.");
         }
 
         // Validar duplicado de DNI o Correo usando la vista
-        String sqlCheck = "SELECT dni_empleado, correo_principal FROM V_Empleado_Genero WHERE dni_empleado = ? OR correo_principal = ?";
-        PreparedStatement psCheck = conn.prepareStatement(sqlCheck);
-        psCheck.setString(1, dni);
-        psCheck.setString(2, correo);
-        ResultSet rs = psCheck.executeQuery();
-
-        while (rs.next()) {
-            if (dni.equals(rs.getString("dni_empleado"))) {
-                throw new IllegalArgumentException("El DNI ya está registrado.");
-            }
-            if (correo.equalsIgnoreCase(rs.getString("correo_principal"))) {
-                throw new IllegalArgumentException("El correo ya está registrado.");
+        String sqlCheck = "SELECT dni_empleado, correo_principal FROM empleado WHERE dni_empleado = ? OR correo_principal = ?";
+        try (PreparedStatement psCheck = conn.prepareStatement(sqlCheck)) {
+            psCheck.setString(1, dni);
+            psCheck.setString(2, correo1);
+            try (ResultSet rs = psCheck.executeQuery()) {
+                while (rs.next()) {
+                    if (dni.equals(rs.getString("dni_empleado"))) {
+                        throw new IllegalArgumentException("El DNI ya está registrado.");
+                    }
+                    if (correo1.equalsIgnoreCase(rs.getString("correo_principal"))) {
+                        throw new IllegalArgumentException("El correo ya está registrado.");
+                    }
+                }
             }
         }
 
@@ -125,72 +135,99 @@ public class EmpleadoMethod {
         cs.setString(2, nombres);
         cs.setString(3, apellidos);
         cs.setString(4, fechaNacimiento);
-        cs.setString(5, "2026-04-06"); // Fecha de registro (puedes usar la actual)
-        cs.setString(6, direccion);
-        cs.setString(7, correo);
-        cs.setNull(8, java.sql.Types.VARCHAR); // Correo secundario opcional
-        cs.setString(9, telefono1);
-        cs.setString(10, telefono2); // Puede ser null si no hay segundo teléfono
-        cs.setInt(11, idGenero);
-    
+        cs.setString(5, direccion);
+        cs.setString(6, correo1);
+        if (correo2 == null || correo2.trim().isEmpty()) {
+            cs.setNull(7, java.sql.Types.VARCHAR);
+        } else {
+            cs.setString(7, correo2);
+        }
+        cs.setString(8, telefono1);
+        if (telefono2 == null || telefono2.trim().isEmpty()) {
+            cs.setNull(9, java.sql.Types.VARCHAR);
+        } else {
+            cs.setString(9, telefono2);
+        }
+        cs.setInt(10, idGenero);
+        cs.setString(11, observacion);
+
         cs.executeUpdate();
         JOptionPane.showMessageDialog(null, "Empleado registrado correctamente.");
     }
     
-    /** Actualiza los datos editables de un empleado usando el procedimiento 
-     * @param idEmpleado Actualiza los datos editables de un empleado usando el procedimiento
+    /** Actualiza los datos editables de un empleado usando el procedimiento
+     * @param dni
      * @param nombres
-     * @param correo
      * @param apellidos
      * @param direccion
      * @param fechaNacimiento
      * @param telefono1
+     * @param correo1
+     * @param correo2
      * @param telefono2
      * @param idGenero
+     * @param observacion
      * @throws java.sql.SQLException */
-    public void actualizarEmpleado(int idEmpleado, String nombres, String apellidos, 
+    public void actualizarEmpleado(String dni, String nombres, String apellidos, 
                                String fechaNacimiento, String direccion, 
-                               String correo, String telefono1, String telefono2, 
-                               int idGenero) throws SQLException {
+                               String telefono1, String telefono2, 
+                               String correo1, String correo2, 
+                               int idGenero, String observacion) throws SQLException {
 
-        // Validación de formato de correo
-        if (correo == null || !correo.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            throw new IllegalArgumentException("El formato del correo es inválido. "
-                    + "Debe contener '@' y un dominio válido.");
-        }
+    // 1. Validación de formato de correo
+    if (correo1 == null || !correo1.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+        throw new IllegalArgumentException("El formato del correo principal es inválido.");
+    }
 
-        // Validar que el nuevo correo no esté ya registrado por otro empleado
-        String sqlValidacion = "SELECT id_empleado FROM V_Empleado_Genero WHERE correo_principal = ?";
-        PreparedStatement ps = conn.prepareStatement(sqlValidacion);
-        ps.setString(1, correo);
-        ResultSet rs = ps.executeQuery();
-
-        while (rs.next()) {
-            int idExistente = rs.getInt("id_empleado");
-            if (idExistente != idEmpleado) {
-                throw new IllegalArgumentException("El correo ya está registrado para otro empleado.");
+    // 2. CORRECCIÓN: Validar contra la tabla 'empleado' directamente
+    String sqlValidacion = "SELECT dni_empleado FROM empleado WHERE correo_principal = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sqlValidacion)) {
+        ps.setString(1, correo1);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                String dniExistente = rs.getString("dni_empleado");
+                // Si el correo es de OTRO empleado (DNI distinto), lanzamos error
+                if (!dniExistente.equals(dni)) {
+                    throw new IllegalArgumentException("El correo ya está registrado para otro empleado.");
+                }
             }
         }
+    }
 
-        // Llamada al procedimiento almacenado
-        String sqlCall = "{CALL Update_Empleado(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
-        CallableStatement cs = conn.prepareCall(sqlCall);
+    // 3. CORRECCIÓN: Llamada al procedimiento (11 parámetros sincronizados con tu DB)
+    String sqlCall = "{CALL Update_Empleado(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+    try (CallableStatement cs = conn.prepareCall(sqlCall)) {
 
-        cs.setInt(1, idEmpleado);            // p_id_empleado
-        cs.setString(2, nombres);            // p_nombre_empleado
-        cs.setString(3, apellidos);          // p_apellido_empleado
-        cs.setString(4, fechaNacimiento);    // p_fecha_nacimiento
-        cs.setString(5, "2026-04-06");       // p_fecha_registro (puedes usar la fecha actual)
-        cs.setString(6, direccion);          // p_direccion_empleado
-        cs.setString(7, correo);             // p_correo_principal
-        cs.setNull(8, java.sql.Types.VARCHAR); // p_correo_secundario (opcional)
-        cs.setString(9, telefono1);          // p_telefono_principal
-        cs.setString(10, telefono2);         // p_telefono_secundario (opcional)
-        cs.setInt(11, idGenero);             // p_id_genero
+        cs.setString(1, dni);               // p_dni_empleado
+        cs.setString(2, nombres);           // p_nombre_empleado
+        cs.setString(3, apellidos);         // p_apellido_empleado
+        cs.setString(4, fechaNacimiento);   // p_fecha_nacimiento
+        cs.setString(5, direccion);         // p_direccion_empleado (Índice correcto)
+        cs.setString(6, correo1);           // p_correo_principal
+        
+        // Manejo de Correo Secundario
+        if (correo2 == null || correo2.trim().isEmpty()) {
+            cs.setNull(7, java.sql.Types.VARCHAR);
+        } else {
+            cs.setString(7, correo2);
+        }
+        
+        cs.setString(8, telefono1);         // p_telefono_principal
+        
+        // Manejo de Teléfono Secundario
+        if (telefono2 == null || telefono2.trim().isEmpty()) {
+            cs.setNull(9, java.sql.Types.VARCHAR);
+        } else {
+            cs.setString(9, telefono2);
+        }
+        
+        cs.setInt(10, idGenero);            // p_id_genero
+        cs.setString(11, observacion);      // p_observacion_empleado (Índice 11)
 
         cs.executeUpdate();
-        JOptionPane.showMessageDialog(null, "Datos del empleado actualizados correctamente.");
-    }   
+        // El JOptionPane es mejor dejarlo en el Frm_Empleado para no mezclar capas
+    }
+}
     
     /** Da de baja a un empleado (cambia su estado a 0) usando el procedimiento
      * @param idEmpleado
@@ -208,7 +245,7 @@ public class EmpleadoMethod {
         JOptionPane.showMessageDialog(null, "Empleado dado de baja correctamente.");
     }
 
-    /** Reactiva a un emplead
+    /** Reactiva a un empleado 
      * @param idEmpleado
      * @throws java.sql.SQLException */
     public void reactivarEmpleado(int idEmpleado) throws SQLException {
@@ -223,4 +260,5 @@ public class EmpleadoMethod {
         cs.execute();
         JOptionPane.showMessageDialog(null, "Empleado reactivado correctamente.");
     }
+    
 }

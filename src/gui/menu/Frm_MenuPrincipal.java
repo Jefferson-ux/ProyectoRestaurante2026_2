@@ -49,20 +49,20 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
                                                                 reserva_content.setOpaque(false);
         
         // El primer número (0, 1, 2...) es el índice de la pestaña
-        jTabbedPanePrincipal.setIconAt(0, redimensionarIcono("/assets/botoncategoria.png",200,80));
-        jTabbedPanePrincipal.setIconAt(1, redimensionarIcono("/assets/botonmesa.png",200,80));
-        jTabbedPanePrincipal.setIconAt(2, redimensionarIcono("/assets/botonplatomenu.png",200,80));
-        jTabbedPanePrincipal.setIconAt(3, redimensionarIcono("/assets/botoncargo.png",200,80));
-        jTabbedPanePrincipal.setIconAt(4, redimensionarIcono("/assets/botonclientes.png",200,80));
-        jTabbedPanePrincipal.setIconAt(5, redimensionarIcono("/assets/botoncontrato.png",200,80));
-        jTabbedPanePrincipal.setIconAt(6, redimensionarIcono("/assets/botondetallepedido.png",200,80));
-        jTabbedPanePrincipal.setIconAt(7, redimensionarIcono("/assets/botonempleado.png",200,80));
-        jTabbedPanePrincipal.setIconAt(8, redimensionarIcono("/assets/botonfactura.png",200,80));
-        jTabbedPanePrincipal.setIconAt(9, redimensionarIcono("/assets/botonpedido.png",200,80));
-        jTabbedPanePrincipal.setIconAt(10, redimensionarIcono("/assets/botonproducto.png",200,80));
-        jTabbedPanePrincipal.setIconAt(11, redimensionarIcono("/assets/botonprov-producto.png",200,80));
-        jTabbedPanePrincipal.setIconAt(12, redimensionarIcono("/assets/botonproveedor.png",200,80));
-        jTabbedPanePrincipal.setIconAt(13, redimensionarIcono("/assets/botonreserva.png",200,80));
+        jTabbedPanePrincipal.setIconAt(0, redimensionarIcono("/assets/botoncategoria.png",120,46));
+        jTabbedPanePrincipal.setIconAt(1, redimensionarIcono("/assets/botonmesa.png",120,46));
+        jTabbedPanePrincipal.setIconAt(2, redimensionarIcono("/assets/botonplatomenu.png",120,46));
+        jTabbedPanePrincipal.setIconAt(3, redimensionarIcono("/assets/botoncargo.png",120,46));
+        jTabbedPanePrincipal.setIconAt(4, redimensionarIcono("/assets/botonclientes.png",120,46));
+        jTabbedPanePrincipal.setIconAt(5, redimensionarIcono("/assets/botoncontrato.png",120,46));
+        jTabbedPanePrincipal.setIconAt(6, redimensionarIcono("/assets/botondetallepedido.png",120,46));
+        jTabbedPanePrincipal.setIconAt(7, redimensionarIcono("/assets/botonempleado.png",120,46));
+        jTabbedPanePrincipal.setIconAt(8, redimensionarIcono("/assets/botonfactura.png",120,46));
+        jTabbedPanePrincipal.setIconAt(9, redimensionarIcono("/assets/botonpedido.png",120,46));
+        jTabbedPanePrincipal.setIconAt(10, redimensionarIcono("/assets/botonproducto.png",120,46));
+        jTabbedPanePrincipal.setIconAt(11, redimensionarIcono("/assets/botonprov-producto.png",120,46));
+        jTabbedPanePrincipal.setIconAt(12, redimensionarIcono("/assets/botonproveedor.png",120,46));
+        jTabbedPanePrincipal.setIconAt(13, redimensionarIcono("/assets/botonreserva.png",120,46));
         
         jTabbedPanePrincipal.setOpaque(false); // Hace el contenedor transparente
         jTabbedPanePrincipal.setBackground(new Color(0, 0, 0, 0)); // Color con Alpha 0
@@ -103,16 +103,6 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
         ItemProveedor = new javax.swing.JMenuItem();
         menuAyuda = new javax.swing.JMenu();
         itemAcerca = new javax.swing.JMenuItem();
-        panelfondo = new org.edisoncor.gui.panel.PanelImage();
-        panelContent = new javax.swing.JPanel();
-        jCalendar1 = new com.toedter.calendar.JCalendar();
-        jCalendar2 = new com.toedter.calendar.JCalendar();
-        panelImageReflect1 = new org.edisoncor.gui.panel.PanelImageReflect();
-        panelImageReflect2 = new org.edisoncor.gui.panel.PanelImageReflect();
-        BTN_Cerrar1 = new javax.swing.JButton();
-        jCalendar3 = new com.toedter.calendar.JCalendar();
-        panelReflect1 = new org.edisoncor.gui.panel.PanelReflect();
-        panelImage5 = new org.edisoncor.gui.panel.PanelImage();
         jTabbedPanePrincipal = new javax.swing.JTabbedPane();
         categoria_content = new javax.swing.JPanel();
         mesa_content = new javax.swing.JPanel();
@@ -127,8 +117,15 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
         producto_content = new javax.swing.JPanel();
         proveedor_producto_content = new javax.swing.JPanel();
         proveedor_content = new javax.swing.JPanel();
-        reserva_content = new javax.swing.JPanel();
         jPanel12 = new javax.swing.JPanel();
+        reserva_content = new javax.swing.JPanel();
+        panelContent = new javax.swing.JPanel();
+        jCalendar1 = new com.toedter.calendar.JCalendar();
+        jCalendar2 = new com.toedter.calendar.JCalendar();
+        panelImageReflect1 = new org.edisoncor.gui.panel.PanelImageReflect();
+        panelImageReflect2 = new org.edisoncor.gui.panel.PanelImageReflect();
+        BTN_Cerrar1 = new javax.swing.JButton();
+        jCalendar3 = new com.toedter.calendar.JCalendar();
         jMenuBar2 = new javax.swing.JMenuBar();
         menuArchivo1 = new javax.swing.JMenu();
         itemSalir1 = new javax.swing.JMenuItem();
@@ -177,50 +174,6 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        panelfondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/fondoelegante.png"))); // NOI18N
-        panelfondo.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        panelContent.setBackground(new java.awt.Color(0, 0, 0));
-        panelContent.setForeground(new java.awt.Color(255, 255, 255));
-        panelContent.setOpaque(false);
-        panelContent.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jCalendar1.setBackground(new java.awt.Color(102, 102, 102));
-        panelContent.add(jCalendar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 120, -1, -1));
-        panelContent.add(jCalendar2, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 120, 250, 200));
-        panelContent.add(panelImageReflect1, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 20, -1, -1));
-        panelContent.add(panelImageReflect2, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 200, -1, -1));
-
-        BTN_Cerrar1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Cerrar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_close.png"))); // NOI18N
-        BTN_Cerrar1.addActionListener(this::BTN_Cerrar1ActionPerformed);
-        panelContent.add(BTN_Cerrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 510, 50, 40));
-
-        jCalendar3.setFocusable(false);
-        jCalendar3.setOpaque(false);
-        jCalendar3.setRequestFocusEnabled(false);
-        jCalendar3.setVerifyInputWhenFocusTarget(false);
-        jCalendar3.setWeekOfYearVisible(false);
-        panelContent.add(jCalendar3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, -1, 180));
-
-        panelfondo.add(panelContent, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 30, 190, 680));
-
-        panelReflect1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        panelfondo.add(panelReflect1, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 370, -1, -1));
-
-        javax.swing.GroupLayout panelImage5Layout = new javax.swing.GroupLayout(panelImage5);
-        panelImage5.setLayout(panelImage5Layout);
-        panelImage5Layout.setHorizontalGroup(
-            panelImage5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        panelImage5Layout.setVerticalGroup(
-            panelImage5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-
-        panelfondo.add(panelImage5, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 410, -1, -1));
-
         jTabbedPanePrincipal.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
         jTabbedPanePrincipal.setTabPlacement(javax.swing.JTabbedPane.LEFT);
 
@@ -263,15 +216,38 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
         proveedor_content.setLayout(new java.awt.GridBagLayout());
         jTabbedPanePrincipal.addTab("", proveedor_content);
 
-        reserva_content.setLayout(new java.awt.GridBagLayout());
-        jTabbedPanePrincipal.addTab("", reserva_content);
-
         jPanel12.setLayout(new java.awt.GridBagLayout());
         jTabbedPanePrincipal.addTab("", jPanel12);
 
-        panelfondo.add(jTabbedPanePrincipal, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 1140, 690));
+        reserva_content.setLayout(new java.awt.GridBagLayout());
+        jTabbedPanePrincipal.addTab("", reserva_content);
 
-        getContentPane().add(panelfondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1430, 740));
+        getContentPane().add(jTabbedPanePrincipal, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 1140, 730));
+
+        panelContent.setBackground(new java.awt.Color(0, 0, 0));
+        panelContent.setForeground(new java.awt.Color(255, 255, 255));
+        panelContent.setOpaque(false);
+        panelContent.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jCalendar1.setBackground(new java.awt.Color(102, 102, 102));
+        panelContent.add(jCalendar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 120, -1, -1));
+        panelContent.add(jCalendar2, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 120, 250, 200));
+        panelContent.add(panelImageReflect1, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 20, -1, -1));
+        panelContent.add(panelImageReflect2, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 200, -1, -1));
+
+        BTN_Cerrar1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Cerrar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_close.png"))); // NOI18N
+        BTN_Cerrar1.addActionListener(this::BTN_Cerrar1ActionPerformed);
+        panelContent.add(BTN_Cerrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 510, 50, 40));
+
+        jCalendar3.setFocusable(false);
+        jCalendar3.setOpaque(false);
+        jCalendar3.setRequestFocusEnabled(false);
+        jCalendar3.setVerifyInputWhenFocusTarget(false);
+        jCalendar3.setWeekOfYearVisible(false);
+        panelContent.add(jCalendar3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, -1, 180));
+
+        getContentPane().add(panelContent, new org.netbeans.lib.awtextra.AbsoluteConstraints(1240, 50, 190, 680));
 
         menuArchivo1.setText("Archivo");
 
@@ -478,11 +454,8 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenu menuMantenimiento1;
     private javax.swing.JPanel mesa_content;
     private javax.swing.JPanel panelContent;
-    private org.edisoncor.gui.panel.PanelImage panelImage5;
     private org.edisoncor.gui.panel.PanelImageReflect panelImageReflect1;
     private org.edisoncor.gui.panel.PanelImageReflect panelImageReflect2;
-    private org.edisoncor.gui.panel.PanelReflect panelReflect1;
-    private org.edisoncor.gui.panel.PanelImage panelfondo;
     private javax.swing.JPanel pedido_content;
     private javax.swing.JPanel platoMenu_content;
     private javax.swing.JPanel producto_content;

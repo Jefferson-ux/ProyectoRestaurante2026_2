@@ -1,6 +1,7 @@
 USE db_restaurant;
 /* ============================================================
    1. CARGO
+   Valida duplicado por nombre_cargo (sin distinción de case)
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_cargo;
 DELIMITER $$
@@ -35,6 +36,7 @@ DELIMITER ;
 
 /* ============================================================
    2. CATEGORIA
+   (Ya existía — se incluye aquí para tener todo unificado)
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_categoria;
 DELIMITER $$
@@ -67,6 +69,7 @@ DELIMITER ;
 
 /* ============================================================
    3. CLIENTE
+   Valida duplicado por DNI (único en la tabla)
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_cliente;
 DELIMITER $$
@@ -108,8 +111,12 @@ END$$
 DELIMITER ;
 
 
-/* ============================================================
+
+/* ============================================================---------------------------------------------------------------------------------------
    4. CONTRATO
+   Valida que el empleado y el turno existan antes de insertar.
+   Un empleado puede tener múltiples contratos, por eso no se
+   valida duplicado de id_empleado sino solo integridad.
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_contrato;
 DELIMITER $$
@@ -385,72 +392,113 @@ END$$
 
 DELIMITER ;
 
+
+
+
+
+
 /* ============================================================
    8. EMPLEADO
+   Valida duplicado por DNI.
+   Valida formato de correos y teléfonos.
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_empleado;
 DELIMITER $$
 
 CREATE PROCEDURE insertar_empleado(
-    IN p_dni_empleado           CHAR(8),
-    IN p_nombre_empleado        VARCHAR(255),
-    IN p_apellido_empleado      VARCHAR(255),
-    IN p_fecha_nacimiento       DATE,
-    IN p_fecha_registro         DATE,
-    IN p_direccion_empleado     VARCHAR(255),
-    IN p_correo_principal       VARCHAR(255),
-    IN p_correo_secundario      VARCHAR(255),
-    IN p_telefono_principal     VARCHAR(20),
-    IN p_telefono_secundario    VARCHAR(20),
-    IN p_id_genero              INT
+    IN p_dni CHAR(8),
+    IN p_nombres VARCHAR(255),
+    IN p_apellidos VARCHAR(255),
+    IN p_fecha_nacimiento DATE,
+    IN p_fecha_registro DATE,
+    IN p_lugar_residencia VARCHAR(255),
+    IN p_correo1 VARCHAR(255),
+    IN p_correo2 VARCHAR(255),
+    IN p_telefono1 VARCHAR(20),
+    IN p_telefono2 VARCHAR(20),
+    IN p_observacion VARCHAR(500),
+    IN p_id_genero INT
 )
 BEGIN
+    DECLARE v_existe INT;
+	DECLARE v_msg VARCHAR(500);
 
-    -- 1. Validar que el DNI no exista (Corregido paréntesis y typos)
-    IF EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = p_dni_empleado) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este DNI ya está registrado';
+    SELECT COUNT(*) INTO v_existe
+    FROM empleado
+    WHERE dni_empleado = p_dni;
+
+    IF v_existe > 0 THEN
+    	SET v_msg = CONCAT('El empleado con DNI ', p_dni, ' ya existe.');
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT =  v_msg,
+        MYSQL_ERRNO = 1018;
+
     END IF;
 
-    -- 2. Validar que el Correo Principal no exista
-    IF EXISTS (SELECT 1 FROM empleado WHERE correo_principal = p_correo_principal) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este Correo Principal ya está registrado.';
+    IF p_correo1 NOT REGEXP '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El correo electrónico 1 no tiene un formato válido.',
+        MYSQL_ERRNO = 1019;
     END IF;
 
-    -- 3. Validar que el Correo Secundario no exista (Solo si no es NULL)
-    IF p_correo_secundario IS NOT NULL AND EXISTS (SELECT 1 FROM empleado WHERE correo_secundario = p_correo_secundario) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este Correo Secundario ya está registrado.';
+    IF p_correo2 IS NOT NULL AND p_correo2 NOT REGEXP '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El correo electrónico 2 no tiene un formato válido.',
+        MYSQL_ERRNO = 1020;
     END IF;
 
-    -- 4. Validar formato básico de correos
-    IF p_correo_principal NOT LIKE '%@%.%' 
-    OR (p_correo_secundario IS NOT NULL AND p_correo_secundario NOT LIKE '%@%.%') THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este formato de Correo no es válido.';
+    IF p_telefono1 NOT REGEXP '^[0-9]{9}$' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El teléfono 1 no tiene un formato válido.',
+        MYSQL_ERRNO = 1021;
     END IF;
 
-    -- 5. Validar que teléfonos no sean iguales
-    IF p_telefono_secundario IS NOT NULL AND p_telefono_principal = p_telefono_secundario THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Teléfono Principal y Secundario no pueden ser iguales.';
+    IF p_telefono2 IS NOT NULL AND p_telefono2 NOT REGEXP '^[0-9]{9}$' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El teléfono 2 no tiene un formato válido.',
+        MYSQL_ERRNO = 1022;
     END IF;
 
-    -- 6. Inserción (Corregida cantidad de columnas y valores)
-    INSERT INTO empleado (
-        dni_empleado, nombre_empleado, apellido_empleado, fecha_nacimiento, fecha_registro,
-        direccion_empleado, correo_principal, correo_secundario, telefono_principal, 
-        telefono_secundario, id_genero, estado
-    ) VALUES (
-        p_dni_empleado, p_nombre_empleado, p_apellido_empleado, p_fecha_nacimiento, 
-        p_fecha_registro, p_direccion_empleado, p_correo_principal, p_correo_secundario, 
-        p_telefono_principal, p_telefono_secundario, p_id_genero, 1
+    INSERT INTO empleado(
+        dni_empleado,
+        nombre_empleado,
+        apellido_empleado,
+        fecha_nacimiento,
+        fecha_registro,
+        direccion_empleado,
+        correo_principal,
+        correo_secundario,
+        telefono_principal,
+        telefono_secundario,
+        observacion_empleado,
+        id_genero,
+        estado
+    )
+    VALUES(
+        p_dni,
+        p_nombres,
+        p_apellidos,
+        p_fecha_nacimiento,
+        p_fecha_registro,
+        p_lugar_residencia,
+        p_correo1,
+        p_correo2,
+        p_telefono1,
+        p_telefono2,
+        p_observacion,
+        p_id_genero,
+        DEFAULT
     );
+
+    SELECT 'Empleado registrado correctamente.' AS mensaje;
 
 END$$
 
 DELIMITER ;
-    
-CALL insertar_empleado(
-    '76543210', 'Juan Carlos', 'Pérez Rodríguez', '1990-05-15', '2026-04-06',            
-    'Av. Las Palmeras 123', 'juan.perez@gmail.com', NULL, '987654321', NULL, 1                        
-);
+
+
+
+
 
 
 /* ============================================================
@@ -575,9 +623,10 @@ DELIMITER ;
 
 
 /* ============================================================
-   11. PRODUCTO
-   Valida nombre único, campos no vacíos y valores numéricos válidos.
-   Valida existencia de unidad de medida.
+    11. PRODUCTO
+    Valida nombre único, campos no vacíos, valores numéricos,
+    existencia de unidad de medida e inserta observación.
+    El estado se asigna como 1 (Activo) por defecto.
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_producto;
 DELIMITER $$
@@ -587,12 +636,14 @@ CREATE PROCEDURE insertar_producto(
     IN p_precio_unitario DECIMAL(10,2),
     IN p_stock_minimo INT,
     IN p_stock_actual INT,
+    IN p_observacion TEXT, -- Único parámetro nuevo conservado
     IN p_id_unidad_medida INT
 )
 BEGIN
     DECLARE v_count INT;
-	DECLARE v_msg VARCHAR(500);
+    DECLARE v_obs TEXT DEFAULT TRIM(p_observacion);
 
+    -- 1. Validar nombre único
     SELECT COUNT(*) INTO v_count
     FROM producto
     WHERE UPPER(TRIM(nombre_producto)) = UPPER(TRIM(p_nombre));
@@ -603,12 +654,14 @@ BEGIN
         MYSQL_ERRNO = 1028;
     END IF;
 
+    -- 2. Validar que el nombre no esté vacío
     IF p_nombre IS NULL OR TRIM(p_nombre) = '' THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'El nombre del producto no puede estar vacío.',
         MYSQL_ERRNO = 1029;
     END IF;
 
+    -- 3. Validar precios y stock
     IF p_precio_unitario < 0 THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'El precio unitario debe ser mayor o igual a 0.',
@@ -627,6 +680,7 @@ BEGIN
         MYSQL_ERRNO = 1032;
     END IF;
 
+    -- 4. Validar existencia de unidad de medida
     SELECT COUNT(*) INTO v_count
     FROM unidad_medida
     WHERE id_unidad_medida = p_id_unidad_medida;
@@ -637,20 +691,26 @@ BEGIN
         MYSQL_ERRNO = 1033;
     END IF;
 
+    -- 5. Ejecutar inserción (Estado se manda como 1 internamente)
     INSERT INTO producto(
         nombre_producto,
         precio_producto,
         stock_minimo,
         stock_actual,
-        id_unidad_medida
+        observacion_producto,
+        id_unidad_medida,
+        estado 
     )
     VALUES(
-        p_nombre,
+        TRIM(p_nombre),
         p_precio_unitario,
         p_stock_minimo,
         p_stock_actual,
-        p_id_unidad_medida
+        v_obs,
+        p_id_unidad_medida,
+        1 -- Se asigna "Activo" automáticamente
     );
+
     SELECT 'Producto insertado exitosamente.' AS mensaje;
 
 END$$
@@ -663,9 +723,10 @@ DELIMITER ;
 
 
 /* ============================================================
-   12. PROVEEDOR
-   Valida duplicado por RUC y correo.
-   Valida formato y campos obligatorios.
+    12. PROVEEDOR
+    Valida duplicado por RUC y correo.
+    Valida formato y campos obligatorios.
+    Asigna estado 1 por defecto e incluye observación.
    ============================================================ */
 DROP PROCEDURE IF EXISTS insertar_proveedor;
 DELIMITER $$
@@ -675,15 +736,17 @@ CREATE PROCEDURE insertar_proveedor(
     IN p_razon_social VARCHAR(255),
     IN p_telefono VARCHAR(50),
     IN p_correo VARCHAR(255),
-    IN p_direccion VARCHAR(255)
+    IN p_direccion VARCHAR(255),
+    IN p_observacion TEXT -- Nuevo parámetro
 )
 BEGIN
     DECLARE v_count INT;
-	DECLARE v_msg VARCHAR(500);
+    DECLARE v_obs TEXT DEFAULT TRIM(p_observacion);
 
+    -- 1. Validar duplicado por RUC
     SELECT COUNT(*) INTO v_count
     FROM proveedor
-    WHERE ruc_proveedor = p_ruc;
+    WHERE ruc = p_ruc; -- Nombre de columna corregido a 'ruc'
 
     IF v_count > 0 THEN
         SIGNAL SQLSTATE '45000'
@@ -691,6 +754,7 @@ BEGIN
         MYSQL_ERRNO = 1034;
     END IF;
 
+    -- 2. Validar duplicado por Correo
     SELECT COUNT(*) INTO v_count
     FROM proveedor
     WHERE correo_proveedor = p_correo;
@@ -701,12 +765,14 @@ BEGIN
         MYSQL_ERRNO = 1035;
     END IF;
 
-    IF LENGTH(p_ruc) <> 11 THEN
+    -- 3. Validar longitud del RUC
+    IF LENGTH(TRIM(p_ruc)) <> 11 THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'El RUC debe tener exactamente 11 caracteres.',
         MYSQL_ERRNO = 1036;
     END IF;
 
+    -- 4. Validar campos obligatorios
     IF p_razon_social IS NULL OR TRIM(p_razon_social) = '' THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'La razón social no puede estar vacía.',
@@ -731,20 +797,24 @@ BEGIN
         MYSQL_ERRNO = 1040;
     END IF;
 
+    -- 5. Ejecutar inserción
     INSERT INTO proveedor(
         ruc,
         razon_social,
         telefono_proveedor,
         correo_proveedor,
-        direccion_proveedor
+        direccion_proveedor,
+        observacion_proveedor, -- Campo añadido
+        estado        -- Campo añadido (Valor 1 por defecto)
     )
-
     VALUES(
-        p_ruc,
-        p_razon_social,
-        p_telefono,
-        p_correo,
-        p_direccion
+        TRIM(p_ruc),
+        TRIM(p_razon_social),
+        TRIM(p_telefono),
+        LOWER(TRIM(p_correo)),
+        TRIM(p_direccion),
+        v_obs,
+        1 -- Estado activo por defecto
     );
 
     SELECT 'Proveedor insertado exitosamente.' AS mensaje;

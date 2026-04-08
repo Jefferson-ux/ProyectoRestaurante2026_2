@@ -9,7 +9,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 
    /*Método de Mesa*/
-import logic.dao.ReservaMethod;
+import logic.dao.PedidoMethod;
 
 
   /*excel*/
@@ -37,7 +37,7 @@ public class Frm_Pedido extends javax.swing.JFrame {
 
     DefaultTableModel modeloTablaReserva = new DefaultTableModel();
     //Objeto conexión a la base de datos
-    ReservaMethod methods;
+    PedidoMethod methods;
 
     public Frm_Pedido() {
         FlatLightLaf.setup();
@@ -51,57 +51,40 @@ public class Frm_Pedido extends javax.swing.JFrame {
         // 3. Lo asignamos a la ventana
         this.setIconImage(imagen);
 
-        this.methods = new ReservaMethod();
+        this.methods = new PedidoMethod();
 
         // Títulos que verá el usuario
-            // | DNI | Nombres y Apellidos | Nro Mesa | Inicio | Fin | PAX Nro Personas | Registro |
         String[] header = {"ID","DNI Cliente","Cliente","DNI Empleado","Empleado","Tipo de Pedido","Fecha de Pedido"};
-                         // ID   DNI    CLIENTE                                                 PAX
-        // Modelo para Hora Inicio
-        SpinnerDateModel modelInicio = new SpinnerDateModel();
-        spnHoraInicio.setModel(modelInicio);
-        JSpinner.DateEditor editorInicio = new JSpinner.DateEditor(spnHoraInicio, "HH:mm");
-        spnHoraInicio.setEditor(editorInicio);
-
-        // Modelo para Hora Fin
-        SpinnerDateModel modelFin = new SpinnerDateModel();
-        spnHoraFin.setModel(modelFin);
-        JSpinner.DateEditor editorFin = new JSpinner.DateEditor(spnHoraFin, "HH:mm");
-        spnHoraFin.setEditor(editorFin);
 
         modeloTablaReserva.setColumnIdentifiers(header);
         JTABLE_Mant_Reserva.setModel(modeloTablaReserva);
 
         TableColumnModel colModel = JTABLE_Mant_Reserva.getColumnModel();
         
-        txtNombrePlato.setEditable(false);
-        txtPrecio.setEditable(false);
-        jTextAreaObservaciones.setEditable(false);
-        jComboBoxCategoria.setEnabled(false);
-
-
     // ID: Lo ocultamos
     colModel.getColumn(0).setPreferredWidth(0);
     colModel.getColumn(0).setMinWidth(0);
     colModel.getColumn(0).setMaxWidth(0);
 
-    // DNI: Pequeño
+    // DNI Cliente: Pequeño
     colModel.getColumn(1).setPreferredWidth(100);
 
     // Cliente: Largo (Cubre Apellidos y Nombres)
     colModel.getColumn(2).setPreferredWidth(200);
-    colModel.getColumn(2).setMaxWidth(2500);
-
-    // Mesa: Pequeño
-    colModel.getColumn(3).setPreferredWidth(80);
-
-    // H. Entrada y H. Salida -> Pequeño
-    colModel.getColumn(4).setPreferredWidth(100);
+    colModel.getColumn(2).setMaxWidth(250);
     
-    // PAX : Pequeño
-    colModel.getColumn(4).setPreferredWidth(80);
+        // DNIEmpleado: Pequeño
+    colModel.getColumn(1).setPreferredWidth(100);
+
+    // Empleado: Largo (Cubre Apellidos y Nombres)
+    colModel.getColumn(2).setPreferredWidth(200);
+    colModel.getColumn(2).setMaxWidth(250);
+
+    // Tipo de Pedido
+    colModel.getColumn(3).setPreferredWidth(120);
     
-    // F. Registro -> Pequeño
+    
+    // Fecha de Pedido
     colModel.getColumn(4).setPreferredWidth(100);
 
     // 3. Extras de la Tabla
@@ -151,6 +134,7 @@ public class Frm_Pedido extends javax.swing.JFrame {
         txtNombres = new javax.swing.JTextField();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
         jPanelEmpleado = new javax.swing.JPanel();
         txtDNI1 = new javax.swing.JTextField();
         jLabel18 = new javax.swing.JLabel();
@@ -158,12 +142,13 @@ public class Frm_Pedido extends javax.swing.JFrame {
         txtApellidos1 = new javax.swing.JTextField();
         txtNombres1 = new javax.swing.JTextField();
         jLabel20 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
         jDateChooser1 = new com.toedter.calendar.JDateChooser();
         jLabel3 = new javax.swing.JLabel();
-        txtTipoPedido = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -176,7 +161,7 @@ public class Frm_Pedido extends javax.swing.JFrame {
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         BTN_VerPlatos.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_VerPlatos.setText("VER RESERVAS");
+        BTN_VerPlatos.setText("VER PEDIDOS");
         BTN_VerPlatos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 BTN_VerPlatosActionPerformed(evt);
@@ -304,7 +289,7 @@ public class Frm_Pedido extends javax.swing.JFrame {
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Buscar Reservas :");
+        jLabel4.setText("Buscar Pedidos :");
         jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 10, -1, 30));
 
         TXT_BuscarMesas.addActionListener(new java.awt.event.ActionListener() {
@@ -346,7 +331,7 @@ public class Frm_Pedido extends javax.swing.JFrame {
         txtcodigoplato.setForeground(new java.awt.Color(0, 0, 204));
         txtcodigoplato.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtcodigoplato.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtcodigoplato, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, 90, 20));
+        jPanel1.add(txtcodigoplato, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 90, 20));
 
         jPanelCliente.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "   Cliente Atendido   ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Segoe UI", 1, 12))); // NOI18N
         jPanelCliente.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -356,21 +341,24 @@ public class Frm_Pedido extends javax.swing.JFrame {
                 txtDNIActionPerformed(evt);
             }
         });
-        jPanelCliente.add(txtDNI, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 200, 22));
+        jPanelCliente.add(txtDNI, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 140, 22));
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel13.setText("Nombres:*");
-        jPanelCliente.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 90, -1));
-        jPanelCliente.add(txtApellidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 200, 22));
-        jPanelCliente.add(txtNombres, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 200, 22));
+        jPanelCliente.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 95, 90, -1));
+        jPanelCliente.add(txtApellidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 220, 22));
+        jPanelCliente.add(txtNombres, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 115, 220, 22));
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel14.setText("Apellidos:*");
-        jPanelCliente.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 90, -1));
+        jPanelCliente.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 90, -1));
 
         jLabel15.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel15.setText("DNI:*");
         jPanelCliente.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 90, -1));
+
+        jButton2.setText("Buscar");
+        jPanelCliente.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(162, 50, 80, -1));
 
         jPanel1.add(jPanelCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 80, 280, 230));
 
@@ -382,7 +370,7 @@ public class Frm_Pedido extends javax.swing.JFrame {
                 txtDNI1ActionPerformed(evt);
             }
         });
-        jPanelEmpleado.add(txtDNI1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 200, 22));
+        jPanelEmpleado.add(txtDNI1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 140, 22));
 
         jLabel18.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel18.setText("DNI:*");
@@ -390,27 +378,24 @@ public class Frm_Pedido extends javax.swing.JFrame {
 
         jLabel19.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel19.setText("Nombres:*");
-        jPanelEmpleado.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 90, -1));
-        jPanelEmpleado.add(txtApellidos1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 200, 22));
-        jPanelEmpleado.add(txtNombres1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 200, 22));
+        jPanelEmpleado.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 95, 90, -1));
+        jPanelEmpleado.add(txtApellidos1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 220, 22));
+        jPanelEmpleado.add(txtNombres1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 115, 220, 22));
 
         jLabel20.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel20.setText("Apellidos:*");
-        jPanelEmpleado.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 90, -1));
+        jPanelEmpleado.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 90, -1));
 
-        jPanel1.add(jPanelEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 280, 230));
+        jButton1.setText("Buscar");
+        jPanelEmpleado.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(162, 50, 80, -1));
+
+        jPanel1.add(jPanelEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 280, 230));
         jPanel1.add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 40, 150, -1));
 
         jLabel3.setFont(new java.awt.Font("Yu Gothic UI Light", 1, 36)); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("→");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 160, -1, -1));
-
-        txtTipoPedido.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtTipoPedidoActionPerformed(evt);
-            }
-        });
-        jPanel1.add(txtTipoPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 40, 230, -1));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 160, 50, -1));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel6.setText("ID:");
@@ -422,7 +407,10 @@ public class Frm_Pedido extends javax.swing.JFrame {
 
         jLabel16.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel16.setText("Tipo de Pedido:*");
-        jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 20, 130, -1));
+        jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 20, 130, -1));
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jPanel1.add(jComboBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 40, 210, -1));
 
         jPanel3.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 700, 330));
 
@@ -930,10 +918,6 @@ public class Frm_Pedido extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtDNI1ActionPerformed
 
-    private void txtTipoPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTipoPedidoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtTipoPedidoActionPerformed
-
     /**
      * @param args the command line arguments
      */
@@ -1046,6 +1030,9 @@ public class Frm_Pedido extends javax.swing.JFrame {
     private javax.swing.JButton BTN_VerPlatos;
     private javax.swing.JTable JTABLE_Mant_Reserva;
     private javax.swing.JTextField TXT_BuscarMesas;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JComboBox<String> jComboBox1;
     private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel12;
@@ -1072,7 +1059,6 @@ public class Frm_Pedido extends javax.swing.JFrame {
     private javax.swing.JTextField txtDNI1;
     private javax.swing.JTextField txtNombres;
     private javax.swing.JTextField txtNombres1;
-    private javax.swing.JTextField txtTipoPedido;
     private javax.swing.JTextField txtcodigoplato;
     // End of variables declaration//GEN-END:variables
 

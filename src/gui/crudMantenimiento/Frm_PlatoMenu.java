@@ -53,7 +53,10 @@ public class Frm_PlatoMenu extends javax.swing.JFrame {
 
         String[] header = {"ID ", "Nombre del plato","Precio","Categoría","Descripción"};
 
+        // Asignar los titulos al modelo
         modeloTablaMesa.setColumnIdentifiers(header);
+        
+        // Establecer el modelo de la JTable
         JTABLE_Mant_Plato.setModel(modeloTablaMesa);
 
         TableColumnModel colModel = JTABLE_Mant_Plato.getColumnModel();
@@ -167,6 +170,16 @@ public class Frm_PlatoMenu extends javax.swing.JFrame {
 
         jComboBoxCategoria.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jComboBoxCategoria.setForeground(new java.awt.Color(0, 0, 204));
+        jComboBoxCategoria.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxCategoriaActionPerformed(evt);
+            }
+        });
+        jComboBoxCategoria.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jComboBoxCategoriaKeyReleased(evt);
+            }
+        });
         jPanel1.add(jComboBoxCategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 120, 330, 30));
 
         txtNombrePlato.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -874,6 +887,14 @@ public class Frm_PlatoMenu extends javax.swing.JFrame {
         this.BTN_Modificar.setEnabled(false);
         this.BTN_VerPlatos.setEnabled(false);
     }//GEN-LAST:event_BTN_VerPlatosActionPerformed
+
+    private void jComboBoxCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxCategoriaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBoxCategoriaActionPerformed
+
+    private void jComboBoxCategoriaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jComboBoxCategoriaKeyReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBoxCategoriaKeyReleased
 
     /**
      * @param args the command line arguments

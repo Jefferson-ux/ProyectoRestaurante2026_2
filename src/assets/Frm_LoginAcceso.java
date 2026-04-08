@@ -2,27 +2,40 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package gui.menu;
+package assets;
 
-/**
- *
- * @author GIGABYTE
- */
+import java.awt.Color;
+import com.formdev.flatlaf.FlatLightLaf;
+
 public class Frm_LoginAcceso extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Frm_LoginAcceso.class.getName());
 
-    /**
-     * Creates new form Frm_LoginAcceso
-     */
-    public Frm_LoginAcceso() {
-        initComponents();
-   
-
-
-    // Espera a que cargue todo
-   
     
+    public Frm_LoginAcceso() {
+        this.setUndecorated(true);
+        FlatLightLaf.setup();
+        initComponents();
+        this.setLocationRelativeTo(null);
+        this.setResizable(false);
+   
+        txtUsuario.setOpaque(false);
+        txtPassword.setOpaque(true);
+    
+        
+        txtUsuario.setOpaque(false); // Hace el fondo transparente
+        txtUsuario.setBackground(new Color(0, 0, 0, 0)); // Refuerza la transparencia
+        txtUsuario.setBorder(null); // Quita la línea del borde si no la necesitas
+        
+        txtPassword.setOpaque(false); // Hace el fondo transparente
+        txtPassword.setBackground(new Color(0, 0, 0, 0)); // Refuerza la transparencia
+        txtPassword.setBorder(null); // Quita la línea del borde si no la necesitas
+
+        login.setOpaque(false); // Hace el fondo transparente
+        login.setBackground(new Color(0, 0, 0, 0)); // Refuerza la transparencia
+        login.setBorder(null); // Quita la línea del borde si no la necesitas
+        
+        
 }
     
 
@@ -36,7 +49,7 @@ public class Frm_LoginAcceso extends javax.swing.JFrame {
     private void initComponents() {
 
         PanelFondo = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
+        login = new javax.swing.JPanel();
         txtUsuario = new javax.swing.JTextField();
         txtPassword = new javax.swing.JPasswordField();
         jSeparator2 = new javax.swing.JSeparator();
@@ -48,7 +61,7 @@ public class Frm_LoginAcceso extends javax.swing.JFrame {
         cbCargo = new javax.swing.JComboBox<>();
         btnIngresar = new javax.swing.JButton();
         panelImage2 = new org.edisoncor.gui.panel.PanelImage();
-        pnlLogin = new javax.swing.JLabel();
+        btnSalir = new javax.swing.JButton();
         lblFondo = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -56,60 +69,61 @@ public class Frm_LoginAcceso extends javax.swing.JFrame {
 
         PanelFondo.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        login.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         txtUsuario.setBackground(new java.awt.Color(51, 51, 51));
         txtUsuario.setForeground(new java.awt.Color(255, 255, 255));
         txtUsuario.setBorder(null);
         txtUsuario.addActionListener(this::txtUsuarioActionPerformed);
-        jPanel2.add(txtUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 160, 160, 20));
+        login.add(txtUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 190, 200, 30));
 
         txtPassword.setBackground(new java.awt.Color(0, 0, 0));
         txtPassword.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         txtPassword.setForeground(new java.awt.Color(255, 255, 255));
         txtPassword.setBorder(null);
-        jPanel2.add(txtPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 210, 160, 20));
-        jPanel2.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 180, 180, 10));
+        login.add(txtPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 260, 200, 30));
+        login.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 220, 210, 10));
 
         lblPassword.setForeground(new java.awt.Color(255, 255, 255));
         lblPassword.setText("Password");
-        jPanel2.add(lblPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 190, 60, -1));
+        login.add(lblPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 240, 60, -1));
 
         lblUsername.setForeground(new java.awt.Color(255, 255, 255));
         lblUsername.setText("Username");
-        jPanel2.add(lblUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 140, -1, -1));
-        jPanel2.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 230, 180, 10));
+        login.add(lblUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 170, -1, -1));
+        login.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 290, 210, 10));
 
         chkMostrar.addActionListener(this::chkMostrarActionPerformed);
-        jPanel2.add(chkMostrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 210, 20, 20));
+        login.add(chkMostrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 280, 20, 20));
 
         panelImage1.setForeground(new java.awt.Color(255, 255, 255));
-        panelImage1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/avatar.png"))); // NOI18N
+        panelImage1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/login_icon.png"))); // NOI18N
 
         javax.swing.GroupLayout panelImage1Layout = new javax.swing.GroupLayout(panelImage1);
         panelImage1.setLayout(panelImage1Layout);
         panelImage1Layout.setHorizontalGroup(
             panelImage1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 110, Short.MAX_VALUE)
+            .addGap(0, 140, Short.MAX_VALUE)
         );
         panelImage1Layout.setVerticalGroup(
             panelImage1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 110, Short.MAX_VALUE)
+            .addGap(0, 140, Short.MAX_VALUE)
         );
 
-        jPanel2.add(panelImage1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 110, 110));
+        login.add(panelImage1, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 20, 140, 140));
 
         cbCargo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccionar cargo", "Administrador", "Cajero", "Mesero", "Cocinero" }));
         cbCargo.setBorder(null);
-        jPanel2.add(cbCargo, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 250, 160, 20));
+        login.add(cbCargo, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 320, 190, 30));
 
         btnIngresar.setBackground(new java.awt.Color(13, 48, 193));
         btnIngresar.setFont(new java.awt.Font("Segoe UI Historic", 1, 14)); // NOI18N
         btnIngresar.setForeground(new java.awt.Color(255, 255, 255));
         btnIngresar.setText("Ingresar");
-        jPanel2.add(btnIngresar, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 290, 90, 30));
+        btnIngresar.addActionListener(this::btnIngresarActionPerformed);
+        login.add(btnIngresar, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 380, 120, 40));
 
-        panelImage2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/3844476-eye-see-show-view-watch_110339.png"))); // NOI18N
+        panelImage2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_eye.png"))); // NOI18N
 
         javax.swing.GroupLayout panelImage2Layout = new javax.swing.GroupLayout(panelImage2);
         panelImage2.setLayout(panelImage2Layout);
@@ -122,15 +136,17 @@ public class Frm_LoginAcceso extends javax.swing.JFrame {
             .addGap(0, 20, Short.MAX_VALUE)
         );
 
-        jPanel2.add(panelImage2, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 210, 20, 20));
+        login.add(panelImage2, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 280, 20, 20));
 
-        pnlLogin.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/loginaccssoooo.jpg"))); // NOI18N
-        pnlLogin.setText("jLabel1");
-        jPanel2.add(pnlLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 300, 350));
+        btnSalir.setBackground(new java.awt.Color(13, 48, 193));
+        btnSalir.setFont(new java.awt.Font("Segoe UI Historic", 1, 14)); // NOI18N
+        btnSalir.setForeground(new java.awt.Color(255, 255, 255));
+        btnSalir.setText("Salir");
+        login.add(btnSalir, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 380, 120, 40));
 
-        PanelFondo.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 70, 300, 350));
+        PanelFondo.add(login, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 430, 450));
 
-        lblFondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/loginaccssoooo.jpg"))); // NOI18N
+        lblFondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/login_background.jpg"))); // NOI18N
         lblFondo.setText("jLabel1");
         PanelFondo.add(lblFondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 470, 480));
 
@@ -139,21 +155,23 @@ public class Frm_LoginAcceso extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void chkMostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkMostrarActionPerformed
+        if (chkMostrar.isSelected()) {
+            txtPassword.setEchoChar((char)0); // muestra
+        } else {
+            txtPassword.setEchoChar('•'); // oculta
+        }
+    }//GEN-LAST:event_chkMostrarActionPerformed
+
     private void txtUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsuarioActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtUsuarioActionPerformed
 
-    private void chkMostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkMostrarActionPerformed
-      if (chkMostrar.isSelected()) {
-    txtPassword.setEchoChar((char)0); // muestra
-} else {
-    txtPassword.setEchoChar('•'); // oculta
-}
-    }//GEN-LAST:event_chkMostrarActionPerformed
+    private void btnIngresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIngresarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnIngresarActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -179,17 +197,17 @@ public class Frm_LoginAcceso extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelFondo;
     private javax.swing.JButton btnIngresar;
+    private javax.swing.JButton btnSalir;
     private javax.swing.JComboBox<String> cbCargo;
     private javax.swing.JCheckBox chkMostrar;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JLabel lblFondo;
     private javax.swing.JLabel lblPassword;
     private javax.swing.JLabel lblUsername;
+    private javax.swing.JPanel login;
     private org.edisoncor.gui.panel.PanelImage panelImage1;
     private org.edisoncor.gui.panel.PanelImage panelImage2;
-    private javax.swing.JLabel pnlLogin;
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsuario;
     // End of variables declaration//GEN-END:variables

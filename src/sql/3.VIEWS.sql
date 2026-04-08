@@ -4,10 +4,10 @@ USE db_restaurant;
 /*===================   VISTAS  ==================*/
 /*================================================*/
 
-/* ============================================================
-   1. CARGO
-   ============================================================ */
+/* vista_cargo */
+USE db_restaurant;
 
+/* vista_cargo */
 CREATE OR REPLACE VIEW vista_cargo AS
 SELECT
     id_cargo AS `ID`,
@@ -16,9 +16,8 @@ FROM cargo
 WHERE estado = 1;
 
 
-/* ============================================================
-   2. CATEGORIA
-   ============================================================ */
+
+/* vista_categoria */
 CREATE OR REPLACE VIEW vista_categoria AS
 SELECT
     id_categoria AS `ID`,
@@ -27,9 +26,8 @@ FROM categoria
 WHERE estado = 1;
 
 
-/* ============================================================
-   3. CLIENTE
-   ============================================================ */
+
+/* vista_cliente */
 CREATE OR REPLACE VIEW vista_cliente AS
 SELECT
     id_cliente, -- Lo añadimos para facilitar la búsqueda
@@ -73,9 +71,8 @@ WHERE
     c.estado = 1;
 
 
-/* ============================================================
-   5. DETALLE_PEDIDO
-   ============================================================ */
+
+/* vista_detalle_pedido */
 CREATE OR REPLACE VIEW vista_detalle_pedido AS
 SELECT
     d.id_detalle 		AS `ID detalle`, 
@@ -94,36 +91,35 @@ FROM detalle_pedido d
 INNER JOIN pedido p      ON d.id_pedido = p.id_pedido
 INNER JOIN plato_menu pm ON d.id_plato_menu = pm.id_plato_menu;
 
-SELECT * FROM vista_detalle_pedido;
 
 
 
-/* ============================================================
-   6. EMPLEADO
-   ============================================================ */
+
+
+/* vista_empleado */
 CREATE OR REPLACE VIEW vista_empleado AS
 SELECT
-    e.id_empleado               AS "Codigo de Empleado",
     e.dni_empleado              AS `DNI`,
     e.nombre_empleado           AS `Nombre de Empleado`,
     e.apellido_empleado         AS `Apellido de Empleado`,
-    e.fecha_nacimiento          AS `Fecha de Nacimiento`,
-    e.fecha_registro            AS `Fecha de Registro`,
-    e.direccion_empleado        AS `Lugar de Residencia`,
+    e.fecha_nacimiento AS `Fecha de Nacimiento`,
+    e.fecha_registro   AS `Fecha de Registro`,
+    e.direccion_empleado AS `Lugar de Residencia`,
     e.correo_principal          AS `Correo Principal`,
-    e.correo_secundario         AS `Correo Secundario`,
-    e.telefono_principal        AS `Teléfono Principal`,
-    e.telefono_secundario       AS `Teléfono Secundario`,
+    e.correo_secundario          AS `Correo Secundario`,
+    e.telefono_principal AS `Teléfono Principal`,
+    e.telefono_secundario AS `Teléfono Secundario`,
     g.nombre_genero             AS `Género`,
-    e.observacion_empleado      AS `Observaciones`
+    e.observacion_empleado 		 AS `Observaciones`
 FROM empleado e
 INNER JOIN genero g ON e.id_genero = g.id_genero
 WHERE  e.estado = 1;
 
 
-/* ============================================================
-   7. FACTURA
-   ============================================================ */
+
+
+
+/* vista_factura */
 CREATE OR REPLACE VIEW vista_factura AS
 SELECT
     f.numero_comprobante AS `Número de Comprobante`,
@@ -172,21 +168,26 @@ SELECT
     p.id_pedido AS `ID`,
     DATE_FORMAT(p.fecha_pedido, '%d/%m/%Y') AS `Fecha del Pedido`,
     c.dni_cliente AS `DNI del Cliente`,
-    CONCAT(c.nombre_cliente, ' ', c.apellido_cliente) AS `Cliente`,
-    CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS `Empleado`,
+    c.nombre_cliente AS `Nombre del Cliente`,
+    c.apellido_cliente AS `Apellidos del Cliente`,
+    e.dni_empleado AS `DNI del Empleado`,
+    e.nombre_empleado AS `Nombre del Empleado`,
+    e.apellido_empleado AS `Apellidos del Empleado`,
+    CONCAT(c.dni_cliente,' - ',c.nombre_cliente, ' ', c.apellido_cliente) AS `Cliente`,
+    CONCAT(e.dni_empleado,' - ',e.nombre_empleado, ' ', e.apellido_empleado) AS `Empleado`,
     tp.nombre_tipo_pedido AS `Tipo de Pedido`,
-    totales.cantidad_total AS `Cantidad de Platos`
+    IFNULL(totales.cantidad_total,0) AS `Cantidad de Platos`
 FROM pedido p
 INNER JOIN cliente c ON p.id_cliente = c.id_cliente
 INNER JOIN empleado e ON p.id_empleado = e.id_empleado
 INNER JOIN tipo_pedido tp ON p.id_tipo_pedido = tp.id_tipo_pedido
-INNER JOIN (
+LEFT JOIN (
     SELECT id_pedido, SUM(cantidad) AS cantidad_total
     FROM detalle_pedido
     GROUP BY id_pedido
 ) totales ON p.id_pedido = totales.id_pedido
 WHERE p.estado = 1;
-
+SELECT * FROM vista_pedido;
 
 
 /* vista_plato_menu */
@@ -206,14 +207,14 @@ WHERE pm.estado = 1;
 /* vista_producto */
 CREATE OR REPLACE VIEW vista_producto AS
 SELECT
-    
     p.id_producto	AS `ID`,
     p.nombre_producto AS `Nombre del Producto`,
     um.nombre_unidad_medida AS `Unidad de Medida`,
     um.abreviatura AS `Abreviatura`,
     CONCAT('S/ ', FORMAT(p.precio_producto, 2)) AS `Precio`,
     p.stock_minimo AS `Stock Mínimo`,
-    p.stock_actual AS `Stock Actual`
+    p.stock_actual AS `Stock Actual`,
+    p.observacion_producto AS `Observaciones`
 FROM producto p
 INNER JOIN unidad_medida um
     ON p.id_unidad_medida = um.id_unidad_medida;
@@ -223,11 +224,13 @@ INNER JOIN unidad_medida um
 /* vista_proveedor */
 CREATE OR REPLACE VIEW vista_proveedor AS
 SELECT
+  id_proveedor AS `ID`,
   ruc AS `RUC`,
   razon_social AS `Razón Social (Nombre del Proveedor)`,
   telefono_proveedor AS `Teléfono de contacto`,
   correo_proveedor AS `Correo de contacto`,
-  direccion_proveedor AS `Dirección`
+  direccion_proveedor AS `Dirección`,
+  observacion_proveedor AS `Observaciones`
 FROM proveedor;
 
 

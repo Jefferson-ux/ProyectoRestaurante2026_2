@@ -231,8 +231,11 @@ CREATE TABLE producto (
     precio_producto DECIMAL(10,2) NOT NULL,
     stock_minimo INT NOT NULL,
     stock_actual INT NOT NULL,
+    observacion_producto TEXT,
     id_unidad_medida INT NOT NULL,
+    estado TINYINT(1) NOT NULL DEFAULT 1,
     FOREIGN KEY (id_unidad_medida) REFERENCES unidad_medida(id_unidad_medida),
+    CHECK (estado IN (0, 1)), 
     CHECK (precio_producto >= 0),
     CHECK (stock_minimo >= 0 AND stock_actual >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -247,6 +250,9 @@ CREATE TABLE proveedor (
     telefono_proveedor VARCHAR(15) NOT NULL,
     correo_proveedor VARCHAR(150) NOT NULL,
     direccion_proveedor VARCHAR(150) NOT NULL,
+    observacion_proveedor TEXT,
+    estado TINYINT(1) NOT NULL DEFAULT 1,
+    CHECK (estado IN (0, 1)),
     CHECK (telefono_proveedor REGEXP '^[0-9]{7,15}$'),
     CHECK (correo_proveedor REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

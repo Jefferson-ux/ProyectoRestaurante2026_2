@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
+import gui.crudMantenimiento.JD_AgregarPlato;
 
    /*Método de Mesa*/
 import logic.dao.ReservaMethod;
@@ -27,6 +28,7 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.table.TableColumnModel;
 import logic.dao.DetallePedidoMethod;
 import logic.dao.PedidoMethod;
+import gui.crudMantenimiento.JD_AgregarPlato;
 
 //import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 //import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -43,6 +45,7 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
     DefaultTableModel modeloTablaReserva = new DefaultTableModel();
     //Objeto conexión a la base de datos
     ReservaMethod methods;
+    JD_AgregarPlato dialogo;
 
     public Frm_Detalle_Pedido() {
         FlatLightLaf.setup();
@@ -71,10 +74,7 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
 
         TableColumnModel colModel = JTABLE_Mant_DetallePedido.getColumnModel();
         
-        txtNombrePlato.setEditable(false);
-        txtPrecio.setEditable(false);
-        jTextAreaObservaciones.setEditable(false);
-        jComboBoxCategoria.setEnabled(false);
+
 
         
         //
@@ -117,18 +117,17 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
 
 
         //Desactivar button
-        BTN_Nuevo.setEnabled(false);
+/*        BTN_Nuevo.setEnabled(false);
         BTN_Quitar.setEnabled(false);
         BTN_Guardar.setEnabled(false);
-        BTN_Cancel.setVisible(false);
         BTN_Modificar.setEnabled(false);
         txtFechaRegistro.setEnabled(false);
 
+        */
         
         
-        
-        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(spnPrecio, "0.00");
-        spnPrecio.setEditor(editor);
+        //JSpinner.NumberEditor editor = new JSpinner.NumberEditor(spnPrecio, "0.00");
+        //spnPrecio.setEditor(editor);
         
         
         
@@ -139,31 +138,12 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        txtFechaRegistro = new javax.swing.JTextField();
-        txtIdPedido = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        txtIdDetalle = new javax.swing.JTextField();
-        jLabel10 = new javax.swing.JLabel();
-        cmbPlato = new javax.swing.JComboBox<>();
-        jLabel11 = new javax.swing.JLabel();
-        spnCantidad = new javax.swing.JSpinner();
-        spnPrecio = new javax.swing.JSpinner();
-        txtSubtotal = new javax.swing.JFormattedTextField();
-        scrollObs = new javax.swing.JScrollPane();
-        txtObservaciones = new javax.swing.JTextArea();
-        jLabel12 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         BTN_VerDetalles = new javax.swing.JButton();
         BTN_Quitar = new javax.swing.JButton();
         BTN_Modificar = new javax.swing.JButton();
         BTN_Guardar = new javax.swing.JButton();
         BTN_Nuevo = new javax.swing.JButton();
-        BTN_Cancel = new javax.swing.JButton();
         BTN_Back = new javax.swing.JButton();
         scrollTabla = new javax.swing.JScrollPane();
         JTABLE_Mant_DetallePedido = new javax.swing.JTable();
@@ -174,6 +154,25 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         TXT_BuscarDetalles = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        txtFechaRegistro = new javax.swing.JTextField();
+        txtIdPedido = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        txtIdDetalle = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        txtIdPlato = new javax.swing.JTextField();
+        txtIdPlato1 = new javax.swing.JTextField();
+        txtIdPlato2 = new javax.swing.JTextField();
+        txtIdPlato3 = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jLabel9 = new javax.swing.JLabel();
+        BTN_VerDetalles1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -182,93 +181,6 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("MANTENIMIENTO - DETALLE DEL PEDIDO");
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 0, 830, 30));
-
-        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder(new java.awt.Color(204, 0, 51), null));
-        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel2.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
-        jLabel2.setText("Subtotal");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 250, 130, -1));
-
-        txtFechaRegistro.setEditable(false);
-        txtFechaRegistro.setBackground(new java.awt.Color(255, 255, 255));
-        txtFechaRegistro.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        txtFechaRegistro.setForeground(new java.awt.Color(0, 0, 204));
-        txtFechaRegistro.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtFechaRegistro.setText("13/12/2026");
-        txtFechaRegistro.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        txtFechaRegistro.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtFechaRegistroActionPerformed(evt);
-            }
-        });
-        jPanel1.add(txtFechaRegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 10, 150, 30));
-
-        txtIdPedido.setEditable(false);
-        txtIdPedido.setBackground(new java.awt.Color(255, 255, 255));
-        txtIdPedido.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        txtIdPedido.setForeground(new java.awt.Color(0, 0, 204));
-        txtIdPedido.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtIdPedido.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtIdPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 70, 90, 30));
-
-        jLabel3.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
-        jLabel3.setText("Codigo de Detalle");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 130, -1));
-
-        jLabel6.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
-        jLabel6.setText("Fecha de Registro");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 20, 130, -1));
-
-        jLabel7.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
-        jLabel7.setText("Cantidad");
-        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 100, 130, -1));
-
-        jLabel8.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
-        jLabel8.setText("Precio Unitario");
-        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 170, 130, -1));
-
-        txtIdDetalle.setEditable(false);
-        txtIdDetalle.setBackground(new java.awt.Color(255, 255, 255));
-        txtIdDetalle.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        txtIdDetalle.setForeground(new java.awt.Color(0, 0, 204));
-        txtIdDetalle.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtIdDetalle.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtIdDetalle, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 20, 90, 30));
-
-        jLabel10.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
-        jLabel10.setText("Observaciones");
-        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 210, 130, -1));
-
-        cmbPlato.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jPanel1.add(cmbPlato, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 120, 180, 30));
-
-        jLabel11.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
-        jLabel11.setText("Codigo de Pedido");
-        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 130, -1));
-
-        spnCantidad.setModel(new javax.swing.SpinnerNumberModel(1, 1, 50, 1));
-        jPanel1.add(spnCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 90, 150, 30));
-
-        spnPrecio.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, 500.0d, 0.1d));
-        jPanel1.add(spnPrecio, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 170, 150, 30));
-
-        txtSubtotal.setEditable(false);
-        txtSubtotal.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.00"))));
-        txtSubtotal.setFocusable(false);
-        jPanel1.add(txtSubtotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 240, 150, 30));
-
-        txtObservaciones.setColumns(20);
-        txtObservaciones.setRows(5);
-        scrollObs.setViewportView(txtObservaciones);
-
-        jPanel1.add(scrollObs, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 226, 310, 70));
-
-        jLabel12.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
-        jLabel12.setText("Platillo:");
-        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, 130, -1));
-
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 720, 330));
 
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -279,7 +191,7 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
                 BTN_VerDetallesActionPerformed(evt);
             }
         });
-        jPanel3.add(BTN_VerDetalles, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 20, 150, 50));
+        jPanel3.add(BTN_VerDetalles, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 30, 150, 50));
 
         BTN_Quitar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Quitar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_delete.png"))); // NOI18N
@@ -289,7 +201,7 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
                 BTN_QuitarActionPerformed(evt);
             }
         });
-        jPanel3.add(BTN_Quitar, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 280, 150, 48));
+        jPanel3.add(BTN_Quitar, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 300, 140, 48));
 
         BTN_Modificar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Modificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_update.png"))); // NOI18N
@@ -299,7 +211,7 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
                 BTN_ModificarActionPerformed(evt);
             }
         });
-        jPanel3.add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 219, 150, 48));
+        jPanel3.add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 300, 140, 48));
 
         BTN_Guardar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Guardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_save.png"))); // NOI18N
@@ -314,7 +226,7 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
                 BTN_GuardarActionPerformed(evt);
             }
         });
-        jPanel3.add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 157, 150, 48));
+        jPanel3.add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 300, 140, 48));
 
         BTN_Nuevo.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_add.png"))); // NOI18N
@@ -324,17 +236,7 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
                 BTN_NuevoActionPerformed(evt);
             }
         });
-        jPanel3.add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 90, 150, 48));
-
-        BTN_Cancel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Cancel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_cancel.png"))); // NOI18N
-        BTN_Cancel.setText("     CANCELAR");
-        BTN_Cancel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_CancelActionPerformed(evt);
-            }
-        });
-        jPanel3.add(BTN_Cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 94, 150, 48));
+        jPanel3.add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 140, 48));
 
         BTN_Back.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_back.png"))); // NOI18N
         BTN_Back.addActionListener(new java.awt.event.ActionListener() {
@@ -424,6 +326,120 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
 
         jPanel3.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 370, 920, 50));
 
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder(new java.awt.Color(204, 0, 51), null));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
+        jLabel2.setText("Observaciones");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 130, 130, -1));
+
+        txtFechaRegistro.setEditable(false);
+        txtFechaRegistro.setBackground(new java.awt.Color(255, 255, 255));
+        txtFechaRegistro.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtFechaRegistro.setForeground(new java.awt.Color(0, 0, 204));
+        txtFechaRegistro.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtFechaRegistro.setText("13/12/2026");
+        txtFechaRegistro.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtFechaRegistro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtFechaRegistroActionPerformed(evt);
+            }
+        });
+        jPanel1.add(txtFechaRegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 120, 150, 30));
+
+        txtIdPedido.setEditable(false);
+        txtIdPedido.setBackground(new java.awt.Color(255, 255, 255));
+        txtIdPedido.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtIdPedido.setForeground(new java.awt.Color(0, 0, 204));
+        txtIdPedido.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtIdPedido.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.add(txtIdPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 70, 90, 30));
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
+        jLabel3.setText("Codigo de Detalle");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 130, -1));
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
+        jLabel6.setText("Fecha de Registro");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 130, -1));
+
+        jLabel7.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
+        jLabel7.setText("Cantidad");
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 20, 130, -1));
+
+        jLabel8.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
+        jLabel8.setText("Precio Unitario");
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 70, 130, -1));
+
+        txtIdDetalle.setEditable(false);
+        txtIdDetalle.setBackground(new java.awt.Color(255, 255, 255));
+        txtIdDetalle.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtIdDetalle.setForeground(new java.awt.Color(0, 0, 204));
+        txtIdDetalle.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtIdDetalle.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.add(txtIdDetalle, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 20, 90, 30));
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
+        jLabel11.setText("Codigo de Pedido");
+        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 130, -1));
+
+        jLabel12.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
+        jLabel12.setText("Platillo solicitado:");
+        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 130, -1));
+
+        txtIdPlato.setEditable(false);
+        txtIdPlato.setBackground(new java.awt.Color(255, 255, 255));
+        txtIdPlato.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtIdPlato.setForeground(new java.awt.Color(0, 0, 204));
+        txtIdPlato.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtIdPlato.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.add(txtIdPlato, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 170, 160, 30));
+
+        txtIdPlato1.setEditable(false);
+        txtIdPlato1.setBackground(new java.awt.Color(255, 255, 255));
+        txtIdPlato1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtIdPlato1.setForeground(new java.awt.Color(0, 0, 204));
+        txtIdPlato1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtIdPlato1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.add(txtIdPlato1, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 40, 90, 30));
+
+        txtIdPlato2.setEditable(false);
+        txtIdPlato2.setBackground(new java.awt.Color(255, 255, 255));
+        txtIdPlato2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtIdPlato2.setForeground(new java.awt.Color(0, 0, 204));
+        txtIdPlato2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtIdPlato2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.add(txtIdPlato2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 20, 90, 30));
+
+        txtIdPlato3.setEditable(false);
+        txtIdPlato3.setBackground(new java.awt.Color(255, 255, 255));
+        txtIdPlato3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtIdPlato3.setForeground(new java.awt.Color(0, 0, 204));
+        txtIdPlato3.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtIdPlato3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.add(txtIdPlato3, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 70, 90, 30));
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 150, 310, 50));
+
+        jLabel9.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
+        jLabel9.setText("Subtotal");
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 20, 90, -1));
+
+        jPanel3.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 680, 240));
+
+        BTN_VerDetalles1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_VerDetalles1.setText("Filtrar por Pedido");
+        BTN_VerDetalles1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTN_VerDetalles1ActionPerformed(evt);
+            }
+        });
+        jPanel3.add(BTN_VerDetalles1, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 130, 150, 50));
+
         getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 910, 720));
 
         pack();
@@ -431,25 +447,13 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
 
 
 
-    // Rellenar el ComboBox
-    private void cargarComboBoxCategoria() {
-        try {
-          jComboBoxCategoria.removeAllItems();
-          jComboBoxCategoria.addItem("<<Seleccionar>>"); // Opción por defecto
-          ResultSet rs = methods.comboListarCategorias();
-          while (rs.next()) {
-            jComboBoxCategoria.addItem(rs.getString("Nombre de Categoría"));
-          }
-        } catch (SQLException e) {
-          JOptionPane.showMessageDialog(this, "Error al cargar las Categorías: " + e.getMessage());
-        }
-      }
+  
 
 
     private void limpiarCamposPlatoMenu () {
         txtFechaRegistro.setText("");
-        txtNombrePlato.setText("");
-        jComboBoxCategoria.setSelectedIndex(0);
+
+        
         BTN_Guardar.setEnabled(true);
         BTN_Modificar.setEnabled(false);
         BTN_Quitar.setEnabled(false);
@@ -474,29 +478,12 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
             String descripcion = JTABLE_Mant_DetallePedido.getValueAt(selectRow, 4).toString().trim();
 
             txtFechaRegistro.setText(codigo);
-            txtNombrePlato.setText(nombre_plato);
-            txtPrecio.setText(precio);
-            jTextAreaObservaciones.setText(descripcion);
 
-            String categoriaOriginal = categoria;
-            boolean find = false;
-            for (int i=0;i<jComboBoxCategoria.getItemCount();i++){
-                String item = jComboBoxCategoria.getItemAt(i).trim();
-                if (item.equalsIgnoreCase(categoria)){
-                    jComboBoxCategoria.setSelectedIndex(i);
-                    find=true;
-                    break;
-                }
-
-            }
 
 
         }
 
-        txtNombrePlato.setEditable(true);
-        txtPrecio.setEditable(true);
-        jComboBoxCategoria.setEnabled(true);
-        jTextAreaObservaciones.setEditable(true);
+
 
         BTN_Guardar.setEnabled(false);
         BTN_VerDetalles.setEnabled(false);
@@ -504,8 +491,6 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
         BTN_Quitar.setEnabled(true);
 
     }//GEN-LAST:event_JTABLE_Mant_DetallePedidoMouseClicked
-
-
 
 
 
@@ -555,7 +540,7 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
     }//GEN-LAST:event_BTN_EXCELActionPerformed
 
     private void TXT_BuscarDetallesKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TXT_BuscarDetallesKeyReleased
-        this.BuscarMesaPorNombre();
+        
     }//GEN-LAST:event_TXT_BuscarDetallesKeyReleased
 
     private void BTN_CerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_CerrarActionPerformed
@@ -664,29 +649,20 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_BTN_BackActionPerformed
 
-    private void BTN_CancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_CancelActionPerformed
-        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea cancelar la operación?", "Confirmación", JOptionPane.YES_NO_OPTION);
-        if (respuesta == JOptionPane.YES_OPTION) {
-
-            BTN_Guardar.setEnabled(false);
-            BTN_Quitar.setEnabled(false);
-            BTN_Modificar.setEnabled(false);
-            BTN_Nuevo.setVisible(true);
-            BTN_Cancel.setVisible(false);
-
-            txtNombrePlato.setEditable(false);
-            txtPrecio.setEditable(false);
-            jTextAreaObservaciones.setEditable(false);
-            jComboBoxCategoria.setEnabled(false);
-
-            JTABLE_Mant_DetallePedido.setEnabled(true);
-
-        }
-    }//GEN-LAST:event_BTN_CancelActionPerformed
-
     private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
 
-        txtFechaRegistro.setText("");
+        DefaultTableModel modelo = (DefaultTableModel) JTABLE_Mant_DetallePedido.getModel();
+    
+        
+        dialogo = new JD_AgregarPlato(this, true);
+        dialogo.setVisible(true);
+    
+        // Al cerrar el diálogo, recalculamos los totales del panel superior
+        // TODO actualizarTotalesCabecera();
+        
+        
+        
+        /* TODO txtFechaRegistro.setText("");
         txtNombrePlato.setText("");
         txtPrecio.setText("");
         txtNombrePlato.setText("");
@@ -713,11 +689,11 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
         BTN_Quitar.setEnabled(false);
         BTN_Modificar.setEnabled(false);
         BTN_Nuevo.setVisible(false);
-        BTN_Cancel.setVisible(true);
+        BTN_Cancel.setVisible(true);*/
     }//GEN-LAST:event_BTN_NuevoActionPerformed
 
     private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
-
+        /*
         // 1. Validar que el campo no esté vacío
         String nombre = txtNombrePlato.getText().trim();
         String precio = txtPrecio.getText().trim();
@@ -788,11 +764,11 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
                     BTN_Modificar.setEnabled(false);
                     BTN_Quitar.setEnabled(false);
                     BTN_Nuevo.setVisible(true);
-                    BTN_Cancel.setVisible(false);
+                    
                     JTABLE_Mant_DetallePedido.setEnabled(true);
                 }
 
-            }
+            }*/
     }//GEN-LAST:event_BTN_GuardarActionPerformed
 
     private void BTN_GuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BTN_GuardarMouseClicked
@@ -800,7 +776,7 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
     }//GEN-LAST:event_BTN_GuardarMouseClicked
 
     private void BTN_ModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ModificarActionPerformed
-        try {
+        /*try {
             // 1. Obtener datos del formulario
             String codigoStr = txtFechaRegistro.getText().trim();
             String nuevoNombre = txtNombrePlato.getText().trim();
@@ -872,11 +848,11 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, e.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
-            }
+            }*/
     }//GEN-LAST:event_BTN_ModificarActionPerformed
 
     private void BTN_QuitarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_QuitarActionPerformed
-        // 1. Validar que se haya seleccionado una plato menu
+        /* 1. Validar que se haya seleccionado una plato menu
         String codStr = txtFechaRegistro.getText().trim();
         if (codStr.isEmpty()) {
             JOptionPane.showMessageDialog(this,"Seleccione una plato menu en la tabla para desactivar.","Campo requerido",JOptionPane.WARNING_MESSAGE);
@@ -902,23 +878,27 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
                 // 6. Captura cualquier error lanzado por el procedure (por SIGNAL)
                 JOptionPane.showMessageDialog(this,"Error al desactivar plato menu:\n" + ex.getMessage(),"Error de base de datos",JOptionPane.ERROR_MESSAGE);
             }
-        }
+        }*/
     }//GEN-LAST:event_BTN_QuitarActionPerformed
 
     private void BTN_VerDetallesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerDetallesActionPerformed
-        this.MostrarPlatosMenu();
+        /*this.MostrarPlatosMenu();
 
         cargarComboBoxCategoria();
         this.BTN_Nuevo.setEnabled(true);
         this.BTN_Guardar.setEnabled(false);
         this.BTN_Quitar.setEnabled(false);
         this.BTN_Modificar.setEnabled(false);
-        this.BTN_VerDetalles.setEnabled(false);
+        this.BTN_VerDetalles.setEnabled(false);*/
     }//GEN-LAST:event_BTN_VerDetallesActionPerformed
 
     private void txtFechaRegistroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFechaRegistroActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtFechaRegistroActionPerformed
+
+    private void BTN_VerDetalles1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerDetalles1ActionPerformed
+        
+    }//GEN-LAST:event_BTN_VerDetalles1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1020,7 +1000,6 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BTN_Back;
-    private javax.swing.JButton BTN_Cancel;
     private javax.swing.JButton BTN_Cerrar;
     private javax.swing.JButton BTN_EXCEL;
     private javax.swing.JButton BTN_Guardar;
@@ -1029,11 +1008,10 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
     private javax.swing.JButton BTN_PDF;
     private javax.swing.JButton BTN_Quitar;
     private javax.swing.JButton BTN_VerDetalles;
+    private javax.swing.JButton BTN_VerDetalles1;
     private javax.swing.JTable JTABLE_Mant_DetallePedido;
     private javax.swing.JTextField TXT_BuscarDetalles;
-    private javax.swing.JComboBox<String> cmbPlato;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
@@ -1043,18 +1021,20 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JScrollPane scrollObs;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JScrollPane scrollTabla;
-    private javax.swing.JSpinner spnCantidad;
-    private javax.swing.JSpinner spnPrecio;
     private javax.swing.JTextField txtFechaRegistro;
     private javax.swing.JTextField txtIdDetalle;
     private javax.swing.JTextField txtIdPedido;
-    private javax.swing.JTextArea txtObservaciones;
-    private javax.swing.JFormattedTextField txtSubtotal;
+    private javax.swing.JTextField txtIdPlato;
+    private javax.swing.JTextField txtIdPlato1;
+    private javax.swing.JTextField txtIdPlato2;
+    private javax.swing.JTextField txtIdPlato3;
     // End of variables declaration//GEN-END:variables
 
     
