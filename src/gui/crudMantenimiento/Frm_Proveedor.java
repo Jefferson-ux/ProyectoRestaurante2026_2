@@ -57,8 +57,6 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         BTN_Guardar.setEnabled(false);
         BTN_Modificar.setEnabled(false);
         BTN_Modificar.setEnabled(false);
-        BTN_Activar.setEnabled(false);
-        BTN_Activar.setVisible(false);
         BTN_Desactivar.setEnabled(false);
         BTN_VerProveedor.setEnabled(true);
     }
@@ -77,7 +75,6 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         txtdireccionProveedor = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         BTN_VerProveedor = new javax.swing.JButton();
-        BTN_VerProveedorInactivo = new javax.swing.JButton();
         txtRuc = new javax.swing.JTextField();
         txttelefonoProveedor = new javax.swing.JTextField();
         txtcorreoProveedor = new javax.swing.JTextField();
@@ -89,8 +86,8 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
-        BTN_Desactivar = new javax.swing.JButton();
-        BTN_Activar = new javax.swing.JButton();
+        jCheckBoxListarInactivos = new javax.swing.JCheckBox();
+        jCheckBoxActivar = new javax.swing.JCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         JTABLE_Mant_Proveedor = new javax.swing.JTable();
         BTN_Nuevo = new javax.swing.JButton();
@@ -103,6 +100,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         BTN_Cerrar1 = new javax.swing.JButton();
         BTN_PDF = new javax.swing.JButton();
+        BTN_Desactivar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -136,7 +134,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel6.setText("Observaciones");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 170, -1, -1));
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 160, -1, -1));
 
         txtdireccionProveedor.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txtdireccionProveedor.setForeground(new java.awt.Color(0, 0, 204));
@@ -155,12 +153,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         BTN_VerProveedor.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_VerProveedor.setText("VER PROVEEDORES");
         BTN_VerProveedor.addActionListener(this::BTN_VerProveedorActionPerformed);
-        jPanel3.add(BTN_VerProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 180, 50));
-
-        BTN_VerProveedorInactivo.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_VerProveedorInactivo.setText("VER PROVEEDORES INACTIVOS");
-        BTN_VerProveedorInactivo.addActionListener(this::BTN_VerProveedorInactivoActionPerformed);
-        jPanel3.add(BTN_VerProveedorInactivo, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 180, 50));
+        jPanel3.add(BTN_VerProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 180, 50));
 
         jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 10, 210, 120));
 
@@ -222,7 +215,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         txtobservaciones.setRows(5);
         jScrollPane3.setViewportView(txtobservaciones);
 
-        jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 190, 330, 60));
+        jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 180, 330, 60));
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel7.setText("ruc");
@@ -235,17 +228,17 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         jPanel4.setBackground(new java.awt.Color(51, 51, 51));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        BTN_Desactivar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Desactivar.setText("DESACTIVAR");
-        BTN_Desactivar.addActionListener(this::BTN_DesactivarActionPerformed);
-        jPanel4.add(BTN_Desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 170, 50));
+        jCheckBoxListarInactivos.setForeground(new java.awt.Color(255, 255, 255));
+        jCheckBoxListarInactivos.setText("LISTAR PROVEEDORES INACTIVOS");
+        jCheckBoxListarInactivos.addActionListener(this::jCheckBoxListarInactivosActionPerformed);
+        jPanel4.add(jCheckBoxListarInactivos, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
 
-        BTN_Activar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Activar.setText("ACTIVAR");
-        BTN_Activar.addActionListener(this::BTN_ActivarActionPerformed);
-        jPanel4.add(BTN_Activar, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 170, 50));
+        jCheckBoxActivar.setForeground(new java.awt.Color(255, 255, 255));
+        jCheckBoxActivar.setText("REACTIVACION");
+        jCheckBoxActivar.addActionListener(this::jCheckBoxActivarActionPerformed);
+        jPanel4.add(jCheckBoxActivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, -1, -1));
 
-        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 140, 200, 120));
+        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 140, 220, 120));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 1020, 270));
 
@@ -329,6 +322,11 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         BTN_PDF.addActionListener(this::BTN_PDFActionPerformed);
         getContentPane().add(BTN_PDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 680, 170, 40));
 
+        BTN_Desactivar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Desactivar.setText("DESACTIVAR");
+        BTN_Desactivar.addActionListener(this::BTN_DesactivarActionPerformed);
+        getContentPane().add(BTN_Desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 330, 170, 50));
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -341,9 +339,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         this.BTN_Guardar.setEnabled(false);
         this.BTN_Modificar.setEnabled(false);
         this.BTN_VerProveedor.setEnabled(false);
-        this.BTN_VerProveedorInactivo.setVisible(true);
-        this.BTN_VerProveedorInactivo.setEnabled(true);
-        this.BTN_VerProveedor.setVisible(false);
+        this.jCheckBoxListarInactivos.setSelected(false);
     }//GEN-LAST:event_BTN_VerProveedorActionPerformed
 
     private void txtdireccionProveedorKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtdireccionProveedorKeyTyped
@@ -363,22 +359,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
             Object celdaObservacion = JTABLE_Mant_Proveedor.getValueAt(selectRow, 6);
             String observacionProveedor = (celdaObservacion != null) ? celdaObservacion.toString().trim() : "";
             
-            Object estadoObj = JTABLE_Mant_Proveedor.getValueAt(selectRow, 7);
-            String estado = (estadoObj != null) ? estadoObj.toString() : "";
-            
-            // Lógica de botones Activar/Desactivar
-            if (estado.equalsIgnoreCase("Activo")) { // Si está ACTIVO (1)
-                BTN_Activar.setEnabled(false);
-                BTN_Desactivar.setEnabled(true);
-                BTN_Activar.setVisible(false);
-                BTN_Desactivar.setVisible(true);
-            } else { // Si está DESACTIVADO (0)
-                BTN_Activar.setEnabled(true);
-                BTN_Desactivar.setEnabled(false);
-                BTN_Activar.setVisible(true);
-                BTN_Desactivar.setVisible(false);
-            }
-            
+          
             txtcodigoProveedor.setText(id);
             txtRuc.setText(ruc);
             txtrazonSocial.setText(razonSocial);
@@ -386,6 +367,13 @@ public class Frm_Proveedor extends javax.swing.JFrame {
             txtcorreoProveedor.setText(CorreoProveedor);
             txtdireccionProveedor.setText(direccionProveedor);
             txtobservaciones.setText(observacionProveedor);
+            
+            
+        }
+        if (jCheckBoxListarInactivos.isSelected()) {
+            BTN_Desactivar.setEnabled(false);
+        } else {
+            BTN_Desactivar.setEnabled(true);
         }
         BTN_Guardar.setEnabled(true);
         BTN_Modificar.setEnabled(true);
@@ -714,22 +702,94 @@ public class Frm_Proveedor extends javax.swing.JFrame {
     }//GEN-LAST:event_txtcodigoProveedorKeyTyped
 
     private void BTN_DesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_DesactivarActionPerformed
-        // TODO add your handling code here:
+
+        int filaSeleccionada = JTABLE_Mant_Proveedor.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un proveedor de la tabla.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Validar si ya está desactivado (Columna 7 es Estado)
+        String estado = JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 7).toString();
+        if (estado.equalsIgnoreCase("Inactivo")) {
+            JOptionPane.showMessageDialog(this, "El proveedor ya se encuentra desactivado.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+            // Quitamos la palomilla si el usuario intentó marcar algo ya desactivado
+            jCheckBoxListarInactivos.setSelected(false);
+            return;
+        }
+
+        int codigoProveedor = Integer.parseInt(JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 0).toString());
+        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Seguro que desea desactivar este proveedor?", "Confirmar", JOptionPane.YES_NO_OPTION);
+
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            try {
+                PM.desactivarProveedor(codigoProveedor);
+                JOptionPane.showMessageDialog(this, "Proveedor desactivado correctamente.");
+
+                // QUITAMOS LA PALOMILLA
+                jCheckBoxListarInactivos.setSelected(false);
+
+                MostrarProveedores();
+                limpiarCamposProveedor();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
     }//GEN-LAST:event_BTN_DesactivarActionPerformed
 
-    private void BTN_ActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ActivarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_BTN_ActivarActionPerformed
-
-    private void BTN_VerProveedorInactivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerProveedorInactivoActionPerformed
+    private void jCheckBoxListarInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxListarInactivosActionPerformed
         this.MostrarProveedoresInactivos();
+
+        // Bloquear el botón de desactivar porque ya están inactivos
+        this.BTN_Desactivar.setEnabled(false);
+
         this.BTN_Guardar.setEnabled(false);
         this.BTN_Modificar.setEnabled(false);
-        this.BTN_VerProveedor.setEnabled(false);
-        this.BTN_VerProveedor.setVisible(true);
         this.BTN_VerProveedor.setEnabled(true);
-        this.BTN_VerProveedorInactivo.setVisible(false);
-    }//GEN-LAST:event_BTN_VerProveedorInactivoActionPerformed
+    }//GEN-LAST:event_jCheckBoxListarInactivosActionPerformed
+
+    private void jCheckBoxActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxActivarActionPerformed
+        int filaSeleccionada = JTABLE_Mant_Proveedor.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un proveedor para reactivarlo.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            jCheckBoxActivar.setSelected(false); // Quita la palomilla si no hay selección
+            return;
+        }
+
+        // Validar si ya está activo
+        String estado = JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 7).toString();
+        if (estado.equalsIgnoreCase("Activo")) {
+            JOptionPane.showMessageDialog(this, "El proveedor ya se encuentra activo.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+            jCheckBoxActivar.setSelected(false); // QUITA LA PALOMILLA
+            return;
+        }
+
+        int codigoProveedor = Integer.parseInt(JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 0).toString());
+        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Desea reactivar al proveedor?", "Confirmar", JOptionPane.YES_NO_OPTION);
+
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            try {
+                PM.reactivarProveedor(codigoProveedor);
+                JOptionPane.showMessageDialog(this, "Proveedor reactivado con éxito.");
+
+                // QUITA LA PALOMILLA
+                jCheckBoxActivar.setSelected(false);
+                jCheckBoxListarInactivos.setSelected(false);
+
+                MostrarProveedores();
+                limpiarCamposProveedor();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                jCheckBoxActivar.setSelected(false);
+            }
+        } else {
+            // Si el usuario cancela el cuadro de diálogo, también quitamos la palomilla
+            jCheckBoxActivar.setSelected(false);
+        }
+    }//GEN-LAST:event_jCheckBoxActivarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -757,7 +817,6 @@ public class Frm_Proveedor extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton BTN_Activar;
     private javax.swing.JButton BTN_Cerrar1;
     private javax.swing.JButton BTN_Desactivar;
     private javax.swing.JButton BTN_EXCEL;
@@ -766,9 +825,10 @@ public class Frm_Proveedor extends javax.swing.JFrame {
     private javax.swing.JButton BTN_Nuevo;
     private javax.swing.JButton BTN_PDF;
     private javax.swing.JButton BTN_VerProveedor;
-    private javax.swing.JButton BTN_VerProveedorInactivo;
     private javax.swing.JTable JTABLE_Mant_Proveedor;
     private javax.swing.JTextField TXT_BuscarProveedor;
+    private javax.swing.JCheckBox jCheckBoxActivar;
+    private javax.swing.JCheckBox jCheckBoxListarInactivos;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;

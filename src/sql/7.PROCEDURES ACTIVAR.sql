@@ -63,35 +63,36 @@ BEGIN
     END IF;
 END //
 
-/***************************************
-3. PROVEEDOR
-*****************************************/
-DROP PROCEDURE IF EXISTS Activar_Proveedor;
-DELIMITER //
-CREATE PROCEDURE Desactivar_Proveedor(IN p_id_proveedor INT)
+/************************************************
+6. DAR DE BAJA Y ACTIVAR
+************************************************/
+--7. Procedure para dar de baja cuando el estado sea 0 
+--Tambien lo usaremos para reactivar y sea 1
+DROP PROCEDURE IF EXISTS CambiarEstadoProveedor;
+DELIMITER $$
+
+CREATE PROCEDURE CambiarEstadoProveedor (
+  IN p_CodigoProveedor INT,
+  IN p_NuevoEstado TINYINT
+)
 BEGIN
-    DECLARE existe INT DEFAULT 0;
-    DECLARE yaDesactivado INT DEFAULT 0;
-    /* Verificar si el Empleado existe */
-    SELECT COUNT(*) INTO existe
-    FROM Proveedor WHERE id_proveedor = p_id_proveedor;
-    IF existe = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: El código del proveedor no existe. ';
-    ELSE
-        /* Verificar si ya está desactivada */
-        SELECT COUNT(*) INTO yaDesactivado
-        FROM Proveedor
-        WHERE id_proveedor = p_id_proveedor AND estado = 0;
-        IF yaDesactivado > 0 THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El Proveedor ya está desactivado.';
-        ELSE
-            /* Proceder con la desactivación */
-            UPDATE Proveedor
-            SET estado = 1
-            WHERE id_proveedor = P_id_proveedor;
-        END IF;
-    END IF;
-END //
+  -- Verificar que el proveedor exista
+  IF NOT EXISTS (
+    SELECT 1 FROM Proveedor WHERE id_proveedor = p_CodigoProveedor
+  ) THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El proveedor no existe.';
+  END IF;
+
+  -- Validar que el nuevo estado sea 0 o 1
+  IF p_NuevoEstado NOT IN (0, 1) THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El estado debe ser 0 o 1.';
+  END IF;
+
+  -- Actualizar estado
+  UPDATE proveedor
+  SET estado = p_NuevoEstado
+  WHERE id_proveedor = p_CodigoProveedor;
+END$$
+
+DELIMITER ;
 

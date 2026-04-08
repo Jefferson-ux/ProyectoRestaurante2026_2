@@ -84,4 +84,26 @@ public class ProveedorMethod {
         }                   
 
     }
+     
+     public void reactivarProveedor(int codigoProveedor) throws SQLException {
+        if (codigoProveedor <= 0) {
+            throw new IllegalArgumentException("El código del proveedor es inválido.");
+        }
+        String sql = "{CALL CambiarEstadoProveedor(?, ?)}";
+        CallableStatement cs = conn.prepareCall(sql);
+        cs.setInt(1, codigoProveedor);  // Código del proveedor
+        cs.setInt(2, 1);              // Estado: 1 = activo
+        cs.execute();
+    }
+     
+     public void desactivarProveedor(int codigoProveedor) throws SQLException {
+        if (codigoProveedor <= 0) {
+            throw new IllegalArgumentException("El código del proveedor es inválido.");
+        }
+        String sql = "{CALL CambiarEstadoProveedor(?, ?)}";
+        CallableStatement cs = conn.prepareCall(sql);
+        cs.setInt(1, codigoProveedor);  // Código del proveedor
+        cs.setInt(2, 0);              // Estado: 0 = desactivado
+        cs.execute();
+    }
 }
