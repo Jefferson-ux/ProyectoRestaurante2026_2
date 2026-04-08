@@ -1,9 +1,10 @@
-
+USE db_restaurant;
 /***************************************
 1. EMPLEADO
 *****************************************/
-DROP PROCEDURE IF EXISTS Desactivar_Empleado;
+
 DELIMITER //
+DROP PROCEDURE IF EXISTS Desactivar_Empleado//
 CREATE PROCEDURE Desactivar_Empleado(IN dni_empleado INT)
 BEGIN
     DECLARE existe INT DEFAULT 0;
@@ -34,8 +35,9 @@ END //
 /***************************************
 2. PRODUCTO
 *****************************************/
-DROP PROCEDURE IF EXISTS Desactivar_Producto;
+
 DELIMITER //
+DROP PROCEDURE IF EXISTS Desactivar_Producto//
 CREATE PROCEDURE Desactivar_Producto(IN p_id_producto INT)
 BEGIN
     DECLARE existe INT DEFAULT 0;
@@ -68,6 +70,7 @@ END //
 *****************************************/
 DROP PROCEDURE IF EXISTS Desactivar_Proveedor;
 DELIMITER //
+DROP PROCEDURE IF EXISTS Desactivar_Proveedor//
 CREATE PROCEDURE Desactivar_Proveedor(IN p_id_proveedor INT)
 BEGIN
     DECLARE existe INT DEFAULT 0;
