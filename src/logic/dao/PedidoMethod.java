@@ -42,6 +42,13 @@ private Connection conn;
         Statement st = conn.createStatement(); /*Creamos la sentencia*/
         return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
     }
+           public ResultSet listar() throws SQLException{
+        String sql = "Select * from vista_pedido";/*SQL Query*/
+        Statement st = conn.createStatement(); /*Creamos la sentencia*/
+        return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
+    }
+           
+           
 
        /* SEARCH --> BUSCAR DATOS */
     public ResultSet buscarPedido(String nombre) throws SQLException{
@@ -152,20 +159,20 @@ public void modificarPedido(int id_pedido,String fecha,int id_cliente, int id_em
        //======================================//
 // 
 // Listar Números de Pedido para el ComboBox
-public ResultSet comboListarPedidos() throws SQLException {
-    String sql = "SELECT `Número de Pedido` FROM vista_mesa";
+public ResultSet comboListarTipoPedido() throws SQLException {
+    String sql = "SELECT `Tipo de Pedido` FROM vista_tipo_pedido";
     Statement st = conn.createStatement();
     return st.executeQuery(sql);
 }
 
 // Obtener el ID real (PK) a partir del Número de Pedido
-public int obtenerIdPedidoPorNumero(String numeroPedido) throws SQLException {
-    String sql = "SELECT id_mesa FROM mesa WHERE numero_mesa = ? AND estado = 1";
+public int obtenerIdTipoPedidoPorNumero(String nombre) throws SQLException {
+    String sql = "SELECT id_tipo_pedido FROM tipo_pedido WHERE nombre_tipo_pedido = ? AND estado = 1";
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, numeroPedido);
+        ps.setString(1, nombre);
         try (ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                return rs.getInt("id_mesa");
+                return rs.getInt("id_tipo_pedido");
             }
             return -1;
         }
@@ -205,6 +212,10 @@ public int obtenerIdClientePorConcatenado(String infoCliente) throws SQLExceptio
         }
     }
 }
+
+
+
+
 
 
 

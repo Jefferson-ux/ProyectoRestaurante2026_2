@@ -47,21 +47,10 @@ public class ReservaMethod {
         return cs.executeQuery();
     }
 
-    
-    
-    /* PARAMS
-    IN p_fecha_registro DATE,
-    IN p_fecha_inicio DATETIME,
-    IN p_fecha_fin DATETIME,
-    IN p_cantidad_personas INT,
-    IN p_observacion VARCHAR(500),
-    IN p_id_cliente INT,
-    IN p_id_mesa INT */
-       /* INSERT--> AGREGAR DATOS */
 public void insertarReserva(String fechaRegStr, String fechaInicioStr, String fechaFinStr, 
-                            String cantPersonas, String observacion, String idCliente, String idMesa) 
+                            String cantPersonas, String observacion, int idCliente, int idMesa) 
                             throws Exception {
-    if (mesaOcupada(Integer.parseInt(idMesa), fechaInicioStr, fechaFinStr, 0)) {
+    if (mesaOcupada(idMesa, fechaInicioStr, fechaFinStr, 0)) {
         throw new IllegalArgumentException("La mesa ya está reservada en ese horario.");
     }
     
@@ -90,8 +79,8 @@ public void insertarReserva(String fechaRegStr, String fechaInicioStr, String fe
         ps.setTimestamp(3, sqlFin);
         ps.setInt(4, Integer.parseInt(cantPersonas));
         ps.setString(5, observacion);
-        ps.setInt(6, Integer.parseInt(idCliente));
-        ps.setInt(7, Integer.parseInt(idMesa));
+        ps.setInt(6, idCliente);
+        ps.setInt(7, idMesa);
         
         ps.execute();
         System.out.println("Reserva insertada con éxito");

@@ -1208,6 +1208,8 @@ DELIMITER ;
 15- RESERVA
 Cambio de nombres a comparación de Oracle
 **************************************/
+DROP PROCEDURE IF EXISTS Update_Reserva;
+
 DELIMITER //
 
 CREATE PROCEDURE Update_Reserva (
@@ -1218,8 +1220,7 @@ CREATE PROCEDURE Update_Reserva (
     IN p_cantidad_personas INT,
     IN p_observacion       VARCHAR(500),
     IN p_id_cliente        INT,
-    IN p_id_mesa           INT,
-    IN p_estado            TINYINT
+    IN p_id_mesa           INT -- Eliminada la coma final
 )
 BEGIN
     -- Declaración de variables locales
@@ -1231,11 +1232,6 @@ BEGIN
     SELECT COUNT(*) INTO v_existe FROM reserva WHERE id_reserva = p_id_reserva;
     IF v_existe = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No existe la reserva.', MYSQL_ERRNO = 20182;
-    END IF;
-
-    -- 2. Validar estado (0 o 1)
-    IF p_estado IS NULL OR p_estado NOT IN (0, 1) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El estado debe ser 0 o 1.', MYSQL_ERRNO = 20174;
     END IF;
 
     -- 3. Validar cantidad de personas
@@ -1271,41 +1267,32 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La cantidad excede la capacidad de la mesa.', MYSQL_ERRNO = 20180;
     END IF;
 
-    -- 8. Validar cruce de horarios (Solo si la reserva se intenta activar/mantener activa)
-    IF p_estado = 1 THEN
-        SELECT COUNT(*) INTO v_ocupada
-        FROM reserva
-        WHERE id_mesa = p_id_mesa
-          AND p_fecha_inicio < fecha_fin
-          AND p_fecha_fin > fecha_inicio
-          AND id_reserva <> p_id_reserva
-          AND estado = 1;
+    -- 8. Validar cruce de horarios (Agregado el IF que faltaba)
+    SELECT COUNT(*) INTO v_ocupada
+    FROM reserva
+    WHERE id_mesa = p_id_mesa
+      AND p_fecha_inicio < fecha_fin
+      AND p_fecha_fin > fecha_inicio
+      AND id_reserva <> p_id_reserva; -- Punto y coma agregado
 
-        IF v_ocupada > 0 THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La mesa ya está ocupada en ese horario.', MYSQL_ERRNO = 20181;
-        END IF;
+    IF v_ocupada > 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La mesa ya está ocupada en ese horario.', MYSQL_ERRNO = 20181;
     END IF;
 
-    -- 9. Ejecutar actualización
-    UPDATE reserva
-    SET fecha_registro      = p_fecha_registro,
-        fecha_inicio        = p_fecha_inicio,
-        fecha_fin           = p_fecha_fin,
-        cantidad_personas   = p_cantidad_personas,
-        observacion_reserva = IFNULL(TRIM(p_observacion), 'SIN OBSERVACIÓN'),
-        id_cliente          = p_id_cliente,
-        id_mesa             = p_id_mesa,
-        estado              = p_estado
+    -- 9. ¡FALTABA EL UPDATE REAL!
+    UPDATE reserva 
+    SET fecha_registro = p_fecha_registro,
+        fecha_inicio = p_fecha_inicio,
+        fecha_fin = p_fecha_fin,
+        cantidad_personas = p_cantidad_personas,
+        observacion_reserva = p_observacion,
+        id_cliente = p_id_cliente,
+        id_mesa = p_id_mesa
     WHERE id_reserva = p_id_reserva;
 
-    -- 10. Verificar si hubo cambios
-    IF ROW_COUNT() = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No se realizaron cambios en la reserva.', MYSQL_ERRNO = 20183;
-    END IF;
+END // -- Cierre del bloque del procedimiento
 
-END //
-
-DELIMITER ;
+DELIMITER ; -- Espacio agregado
 
 
 

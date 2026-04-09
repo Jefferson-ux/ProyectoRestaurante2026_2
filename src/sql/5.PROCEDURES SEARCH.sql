@@ -144,7 +144,8 @@ CREATE PROCEDURE buscar_empleado (
 BEGIN
     SELECT *
     FROM vista_empleado
-    WHERE `Nombre de Empleado` LIKE CONCAT('%', p_param, '%')
+    WHERE `DNI` LIKE CONCAT('%', p_param, '%')
+       OR`Nombre de Empleado` LIKE CONCAT('%', p_param, '%')
        OR `Apellido de Empleado` LIKE CONCAT('%', p_param, '%');
 END$$
 DELIMITER ;

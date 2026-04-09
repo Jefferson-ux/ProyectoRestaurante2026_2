@@ -15,13 +15,19 @@ import logic.dao.ReservaMethod;
   /*excel*/
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
 import javax.swing.table.TableColumnModel;
+import logic.dao.ClienteMethod;
 
 //import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 //import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -32,18 +38,31 @@ import javax.swing.table.TableColumnModel;
 //import com.itextpdf.text.pdf.*;
 //import java.text.SimpleDateFormat;
 //import java.util.Date;
-
 public class Frm_Reserva extends javax.swing.JFrame {
 
     DefaultTableModel modeloTablaReserva = new DefaultTableModel();
     //Objeto conexión a la base de datos
     ReservaMethod methods;
 
+    SpinnerDateModel modelInicio;
+    JSpinner.DateEditor editorInicio;
+    // Formato para el día (coincide con dd/MM/yyyy de tu vista)
+    SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
+
+// Formato para las horas (coincide con HH:mm de tu vista)
+    SimpleDateFormat formatoHora = new SimpleDateFormat("HH:mm");
+
+// Formato para el registro (si incluye hora usa dd/MM/yyyy HH:mm:ss)
+    SimpleDateFormat formatoRegistro = new SimpleDateFormat("dd/MM/yyyy");
+
+
+
     public Frm_Reserva() {
         FlatLightLaf.setup();
         initComponents();
         this.setLocationRelativeTo(null);
         this.setTitle("Mantenimiento de las Reservas");
+
 
         ImageIcon icono = new ImageIcon(getClass().getResource("/assets/icon_user.png"));
         // 2. Extraemos la imagen del objeto ImageIcon
@@ -55,7 +74,7 @@ public class Frm_Reserva extends javax.swing.JFrame {
 
         // Títulos que verá el usuario
             // | DNI | Nombres y Apellidos | Nro Mesa | Inicio | Fin | PAX Nro Personas | Registro |
-        String[] header = {"ID","DNI", "Cliente", "Mesa", "H. Entrada", "H. Salida", "Salida", "Pax", "F. Registro"};
+        String[] header = {"ID","Cliente", "Mesa","Día de Reserva","H. Entrada", "H. Salida", "Pax", "F. Registro","Observaciones"};
                          // ID   DNI    CLIENTE                                                 PAX
         // Modelo para Hora Inicio
         SpinnerDateModel modelInicio = new SpinnerDateModel();
@@ -73,11 +92,6 @@ public class Frm_Reserva extends javax.swing.JFrame {
         JTABLE_Mant_Reserva.setModel(modeloTablaReserva);
 
         TableColumnModel colModel = JTABLE_Mant_Reserva.getColumnModel();
-        
-        txtNombrePlato.setEditable(false);
-        txtPrecio.setEditable(false);
-        jTextAreaObservaciones.setEditable(false);
-        jComboBoxCategoria.setEnabled(false);
 
 
     // ID: Lo ocultamos
@@ -85,28 +99,33 @@ public class Frm_Reserva extends javax.swing.JFrame {
     colModel.getColumn(0).setMinWidth(0);
     colModel.getColumn(0).setMaxWidth(0);
 
-    // DNI: Pequeño
-    colModel.getColumn(1).setPreferredWidth(100);
-
     // Cliente: Largo (Cubre Apellidos y Nombres)
-    colModel.getColumn(2).setPreferredWidth(200);
-    colModel.getColumn(2).setMaxWidth(2500);
+    colModel.getColumn(1).setPreferredWidth(200);
+    colModel.getColumn(1).setMaxWidth(2500);
 
     // Mesa: Pequeño
-    colModel.getColumn(3).setPreferredWidth(80);
+    colModel.getColumn(2).setPreferredWidth(80);
 
     // H. Entrada y H. Salida -> Pequeño
-    colModel.getColumn(4).setPreferredWidth(100);
-    
+    colModel.getColumn(3).setPreferredWidth(100);
+
     // PAX : Pequeño
     colModel.getColumn(4).setPreferredWidth(80);
-    
+
     // F. Registro -> Pequeño
-    colModel.getColumn(4).setPreferredWidth(100);
+    colModel.getColumn(5).setPreferredWidth(100);
+    
+        colModel.getColumn(6).setPreferredWidth(100);
+    colModel.getColumn(6).setMinWidth(10);
+    colModel.getColumn(6).setMaxWidth(600);
 
     // 3. Extras de la Tabla
     JTABLE_Mant_Reserva.getTableHeader().setReorderingAllowed(false); // No mover columnas
     JTABLE_Mant_Reserva.setRowHeight(25); // Filas más altas para que respire el diseño
+
+
+        txtObservaciones.setEditable(false);
+
 
 
         //Desactivar button
@@ -115,7 +134,14 @@ public class Frm_Reserva extends javax.swing.JFrame {
         BTN_Guardar.setEnabled(false);
         BTN_Cancel.setVisible(false);
         BTN_Modificar.setEnabled(false);
-        txtcodigoplato.setEnabled(false);
+        txtcodigoReserva.setEnabled(false);
+
+
+
+
+        configurarSpinners();
+
+
 
     }
 
@@ -124,43 +150,14 @@ public class Frm_Reserva extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        txtcodigoplato = new javax.swing.JTextField();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextAreaObservaciones = new javax.swing.JTextArea();
-        jPanelClientes = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
-        txtDNI = new javax.swing.JTextField();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        txtApellidos = new javax.swing.JTextField();
-        txtNombres = new javax.swing.JTextField();
-        jLabel14 = new javax.swing.JLabel();
-        jSpinnerCantidad = new javax.swing.JSpinner();
-        jPanelRegistroReserva = new javax.swing.JPanel();
-        txtFechaRegistro = new javax.swing.JTextField();
-        jLabel16 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
-        txtMesa = new javax.swing.JTextField();
-        jPanelRegistroReserva1 = new javax.swing.JPanel();
-        jLabel8 = new javax.swing.JLabel();
-        jDateChooser2 = new com.toedter.calendar.JDateChooser();
-        jLabel9 = new javax.swing.JLabel();
-        spnHoraInicio = new javax.swing.JSpinner();
-        spnHoraFin = new javax.swing.JSpinner();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         BTN_VerPlatos = new javax.swing.JButton();
         BTN_Desactivar = new javax.swing.JButton();
         BTN_Modificar = new javax.swing.JButton();
         BTN_Guardar = new javax.swing.JButton();
         BTN_Nuevo = new javax.swing.JButton();
-        BTN_Cancel = new javax.swing.JButton();
         BTN_Back = new javax.swing.JButton();
+        BTN_Cancel = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         JTABLE_Mant_Reserva = new javax.swing.JTable();
         BTN_PDF = new javax.swing.JButton();
@@ -171,6 +168,28 @@ public class Frm_Reserva extends javax.swing.JFrame {
         TXT_BuscarMesas = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         BTN_Desactivar1 = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        txtcodigoReserva = new javax.swing.JTextField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txtObservaciones = new javax.swing.JTextArea();
+        jPanelClientes = new javax.swing.JPanel();
+        jLabel12 = new javax.swing.JLabel();
+        comboCliente = new javax.swing.JComboBox<>();
+        jLabel6 = new javax.swing.JLabel();
+        spnCantidad = new javax.swing.JSpinner();
+        jLabel17 = new javax.swing.JLabel();
+        comboMesas = new javax.swing.JComboBox<>();
+        jPanelRegistroReserva1 = new javax.swing.JPanel();
+        dateDia = new com.toedter.calendar.JDateChooser();
+        jLabel9 = new javax.swing.JLabel();
+        spnHoraInicio = new javax.swing.JSpinner();
+        spnHoraFin = new javax.swing.JSpinner();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        txtFechaRegistro = new com.toedter.calendar.JDateChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -179,122 +198,6 @@ public class Frm_Reserva extends javax.swing.JFrame {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("MANTENIMIENTO DE RESERVA");
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 0, 830, 30));
-
-        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder(new java.awt.Color(204, 0, 51), null));
-        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel2.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
-        jLabel2.setText("ID:");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 30, -1));
-
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel3.setText("Observaciones");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 230, 150, -1));
-
-        txtcodigoplato.setEditable(false);
-        txtcodigoplato.setBackground(new java.awt.Color(255, 255, 255));
-        txtcodigoplato.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        txtcodigoplato.setForeground(new java.awt.Color(0, 0, 204));
-        txtcodigoplato.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtcodigoplato.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtcodigoplato, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, 90, 30));
-
-        jTextAreaObservaciones.setColumns(20);
-        jTextAreaObservaciones.setRows(5);
-        jScrollPane2.setViewportView(jTextAreaObservaciones);
-
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 250, 440, 60));
-
-        jPanelClientes.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "   Cliente   ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Segoe UI", 1, 12))); // NOI18N
-        jPanelClientes.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel6.setText("Cantidad de Personas:*");
-        jPanelClientes.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 210, 170, -1));
-
-        txtDNI.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtDNIActionPerformed(evt);
-            }
-        });
-        jPanelClientes.add(txtDNI, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 170, 22));
-
-        jLabel12.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel12.setText("DNI:*");
-        jPanelClientes.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 90, -1));
-
-        jLabel13.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel13.setText("Nombres:*");
-        jPanelClientes.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 90, -1));
-        jPanelClientes.add(txtApellidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 170, 22));
-        jPanelClientes.add(txtNombres, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 170, 22));
-
-        jLabel14.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel14.setText("Apellidos:*");
-        jPanelClientes.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 90, -1));
-        jPanelClientes.add(jSpinnerCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 230, 120, 22));
-
-        jPanel1.add(jPanelClientes, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 210, 270));
-
-        jPanelRegistroReserva.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "   Registro de Reserva   ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Segoe UI", 1, 12))); // NOI18N
-        jPanelRegistroReserva.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        txtFechaRegistro.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtFechaRegistroActionPerformed(evt);
-            }
-        });
-        jPanelRegistroReserva.add(txtFechaRegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 170, 22));
-
-        jLabel16.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel16.setText("Fecha de Registro:*");
-        jPanelRegistroReserva.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 130, -1));
-
-        jLabel17.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel17.setText("Nro de Mesa:*");
-        jPanelRegistroReserva.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 90, -1));
-
-        txtMesa.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtMesaActionPerformed(evt);
-            }
-        });
-        jPanelRegistroReserva.add(txtMesa, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 170, 22));
-
-        jPanel1.add(jPanelRegistroReserva, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 40, 210, 170));
-
-        jPanelRegistroReserva1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "   Registro de Reserva   ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Segoe UI", 1, 12))); // NOI18N
-        jPanelRegistroReserva1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel8.setText("-");
-        jPanelRegistroReserva1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(112, 124, 20, -1));
-        jPanelRegistroReserva1.add(jDateChooser2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, 170, -1));
-
-        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel9.setText("Fin");
-        jPanelRegistroReserva1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, 80, -1));
-        jPanelRegistroReserva1.add(spnHoraInicio, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 82, -1));
-        jPanelRegistroReserva1.add(spnHoraFin, new org.netbeans.lib.awtextra.AbsoluteConstraints(125, 120, 82, -1));
-
-        jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel10.setText("Día de reserva");
-        jPanelRegistroReserva1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 100, -1));
-
-        jLabel11.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel11.setText("Hora");
-        jPanelRegistroReserva1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 170, -1));
-
-        jLabel15.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel15.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel15.setText("Inicio");
-        jPanelRegistroReserva1.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 80, -1));
-
-        jPanel1.add(jPanelRegistroReserva1, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 40, 230, 170));
-
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 720, 330));
 
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -352,6 +255,14 @@ public class Frm_Reserva extends javax.swing.JFrame {
         });
         jPanel3.add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 94, 150, 48));
 
+        BTN_Back.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_back.png"))); // NOI18N
+        BTN_Back.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTN_BackActionPerformed(evt);
+            }
+        });
+        jPanel3.add(BTN_Back, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 650, 50, 50));
+
         BTN_Cancel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Cancel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_cancel.png"))); // NOI18N
         BTN_Cancel.setText("     CANCELAR");
@@ -361,14 +272,6 @@ public class Frm_Reserva extends javax.swing.JFrame {
             }
         });
         jPanel3.add(BTN_Cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 94, 150, 48));
-
-        BTN_Back.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_back.png"))); // NOI18N
-        BTN_Back.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_BackActionPerformed(evt);
-            }
-        });
-        jPanel3.add(BTN_Back, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 650, 50, 50));
 
         JTABLE_Mant_Reserva.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         JTABLE_Mant_Reserva.setForeground(new java.awt.Color(0, 0, 204));
@@ -460,6 +363,87 @@ public class Frm_Reserva extends javax.swing.JFrame {
 
         jPanel3.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 370, 920, 50));
 
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder(new java.awt.Color(204, 0, 51), null));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
+        jLabel2.setText("ID:");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 30, -1));
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel3.setText("Observaciones");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 230, 150, -1));
+
+        txtcodigoReserva.setEditable(false);
+        txtcodigoReserva.setBackground(new java.awt.Color(255, 255, 255));
+        txtcodigoReserva.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtcodigoReserva.setForeground(new java.awt.Color(0, 0, 204));
+        txtcodigoReserva.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtcodigoReserva.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.add(txtcodigoReserva, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, 90, 30));
+
+        txtObservaciones.setColumns(20);
+        txtObservaciones.setRows(5);
+        jScrollPane2.setViewportView(txtObservaciones);
+
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 250, 380, 60));
+
+        jPanelClientes.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "   Registro de Reserva   ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Segoe UI", 1, 12))); // NOI18N
+        jPanelClientes.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel12.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel12.setText("Cliente:*");
+        jPanelClientes.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 90, -1));
+
+        comboCliente.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jPanelClientes.add(comboCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 230, 30));
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel6.setText("Cantidad de Personas:*");
+        jPanelClientes.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 170, -1));
+        jPanelClientes.add(spnCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, 100, -1));
+
+        jLabel17.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel17.setText("Nro de Mesa:*");
+        jPanelClientes.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, 90, -1));
+
+        comboMesas.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jPanelClientes.add(comboMesas, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 210, 170, -1));
+
+        jPanel1.add(jPanelClientes, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 270, 260));
+
+        jPanelRegistroReserva1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "   Fecha y Hora   ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Segoe UI", 1, 12))); // NOI18N
+        jPanelRegistroReserva1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanelRegistroReserva1.add(dateDia, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 170, -1));
+
+        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel9.setText("Fin");
+        jPanelRegistroReserva1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 110, 80, -1));
+        jPanelRegistroReserva1.add(spnHoraInicio, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 60, 110, -1));
+        jPanelRegistroReserva1.add(spnHoraFin, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 130, 110, -1));
+
+        jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel10.setText("Día de reserva");
+        jPanelRegistroReserva1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 100, -1));
+
+        jLabel15.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel15.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel15.setText("Inicio");
+        jPanelRegistroReserva1.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 40, 80, -1));
+
+        jLabel16.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel16.setText("Fecha de Registro:*");
+        jPanelRegistroReserva1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 130, -1));
+
+        txtFechaRegistro.setEnabled(false);
+        txtFechaRegistro.setRequestFocusEnabled(false);
+        jPanelRegistroReserva1.add(txtFechaRegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 170, -1));
+
+        jPanel1.add(jPanelRegistroReserva1, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 30, 380, 180));
+
+        jPanel3.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 720, 330));
+
         getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 910, 720));
 
         pack();
@@ -468,24 +452,41 @@ public class Frm_Reserva extends javax.swing.JFrame {
 
 
     // Rellenar el ComboBox
-    private void cargarComboBoxCategoria() {
+    private void cargarComboCliente() {
         try {
-          jComboBoxCategoria.removeAllItems();
-          jComboBoxCategoria.addItem("<<Seleccionar>>"); // Opción por defecto
-          ResultSet rs = methods.comboListarCategorias();
+          comboCliente.removeAllItems();
+          comboCliente.addItem("<<Seleccionar>>"); // Opción por defecto
+          ResultSet rs = methods.comboListarClientes();
           while (rs.next()) {
-            jComboBoxCategoria.addItem(rs.getString("Nombre de Categoría"));
+            comboCliente.addItem(rs.getString("Info_Cliente"));
           }
         } catch (SQLException e) {
-          JOptionPane.showMessageDialog(this, "Error al cargar las Categorías: " + e.getMessage());
+          JOptionPane.showMessageDialog(this, "Error al cargar los Clientes: " + e.getMessage());
         }
       }
 
 
-    private void limpiarCamposPlatoMenu () {
-        txtcodigoplato.setText("");
-        txtNombrePlato.setText("");
-        jComboBoxCategoria.setSelectedIndex(0);
+    private void cargarMesas(){
+                try {
+          comboMesas.removeAllItems();
+          comboMesas.addItem("<<Seleccionar>>"); // Opción por defecto
+          ResultSet rs = methods.comboListarMesas();
+          while (rs.next()) {
+            comboMesas.addItem(rs.getString("Número de Mesa"));
+          }
+        } catch (SQLException e) {
+          JOptionPane.showMessageDialog(this, "Error al cargar las Mesas: " + e.getMessage());
+        }
+    }
+
+
+    private void limpiarReserva () {
+        txtObservaciones.setText("");
+        txtcodigoReserva.setText("");
+
+
+        comboCliente.setSelectedIndex(0);
+        comboMesas.setSelectedIndex(0);
         BTN_Guardar.setEnabled(true);
         BTN_Modificar.setEnabled(false);
         BTN_Desactivar.setEnabled(false);
@@ -500,39 +501,93 @@ public class Frm_Reserva extends javax.swing.JFrame {
         if (!JTABLE_Mant_Reserva.isEnabled()) {
             return;
         }
+        txtObservaciones.setEditable(true);
+        comboCliente.setEnabled(true);
+        comboMesas.setEnabled(true);
+        spnCantidad.setEnabled(true);
+        spnHoraFin.setEnabled(true);
+        spnHoraInicio.setEnabled(true);
+        dateDia.setEnabled(true);
 
         int selectRow = JTABLE_Mant_Reserva.getSelectedRow();
         if (selectRow >= 0) {
             String codigo = JTABLE_Mant_Reserva.getValueAt(selectRow, 0).toString().trim();
-            String nombre_plato = JTABLE_Mant_Reserva.getValueAt(selectRow, 1).toString().trim();
-            String precio = JTABLE_Mant_Reserva.getValueAt(selectRow, 2).toString().trim();
-            String categoria = JTABLE_Mant_Reserva.getValueAt(selectRow, 3).toString().trim();
-            String descripcion = JTABLE_Mant_Reserva.getValueAt(selectRow, 4).toString().trim();
+            String cliente = JTABLE_Mant_Reserva.getValueAt(selectRow, 1).toString().trim();
+            String mesa = JTABLE_Mant_Reserva.getValueAt(selectRow, 2).toString().trim();
+            String diaReserva = JTABLE_Mant_Reserva.getValueAt(selectRow, 3).toString().trim();
+            String hInicio = JTABLE_Mant_Reserva.getValueAt(selectRow, 4).toString().trim();
+            String hFinal = JTABLE_Mant_Reserva.getValueAt(selectRow, 5).toString().trim();
+            String pax = JTABLE_Mant_Reserva.getValueAt(selectRow, 6).toString().trim();
+            String F_Regitro = JTABLE_Mant_Reserva.getValueAt(selectRow, 7).toString().trim();
+            String Observaciones = JTABLE_Mant_Reserva.getValueAt(selectRow, 8).toString().trim();
 
-            txtcodigoplato.setText(codigo);
-            txtNombrePlato.setText(nombre_plato);
-            txtPrecio.setText(precio);
-            jTextAreaObservaciones.setText(descripcion);
 
-            String categoriaOriginal = categoria;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            int codigoInt = Integer.parseInt(codigo);
+            int paxInt = Integer.parseInt(pax);
+            try {
+    // 1. Convertir Día de Reserva
+    Date dateReserva = formatoFecha.parse(diaReserva);
+    dateDia.setDate(dateReserva); // Setear al JDateChooser
+
+    // 2. Convertir Hora Inicio y Fin
+    Date dateInicio = formatoHora.parse(hInicio);
+    spnHoraInicio.setValue(dateInicio); // Setear al JSpinner
+
+    Date dateFin = formatoHora.parse(hFinal);
+    spnHoraFin.setValue(dateFin); // Setear al JSpinner
+
+    Date dateRegistro = formatoFecha.parse(F_Regitro);
+    txtFechaRegistro.setDate(dateRegistro); // Setear al JDateChooser
+
+
+} catch (ParseException e) {
+    System.err.println("Error en el formato de fecha: " + e.getMessage());
+}
+
+            spnCantidad.setValue(paxInt);
+
+
+            txtcodigoReserva.setText(codigo);
+            txtObservaciones.setText(Observaciones);
+            //String clienteOriginal = cliente;
             boolean find = false;
-            for (int i=0;i<jComboBoxCategoria.getItemCount();i++){
-                String item = jComboBoxCategoria.getItemAt(i).trim();
-                if (item.equalsIgnoreCase(categoria)){
-                    jComboBoxCategoria.setSelectedIndex(i);
+            for (int i=0;i<comboCliente.getItemCount();i++){
+                String item = comboCliente.getItemAt(i).trim();
+                if (item.equalsIgnoreCase(cliente)){
+                    comboCliente.setSelectedIndex(i);
                     find=true;
                     break;
                 }
-
             }
 
+            boolean find2 = false;
+            for (int i=0;i<comboMesas.getItemCount();i++){
+                String item = comboMesas.getItemAt(i).trim();
+                if (item.equalsIgnoreCase(mesa)){
+                    comboMesas.setSelectedIndex(i);
+                    find2=true;
+                    break;
+                }
+            }
 
         }
 
-        txtNombrePlato.setEditable(true);
-        txtPrecio.setEditable(true);
-        jComboBoxCategoria.setEnabled(true);
-        jTextAreaObservaciones.setEditable(true);
+
+        txtObservaciones.setEditable(true);
 
         BTN_Guardar.setEnabled(false);
         BTN_VerPlatos.setEnabled(false);
@@ -606,8 +661,7 @@ public class Frm_Reserva extends javax.swing.JFrame {
                 //TODO --> conexion.cerrarConexion();
             } catch (Exception e) {
                 System.err.println("Error al cerrar la conexión: " + e.getMessage());
-            }
-            // Cierra el formulario actual
+            }// Cierra el formulario actual
             dispose(); // o this.dispose() si estás dentro del formulario
         }
     }//GEN-LAST:event_BTN_Cerrar1ActionPerformed
@@ -705,7 +759,7 @@ public class Frm_Reserva extends javax.swing.JFrame {
     }//GEN-LAST:event_BTN_BackActionPerformed
 
     private void BTN_CancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_CancelActionPerformed
-        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea cancelar la operación?", "Confirmación", JOptionPane.YES_NO_OPTION);
+     /*   int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea cancelar la operación?", "Confirmación", JOptionPane.YES_NO_OPTION);
         if (respuesta == JOptionPane.YES_OPTION) {
 
             BTN_Guardar.setEnabled(false);
@@ -716,123 +770,98 @@ public class Frm_Reserva extends javax.swing.JFrame {
 
             txtNombrePlato.setEditable(false);
             txtPrecio.setEditable(false);
-            jTextAreaObservaciones.setEditable(false);
+            txtObservaciones.setEditable(false);
             jComboBoxCategoria.setEnabled(false);
 
             JTABLE_Mant_Reserva.setEnabled(true);
 
-        }
+        }*/
     }//GEN-LAST:event_BTN_CancelActionPerformed
 
     private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
 
-        txtcodigoplato.setText("");
-        txtNombrePlato.setText("");
-        txtPrecio.setText("");
-        txtNombrePlato.setText("");
-        jTextAreaObservaciones.setText("");
+        txtcodigoReserva.setText("");
+        comboCliente.setSelectedIndex(0);
+        comboMesas.setSelectedIndex(0);
+        //restaurarValoresDefault();
+        txtObservaciones.setText("");
+        
 
-        txtNombrePlato.requestFocus();
-        txtNombrePlato.setEditable(true);
-        txtPrecio.setEditable(true);
-        jComboBoxCategoria.setEnabled(false);
-        jTextAreaObservaciones.setEditable(true);
 
-        // 1. Limpiar la selección actual (Que no quede nada pintado de azul)
+        txtObservaciones.setEditable(true);
+        comboCliente.setEnabled(true);
+        comboMesas.setEnabled(true);
         JTABLE_Mant_Reserva.clearSelection();
-
-        // 2. Deshabilitar la tabla para que no se pueda hacer clic
         JTABLE_Mant_Reserva.setEnabled(false);
+         desbloquearCampos();
 
-        txtNombrePlato.setEditable(true);
-        txtPrecio.setEditable(true);
-        jTextAreaObservaciones.setEditable(true);
-        jComboBoxCategoria.setEnabled(true);
+    // ... tu lógica de limpiar campos ...
+    
+    // Asignar la fecha actual del sistema
+    dateDia.setDate(new java.util.Date()); 
+    txtFechaRegistro.setDate(new java.util.Date());
+    
+    // ... resto de tu lógica (desbloquear campos, etc.) ...
 
+        
         BTN_Guardar.setEnabled(true);
         BTN_Desactivar.setEnabled(false);
         BTN_Modificar.setEnabled(false);
         BTN_Nuevo.setVisible(false);
-        BTN_Cancel.setVisible(true);
+       // BTN_Cancel.setVisible(true);
+        reactivarBotones(true);
     }//GEN-LAST:event_BTN_NuevoActionPerformed
 
     private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
 
-        // 1. Validar que el campo no esté vacío
-        String nombre = txtNombrePlato.getText().trim();
-        String precio = txtPrecio.getText().trim();
-        String categoria = (String) jComboBoxCategoria.getSelectedItem();
-        String descripcion = jTextAreaObservaciones.getText().trim();
-
-        if (nombre==null || nombre.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese el nombre del Plato", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-            txtNombrePlato.requestFocus();
-            return;
-        }
-        if (precio==null || precio.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese el precio del Plato", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-            txtPrecio.requestFocus();
-            return;
-        }
-        int codigoCategoria=-1;
-        try {
-            codigoCategoria = methods.comboSeleccionarID(categoria);
-        } catch (SQLException ex) {
-            Logger.getLogger(Frm_Reserva.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        if (codigoCategoria==-1){
-            JOptionPane.showMessageDialog(null, "No se encontró la categoría seleccionada", "Error", JOptionPane.ERROR_MESSAGE);
+    try {
+        // 1. Validar campos (Usando .getDate() para los JDateChooser)
+        if (comboCliente.getSelectedIndex() <= 0 || comboMesas.getSelectedIndex() <= 0 || 
+            dateDia.getDate() == null || txtFechaRegistro.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Complete todos los campos obligatorios", "Validación", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        try {
-            if (this.methods.existePlatoConNombre(nombre, 0)) {
-                JOptionPane.showMessageDialog(this, "Ya existe otra categoría con el mismo nombre.",
-                    "Validación", JOptionPane.WARNING_MESSAGE);
-                return;
-            }       } catch (SQLException ex) {
-                Logger.getLogger(Frm_Categoria.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        // 2. OBTENCIÓN DE DATOS Y CONVERSIÓN DE TIEMPOS (Evita el error de formato)
+        long fechaBaseLong = dateDia.getDate().getTime();
+        java.util.Date horaIniDate = (java.util.Date) spnHoraInicio.getValue();
+        java.util.Date horaFinDate = (java.util.Date) spnHoraFin.getValue();
 
-            // 2. Confirmar si el usuario desea guardar
-            int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea guardar el registro?", "Confirmación", JOptionPane.YES_NO_OPTION);
-            if (respuesta == JOptionPane.YES_OPTION) {
+        // Generamos Strings en formato yyyy-MM-dd HH:mm:ss exactos
+        String hInicio = new java.sql.Timestamp(fechaBaseLong + horaIniDate.getTime()).toString();
+        String hFinal = new java.sql.Timestamp(fechaBaseLong + horaFinDate.getTime()).toString();
+        
+        // Para la fecha de registro (JDateChooser)
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String fRegistro = sdf.format(txtFechaRegistro.getDate());
+        
+        String pax = spnCantidad.getValue().toString();
+        String observaciones = txtObservaciones.getText().trim();
 
-                try {
-                    // 3. Llamar al método para insertar
-                    this.methods.insertarPlatoMenu(nombre,descripcion,Double.parseDouble(precio),codigoCategoria);
+        // 3. Obtener IDs de la base de datos
+        String clienteSel = (String) comboCliente.getSelectedItem();
+        String mesaSel = (String) comboMesas.getSelectedItem();
+        int idMesa = methods.obtenerIdMesaPorNumero(mesaSel);
+        int idCliente = methods.obtenerIdClientePorConcatenado(clienteSel);
 
-                    // 4. Mostrar mensaje de éxito
-                    JOptionPane.showMessageDialog(this, "Plato registrado correctamente", "Registro exitoso", JOptionPane.INFORMATION_MESSAGE);
+        // 4. Confirmar e Insertar
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea guardar la reserva?", "Confirmación", JOptionPane.YES_NO_OPTION);
+        if (respuesta == JOptionPane.YES_OPTION) {
+            this.methods.insertarReserva(fRegistro, hInicio, hFinal, pax, observaciones, idCliente, idMesa);
+            
+            JOptionPane.showMessageDialog(this, "Reserva registrada correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            this.MostrarReserva();
+            this.limpiarReserva();
+            this.bloquearCampos();
+        }
 
-                    // 5. Actualizar tabla y limpiar campos
-                    this.MostrarPlatosMenu();
-                    this.limpiarCamposPlatoMenu();
+    } catch (IllegalArgumentException ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage(), "Mesa Ocupada", JOptionPane.WARNING_MESSAGE);
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
-                    txtNombrePlato.setEditable(false);
-                    txtPrecio.setEditable(false);
-                    jTextAreaObservaciones.setEditable(false);
-                    jComboBoxCategoria.setEnabled(false);
 
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(this, "Error al registrar el plato:\n" + ex.getMessage(), "Error de base de datos", JOptionPane.ERROR_MESSAGE);
-                } finally {
-                    txtNombrePlato.setEditable(false);
-                    txtPrecio.setEditable(false);
-                    jComboBoxCategoria.setEditable(false);
-                    jTextAreaObservaciones.setEditable(false);
-
-                    BTN_Guardar.setEnabled(false);
-                    BTN_VerPlatos.setEnabled(false);
-                    BTN_Modificar.setEnabled(false);
-                    BTN_Desactivar.setEnabled(false);
-                    BTN_Nuevo.setVisible(true);
-                    BTN_Cancel.setVisible(false);
-                    JTABLE_Mant_Reserva.setEnabled(true);
-                }
-
-            }
     }//GEN-LAST:event_BTN_GuardarActionPerformed
 
     private void BTN_GuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BTN_GuardarMouseClicked
@@ -840,133 +869,175 @@ public class Frm_Reserva extends javax.swing.JFrame {
     }//GEN-LAST:event_BTN_GuardarMouseClicked
 
     private void BTN_ModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ModificarActionPerformed
-        try {
-            // 1. Obtener datos del formulario
-            String codigoStr = txtcodigoplato.getText().trim();
-            String nuevoNombre = txtNombrePlato.getText().trim();
-            String nuevoPrecioRaw = txtPrecio.getText().trim();
-            String nombreCategoria = (String) jComboBoxCategoria.getSelectedItem();
-            String nuevaDescripcion = jTextAreaObservaciones.getText().trim();
+    
+    String idReservaStr = txtcodigoReserva.getText().trim();
+    if (idReservaStr.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Seleccione una reserva de la tabla.");
+        return;
+    }
 
-            // 2. Validar campos obligatorios (Siguiendo tu lógica de validación)
-            if (codigoStr.isEmpty() || nuevoNombre.isEmpty() || nuevoPrecioRaw.isEmpty() ||
-                nombreCategoria == null || nombreCategoria.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Complete todos los campos obligatorios.", "Validación", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+    try {
+        int idReserva = Integer.parseInt(idReservaStr);
+        long fechaBaseLong = dateDia.getDate().getTime();
+        
+        // Conversión segura de horas a Timestamp String
+        String hIni = new java.sql.Timestamp(fechaBaseLong + ((java.util.Date)spnHoraInicio.getValue()).getTime()).toString();
+        String hFin = new java.sql.Timestamp(fechaBaseLong + ((java.util.Date)spnHoraFin.getValue()).getTime()).toString();
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String fReg = sdf.format(txtFechaRegistro.getDate());
+        String pax = spnCantidad.getValue().toString();
+        String observaciones = txtObservaciones.getText().trim();
+        
+        int idMesa = methods.obtenerIdMesaPorNumero(comboMesas.getSelectedItem().toString());
+        int idCliente = methods.obtenerIdClientePorConcatenado(comboCliente.getSelectedItem().toString());
 
-            // 3. Validar longitud del nombre (Como en tu imagen de Escuelas)
-            if (nuevoNombre.length() > 85) {
-                JOptionPane.showMessageDialog(this, "El nombre del plato no debe exceder 85 caracteres.", "Validación", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea modificar esta reserva?", "Confirmación", JOptionPane.YES_NO_OPTION);
+        if (respuesta == JOptionPane.YES_OPTION) {
+            this.methods.modificarReserva(idReserva, fReg, hIni, hFin, pax, observaciones ,String.valueOf(idCliente), String.valueOf(idMesa));
+            
+            JOptionPane.showMessageDialog(this, "Reserva actualizada con éxito.");
+            this.MostrarReserva();
+            this.limpiarReserva();
+            this.bloquearCampos();
+        }
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error al modificar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
-            // 4. Conversiones y Limpieza de datos
-            int idPlato = Integer.parseInt(codigoStr);
-            // Quitamos el "S/ " por si acaso viene de la tabla
-            String precioLimpio = nuevoPrecioRaw.replace("S/", "").replace("S/ ", "").trim();
-            double precio = Double.parseDouble(precioLimpio);
-
-            // 5. Obtener ID de la categoría
-            int idCategoria = this.methods.comboSeleccionarID(nombreCategoria);
-            if (idCategoria == -1) {
-                JOptionPane.showMessageDialog(this, "La categoría seleccionada no es válida.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            try {
-                if (this.methods.existePlatoConNombre(nuevoNombre, idPlato)) {
-                    JOptionPane.showMessageDialog(this, "Ya existe otro plato con el mismo nombre.",
-                        "Validación", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }       } catch (SQLException ex) {
-                    Logger.getLogger(Frm_Categoria.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-                // 6. Confirmación del usuario
-                int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea modificar este plato?", "Confirmación", JOptionPane.YES_NO_OPTION);
-                if (respuesta == JOptionPane.YES_OPTION) {
-                    // 7. Llamada al método que adaptaste (modificarPlatoMenu)
-                    // El método ya incluye la validación de existePlatoConNombre internamente
-                    this.methods.modificarPlatoMenu(idPlato, nuevoNombre, nuevaDescripcion, precio, idCategoria);
-
-                    JOptionPane.showMessageDialog(this, "Plato actualizado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-                    // 8. Refrescar interfaz
-                    this.MostrarPlatosMenu();
-                    this.limpiarCamposPlatoMenu();
-
-                    txtNombrePlato.setEditable(false);
-                    txtPrecio.setEditable(false);
-                    jTextAreaObservaciones.setEditable(false);
-                    jComboBoxCategoria.setEnabled(false);
-
-                    BTN_Modificar.setEnabled(false);
-                    BTN_Desactivar.setEnabled(false);
-                }
-
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "El código o el precio no son válidos.", "Error de formato", JOptionPane.ERROR_MESSAGE);
-            } catch (IllegalArgumentException e) {
-                // Captura el error de "Ya existe un plato con ese nombre" que lanza tu método
-                JOptionPane.showMessageDialog(this, e.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
-            }
     }//GEN-LAST:event_BTN_ModificarActionPerformed
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     private void BTN_DesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_DesactivarActionPerformed
-        // 1. Validar que se haya seleccionado una plato menu
-        String codStr = txtcodigoplato.getText().trim();
-        if (codStr.isEmpty()) {
-            JOptionPane.showMessageDialog(this,"Seleccione una plato menu en la tabla para desactivar.","Campo requerido",JOptionPane.WARNING_MESSAGE);
-            return;
+
+  
+    String codStr = txtcodigoReserva.getText().trim();
+    if (codStr.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Seleccione una reserva para desactivar.");
+        return;
+    }
+
+    int opcion = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea anular esta reserva?", "Confirmar", JOptionPane.YES_NO_OPTION);
+    if (opcion == JOptionPane.YES_OPTION) {
+        try {
+            this.methods.desactivarReserva(Integer.parseInt(codStr));
+            JOptionPane.showMessageDialog(this, "Reserva anulada correctamente.");
+            this.MostrarReserva();
+            this.limpiarReserva();
+            this.bloquearCampos();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al desactivar reserva:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-        int codigo = Integer.parseInt(codStr); // Convertir a entero
-        // 2. Confirmar la acción con el usuario
-        int opcion = JOptionPane.showConfirmDialog(this,"¿Está seguro de que desea desactivar esta plato menu?","Confirmar desactivación",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
-        if (opcion == JOptionPane.YES_OPTION) {
-            try {
-                // 3. Llamar al método que ejecuta el procedure de desactivación
-                this.methods.desactivarPlatoMenu(codigo);
-                // 4. Mostrar mensaje de éxito
-                JOptionPane.showMessageDialog(this,"Mesa desactivada correctamente.","Operación exitosa",JOptionPane.INFORMATION_MESSAGE);
-                // 5. Actualizar tabla y limpiar campos
-                this.MostrarPlatosMenu();
-                // Limpia los campos de texto
-                txtcodigoplato.setText("");
-                //txtprecio.setText("");
-                BTN_Desactivar.setEnabled(false);
-                BTN_Modificar.setEnabled(false);
-            } catch (SQLException ex) {
-                // 6. Captura cualquier error lanzado por el procedure (por SIGNAL)
-                JOptionPane.showMessageDialog(this,"Error al desactivar plato menu:\n" + ex.getMessage(),"Error de base de datos",JOptionPane.ERROR_MESSAGE);
-            }
-        }
+    }
+
+
     }//GEN-LAST:event_BTN_DesactivarActionPerformed
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     private void BTN_VerPlatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerPlatosActionPerformed
-        this.MostrarPlatosMenu();
-
-        cargarComboBoxCategoria();
+        this.MostrarReserva();
+        cargarComboCliente();
+        cargarMesas();
         this.BTN_Nuevo.setEnabled(true);
         this.BTN_Guardar.setEnabled(false);
         this.BTN_Desactivar.setEnabled(false);
         this.BTN_Modificar.setEnabled(false);
         this.BTN_VerPlatos.setEnabled(false);
     }//GEN-LAST:event_BTN_VerPlatosActionPerformed
-
-    private void txtDNIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDNIActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtDNIActionPerformed
-
-    private void txtFechaRegistroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFechaRegistroActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtFechaRegistroActionPerformed
-
-    private void txtMesaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMesaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtMesaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1048,13 +1119,12 @@ public class Frm_Reserva extends javax.swing.JFrame {
     private javax.swing.JButton BTN_VerPlatos;
     private javax.swing.JTable JTABLE_Mant_Reserva;
     private javax.swing.JTextField TXT_BuscarMesas;
-    private com.toedter.calendar.JDateChooser jDateChooser2;
+    private javax.swing.JComboBox<String> comboCliente;
+    private javax.swing.JComboBox<String> comboMesas;
+    private com.toedter.calendar.JDateChooser dateDia;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
@@ -1063,49 +1133,42 @@ public class Frm_Reserva extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanelClientes;
-    private javax.swing.JPanel jPanelRegistroReserva;
     private javax.swing.JPanel jPanelRegistroReserva1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSpinner jSpinnerCantidad;
-    private javax.swing.JTextArea jTextAreaObservaciones;
+    private javax.swing.JSpinner spnCantidad;
     private javax.swing.JSpinner spnHoraFin;
     private javax.swing.JSpinner spnHoraInicio;
-    private javax.swing.JTextField txtApellidos;
-    private javax.swing.JTextField txtDNI;
-    private javax.swing.JTextField txtFechaRegistro;
-    private javax.swing.JTextField txtMesa;
-    private javax.swing.JTextField txtNombres;
-    private javax.swing.JTextField txtcodigoplato;
+    private com.toedter.calendar.JDateChooser txtFechaRegistro;
+    private javax.swing.JTextArea txtObservaciones;
+    private javax.swing.JTextField txtcodigoReserva;
     // End of variables declaration//GEN-END:variables
 
 //Método para mostrar las plato menues
-    public void MostrarPlatosMenu() {
+    public void MostrarReserva() {
         //Ordenar ASC, DESC
         JTABLE_Mant_Reserva.setAutoCreateRowSorter(true);
         //Limpiar la tabla antes de mostrar nuevos datos
         modeloTablaReserva.setRowCount(0);
         try {
             //Llama al método que retorna los datos de plato menues
-            ResultSet rs = this.methods.listarPlatoMenu();
+            ResultSet rs = this.methods.listarReserva();
             while (rs.next()) {
-                String descripcion = rs.getString("Descripciones");
-                if (descripcion==null||descripcion.isEmpty()){
-                    descripcion = "Sin descripción";
-                }
-
                 Object[] fila = {
                     rs.getInt("ID"),
-                    rs.getString("Nombre del Plato"),
-                    rs.getString("Precio"),
-                    rs.getString("Categoría"),
-                    descripcion
+                    rs.getString("Cliente Formateado"),
+                    rs.getString("Mesa"),
+                    rs.getString("Día de Reserva"),
+                    rs.getString("Entrada"),
+                    rs.getString("Salida"),
+                    rs.getInt("Pax"),
+                    rs.getString("Fecha de Registro"),
+                    rs.getString("Observaciones")
                 };
                 modeloTablaReserva.addRow(fila);
             }
@@ -1124,22 +1187,41 @@ public class Frm_Reserva extends javax.swing.JFrame {
         }
         try {
             //Llama al método que retorna los datos de plato menues
-            ResultSet rs = this.methods.buscarPlatoMenu(parametro);
+            ResultSet rs = this.methods.buscarReserva(parametro);
 
             try (rs) {
                 modeloTablaReserva.setRowCount(0);
             while (rs.next()) {
-                String descripcion = rs.getString("Descripciones");
-                if (descripcion==null||descripcion.isEmpty()){
-                    descripcion = "Sin descripción";
-                }
+                /*
+                CREATE OR REPLACE VIEW vista_reserva AS
+SELECT
+    r.id_reserva     AS `ID`,
 
+    DATE_FORMAT(r.fecha_inicio, '%d/%m/%Y') AS `Día de Reserva`,
+
+    TIME_FORMAT(r.fecha_inicio, '%H:%i') AS `Entrada`,
+    TIME_FORMAT(r.fecha_fin, '%H:%i')    AS `Salida`,
+    r.cantidad_personas AS `Pax`,
+    m.numero_mesa       AS `Mesa`,
+    CONCAT(c.nombre_cliente, ' ', c.apellido_cliente) AS `Cliente`,
+
+    DATE_FORMAT(r.fecha_registro, '%d/%m/%Y') AS `Fecha de Registro`
+
+FROM reserva r
+INNER JOIN cliente c ON r.id_cliente = c.id_cliente
+INNER JOIN mesa m ON r.id_mesa = m.id_mesa
+WHERE r.estado = 1;
+                */
                 Object[] fila = {
                     rs.getInt("ID"),
-                    rs.getString("Nombre del Plato"),
-                    rs.getString("Precio"),
-                    rs.getString("Categoría"),
-                    descripcion
+                    rs.getString("Cliente Formateado"),
+                    rs.getString("Mesa"),
+                    rs.getString("Día de Reserva"),
+                    rs.getString("Entrada"),
+                    rs.getString("Salida"),
+                    rs.getInt("Pax"),
+                    rs.getString("Fecha de Registro"),
+                    rs.getString("Observaciones")
                 };
                 modeloTablaReserva.addRow(fila);
             }
@@ -1150,5 +1232,151 @@ public class Frm_Reserva extends javax.swing.JFrame {
             System.err.println("Error silencioso en búsqueda: " + e.getMessage());
         }
     }
+
+
+  private void configurarSpinners() {
+    // 1. Obtener la hora actual redondeada a la decena
+    Date horaRedondeada = redondearDecena(new Date());
+
+    // 2. Aplicar el modelo con el salto de 10 y la hora inicial limpia
+    configurarSaltoManual(spnHoraInicio, horaRedondeada);
+
+    // Para la hora de fin, podemos poner la hora redondeada + 1 hora de diferencia
+    Calendar calFin = Calendar.getInstance();
+    calFin.setTime(horaRedondeada);
+    calFin.add(Calendar.HOUR_OF_DAY, 1);
+    configurarSaltoManual(spnHoraFin, calFin.getTime());
+}
+
+private void configurarSaltoManual(JSpinner spinner, Date horaInicial) {
+    // Sobrescribimos el modelo para el salto de 10
+    spinner.setModel(new SpinnerDateModel(horaInicial, null, null, Calendar.MINUTE) {
+        @Override
+        public Object getNextValue() {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(getDate());
+            cal.add(Calendar.MINUTE, 10);
+            return cal.getTime();
+        }
+
+        @Override
+        public Object getPreviousValue() {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(getDate());
+            cal.add(Calendar.MINUTE, -10);
+            return cal.getTime();
+        }
+    });
+
+    // Aplicamos el formato AM/PM
+    spinner.setEditor(new JSpinner.DateEditor(spinner, "hh:mm a"));
+}
+
+private Date redondearDecena(Date fecha) {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(fecha);
+
+    int minutos = cal.get(Calendar.MINUTE);
+    // Lógica: (Minutos / 10) redondeado * 10
+    // Si quieres que siempre redondee HACIA ARRIBA (ej: 31 -> 40), usa Math.ceil
+    int minutosRedondeados = (int) (Math.round(minutos / 10.0) * 10);
+
+    if (minutosRedondeados == 60) {
+        cal.add(Calendar.HOUR_OF_DAY, 1);
+        cal.set(Calendar.MINUTE, 0);
+    } else {
+        cal.set(Calendar.MINUTE, minutosRedondeados);
+    }
+
+    cal.set(Calendar.SECOND, 0);
+    cal.set(Calendar.MILLISECOND, 0);
+
+    return cal.getTime();
+}
+
+public void restaurarValoresDefault() {
+    // 1. Obtener la fecha y hora actual redondeada
+    // Usamos el método de redondeo que creamos antes para mantener la coherencia
+    Date ahora = new Date();
+    Date ahoraRedondeado = redondearDecena(ahora);
+
+    // 2. Resetear JDateChooser al día de hoy
+    dateDia.setDate(ahora);
+
+    // 3. Resetear JSpinners (Inicio y Fin con 1 hora de diferencia)
+    spnHoraInicio.setValue(ahoraRedondeado);
+
+    Calendar calFin = Calendar.getInstance();
+    calFin.setTime(ahoraRedondeado);
+    calFin.add(Calendar.HOUR_OF_DAY, 1); // Por defecto 1 hora después
+    spnHoraFin.setValue(calFin.getTime());
+
+    // 4. Resetear JTextArea con la fecha de registro (Current Day / Time)
+    // Usamos un formato legible para el restaurante
+    /*SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    txtFechaRegistro.setText(sdf.format(ahora));*/
+}
+
+
+private void bloquearCampos() {
+    // Bloquear controles de entrada
+    txtcodigoReserva.setEditable(false);
+    comboCliente.setEnabled(false);
+    comboMesas.setEnabled(false);
+    dateDia.setEnabled(false);
+    spnHoraInicio.setEnabled(false);
+    spnHoraFin.setEnabled(false);
+    spnCantidad.setEnabled(false);
+    txtObservaciones.setEditable(false);
+    txtFechaRegistro.setEnabled(false);
+
+    // Configurar botones
+    BTN_Guardar.setEnabled(false);
+    BTN_Modificar.setEnabled(false);
+    BTN_Desactivar.setEnabled(false);
+    
+    // El botón Nuevo y Cancelar suelen alternar visibilidad
+    BTN_Nuevo.setVisible(true);
+    BTN_Cancel.setVisible(false);
+    
+    // Habilitar la tabla para que el usuario pueda seleccionar registros
+    JTABLE_Mant_Reserva.setEnabled(true);
+}
+
+
+private void reactivarBotones(boolean esNuevo) {
+    if (esNuevo) {
+        // Si es una nueva reserva
+        BTN_Guardar.setEnabled(true);
+        BTN_Modificar.setEnabled(false);
+        BTN_Desactivar.setEnabled(false);
+    } else {
+        // Si seleccionaste una de la tabla (para editar o borrar)
+        BTN_Guardar.setEnabled(false);
+        BTN_Modificar.setEnabled(true);
+        BTN_Desactivar.setEnabled(true);
+    }
+    
+    // Botones que siempre deberían estar activos en este punto
+    BTN_Cancel.setVisible(true);
+    BTN_Nuevo.setVisible(false);
+    
+}
+
+
+private void desbloquearCampos() {
+    comboCliente.setEnabled(true);
+    comboMesas.setEnabled(true);
+    spnCantidad.setEnabled(true);
+    
+    // Estos son los que necesitas activar según tu imagen
+    dateDia.setEnabled(true); 
+    spnHoraInicio.setEnabled(true);
+    spnHoraFin.setEnabled(true);
+    
+    txtObservaciones.setEditable(true);
+    // txtFechaRegistro suele quedar desactivado por ser automático
+}
+
 
 }

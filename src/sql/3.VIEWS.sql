@@ -187,7 +187,10 @@ LEFT JOIN (
     GROUP BY id_pedido
 ) totales ON p.id_pedido = totales.id_pedido
 WHERE p.estado = 1;
-SELECT * FROM vista_pedido;
+
+    
+
+
 
 
 /* vista_plato_menu */
@@ -262,14 +265,22 @@ SELECT
     TIME_FORMAT(r.fecha_fin, '%H:%i')    AS `Salida`,
     r.cantidad_personas AS `Pax`,
     m.numero_mesa       AS `Mesa`,
-    CONCAT(c.nombre_cliente, ' ', c.apellido_cliente) AS `Cliente`,
+    c.dni_cliente AS `DNI`,
+    c.nombre_cliente AS `Nombre`,
+    c.apellido_cliente AS `Apellido`,
+    CONCAT(c.dni_cliente,' - ',c.nombre_cliente, ' ', c.apellido_cliente) AS `Cliente Formateado`,
     -- Dejamos el registro al final como dato informativo
-    DATE_FORMAT(r.fecha_registro, '%d/%m/%Y') AS `Fecha de Registro`
+    DATE_FORMAT(r.fecha_registro, '%d/%m/%Y') AS `Fecha de Registro`,
+    CASE    
+        WHEN r.observacion_reserva IS NULL OR TRIM(r.observacion_reserva) = '' 
+        THEN 'Sin Observaciones' 
+        ELSE r.observacion_reserva 
+    END AS `Observaciones`
 FROM reserva r
 INNER JOIN cliente c ON r.id_cliente = c.id_cliente
 INNER JOIN mesa m ON r.id_mesa = m.id_mesa
 WHERE r.estado = 1;
-
+SELECT * FROM vista_reserva;
 
 
 /* vista_tipo_contrato */
