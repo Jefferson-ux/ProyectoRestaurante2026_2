@@ -300,6 +300,9 @@ public class Frm_Proveedor extends javax.swing.JFrame {
 
         TXT_BuscarProveedor.addActionListener(this::TXT_BuscarProveedorActionPerformed);
         TXT_BuscarProveedor.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                TXT_BuscarProveedorKeyPressed(evt);
+            }
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 TXT_BuscarProveedorKeyReleased(evt);
             }
@@ -405,8 +408,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
     }//GEN-LAST:event_BTN_GuardarMouseClicked
 
     private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
-
-        // 1. Validar que el campo no esté vacío
+    // 1. Capturar y limpiar datos
         String ruc = txtRuc.getText().trim();
         String razonSocial = txtrazonSocial.getText().trim();
         String telefono = txttelefonoProveedor.getText().trim();
@@ -414,39 +416,44 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         String direccion = txtdireccionProveedor.getText().trim();
         String Observacion = txtobservaciones.getText().trim();
 
-        if (ruc.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese el ruc del proveedor", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-            txtrazonSocial.requestFocus();
+    // --- VALIDACIONES DE CAMPOS VACÍOS ---
+        if (campoVacio(txtRuc, "RUC"))
+            return;
+        if (campoVacio(txtrazonSocial, "Razón Social")) {
             return;
         }
-        if (razonSocial.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese la razon social", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-            txtrazonSocial.requestFocus();
+        if (campoVacio(txttelefonoProveedor, "Teléfono")) {
             return;
         }
-        if (telefono.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese el telefono del proveedor", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-            txttelefonoProveedor.requestFocus();
+        if (campoVacio(txtcorreoProveedor, "Correo")) {
             return;
         }
-        if (correo.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese el correo del proveedor", "Campo requerido", JOptionPane.WARNING_MESSAGE);
+        if (campoVacio(txtdireccionProveedor, "Dirección"))
+            return;
+
+    // --- NUEVAS VALIDACIONES DE FORMATO (Lógica de Negocio en Java) ---
+    // Validar que el RUC tenga 11 dígitos y sea numérico
+        if (ruc.length() != 11 || !ruc.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "El RUC debe tener exactamente 11 dígitos numéricos.", "Validación de RUC", JOptionPane.WARNING_MESSAGE);
+            txtRuc.requestFocus();
+            return;
+        }
+
+    // Validar formato de correo (opcional pero recomendado en Java)
+        if (!correo.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            JOptionPane.showMessageDialog(this, "El formato del correo electrónico no es válido.", "Validación", JOptionPane.WARNING_MESSAGE);
             txtcorreoProveedor.requestFocus();
             return;
         }
-        if (direccion.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese la dirección del proveedor", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-            txtdireccionProveedor.requestFocus();
-            return;
-        }
+
         if (Observacion.length() > 500) {
             JOptionPane.showMessageDialog(this, "La observación no puede exceder los 500 caracteres.", "Validación", JOptionPane.WARNING_MESSAGE);
             txtobservaciones.requestFocus();
             return;
         }
 
-        // 2. Confirmar si el usuario desea guardar
-        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea guardar el registro de proveedo?", "Confirmación", JOptionPane.YES_NO_OPTION);
+    // 2. Confirmar si el usuario desea guardar
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea guardar el registro de proveedor?", "Confirmación", JOptionPane.YES_NO_OPTION);
         if (respuesta == JOptionPane.YES_OPTION) {
 
             try {
@@ -454,74 +461,109 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                 this.PM.insertarProveedor(ruc, razonSocial, telefono, correo, direccion, Observacion);
 
                 // 4. Mostrar mensaje de éxito
-                JOptionPane.showMessageDialog(this, "Proveedor registrado(a) correctamente", "Registro exitoso", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Proveedor registrado correctamente", "Registro exitoso", JOptionPane.INFORMATION_MESSAGE);
 
                 // 5. Actualizar tabla y limpiar campos
-                this.MostrarProveedores();
+                this.MostrarProveedores(); // Tu método para refrescar la tabla
+                this.limpiarCamposProveedor(); // Tu método para limpiar TXTs
 
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error al registrar proveedor:\n" + ex.getMessage(), "Error de base de datos", JOptionPane.ERROR_MESSAGE);
+                // Capturamos los códigos de error personalizados definidos en el SQL (MYSQL_ERRNO)
+                int errorCode = ex.getErrorCode();
+
+                switch (errorCode) {
+                    case 1034 -> JOptionPane.showMessageDialog(this, "Error: Ya existe un proveedor activo con ese RUC.", "Duplicado", JOptionPane.ERROR_MESSAGE);
+                    case 1035 -> JOptionPane.showMessageDialog(this, "Error: El correo electrónico ya está registrado.", "Duplicado", JOptionPane.ERROR_MESSAGE);
+                    case 1043 -> JOptionPane.showMessageDialog(this, "Aviso: Este proveedor ya existe en el sistema pero está INACTIVO.\nPor favor, búsquelo en la sección de inactivos para reactivarlo.", "Proveedor Inactivo", JOptionPane.INFORMATION_MESSAGE);
+                    default -> JOptionPane.showMessageDialog(this, "Error de base de datos (" + errorCode + "):\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
     }//GEN-LAST:event_BTN_GuardarActionPerformed
 
     private void BTN_ModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ModificarActionPerformed
-    // Validar que se haya seleccionado un registro
-    String codigoStr = txtcodigoProveedor.getText().trim();
-    String ruc = txtRuc.getText().trim();
-    String nuevarazonSocial = txtrazonSocial.getText().trim();
-    String nuevotelefono = txttelefonoProveedor.getText().trim();
-    String nuevocorreo = txtcorreoProveedor.getText().trim();
-    String nuevodireccion = txtdireccionProveedor.getText().trim();
-    String nuevaObservacion = txtobservaciones.getText().trim();
-    
+        // 1. Capturar datos y limpiar espacios
+        String codigoStr = txtcodigoProveedor.getText().trim();
+        String ruc = txtRuc.getText().trim();
+        String nuevarazonSocial = txtrazonSocial.getText().trim();
+        String nuevotelefono = txttelefonoProveedor.getText().trim();
+        String nuevocorreo = txtcorreoProveedor.getText().trim();
+        String nuevodireccion = txtdireccionProveedor.getText().trim();
+        String nuevaObservacion = txtobservaciones.getText().trim();
 
-    
-    if (nuevarazonSocial.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese la razon social", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txtrazonSocial.requestFocus();
-      return;
-    }
-    if (nuevotelefono.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese el telefono del proveedor", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txttelefonoProveedor.requestFocus();
-      return;
-    }
-    if (nuevocorreo.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese el correo del proveedor", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txtcorreoProveedor.requestFocus();
-      return;
-    }
-    if (nuevodireccion.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese la dirección del proveedor", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txtdireccionProveedor.requestFocus();
-      return;
-    }
-    // Validar la longitud de la observacion
-    if (nuevaObservacion.length() > 500) {
-        JOptionPane.showMessageDialog(this, "La observación no puede exceder los 500 caracteres.", "Validación", JOptionPane.WARNING_MESSAGE);
-        txtobservaciones.requestFocus();
-        return;
-    }
+        // --- VALIDACIONES DE CAMPOS VACÍOS (Java) ---
+        if (codigoStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un proveedor de la tabla.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-    //Convertir Id_proveedor en int
-    int codigoProveedor = Integer.parseInt(codigoStr);
-    
-    // Confirmación del usuario
-    int respuesta = JOptionPane.showConfirmDialog(this,"¿Desea modificar esta Proveedor?", "Confirmación",JOptionPane.YES_NO_OPTION);
-    if (respuesta == JOptionPane.YES_OPTION) {
-      try {
-        this.PM.modificarProveedor(codigoProveedor, ruc, nuevarazonSocial, nuevotelefono, nuevocorreo, nuevodireccion, nuevaObservacion);
+        // Validaciones en cascada
+        if (campoVacio(txtRuc, "RUC")) {
+            return;
+        }
+        if (campoVacio(txtrazonSocial, "Razón Social")) {
+            return;
+        }
+        if (campoVacio(txttelefonoProveedor, "Teléfono")) {
+            return;
+        }
+        if (campoVacio(txtcorreoProveedor, "Correo")) {
+            return;
+        }
+        if (campoVacio(txtdireccionProveedor, "Dirección"))
+            return;
 
-        JOptionPane.showMessageDialog(this, "Proveedor modificada correctamente", "Modificación exitosa", JOptionPane.INFORMATION_MESSAGE);
+        // --- VALIDACIONES DE FORMATO (Java) ---
+        // Validar longitud de RUC
+        if (ruc.length() != 11 || !ruc.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "El RUC debe tener exactamente 11 dígitos numéricos.", "Validación", JOptionPane.WARNING_MESSAGE);
+            txtRuc.requestFocus();
+            return;
+        }
 
-        this.MostrarProveedores();
-        // Limpia los campos de texto
-        limpiarCamposProveedor();
-      } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Error al modificar Proveedor:\n" + ex.getMessage(), "Error de base de datos", JOptionPane.ERROR_MESSAGE);
-      }
-    }
+        // Validar formato de correo básico
+        if (!nuevocorreo.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            JOptionPane.showMessageDialog(this, "El formato del correo electrónico no es válido.", "Validación", JOptionPane.WARNING_MESSAGE);
+            txtcorreoProveedor.requestFocus();
+            return;
+        }
+
+        // Validar longitud de observación
+        if (nuevaObservacion.length() > 500) {
+            JOptionPane.showMessageDialog(this, "La observación no puede exceder los 500 caracteres.", "Validación", JOptionPane.WARNING_MESSAGE);
+            txtobservaciones.requestFocus();
+            return;
+        }
+
+        // Convertir Id_proveedor
+        int codigoProveedor = Integer.parseInt(codigoStr);
+
+        // 2. Confirmación del usuario
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea modificar este Proveedor?", "Confirmación", JOptionPane.YES_NO_OPTION);
+        if (respuesta == JOptionPane.YES_OPTION) {
+            try {
+                // 3. Llamar al método del DAO
+                this.PM.modificarProveedor(codigoProveedor, ruc, nuevarazonSocial, nuevotelefono, nuevocorreo, nuevodireccion, nuevaObservacion);
+
+                // 4. Éxito
+                JOptionPane.showMessageDialog(this, "Proveedor modificado correctamente", "Modificación exitosa", JOptionPane.INFORMATION_MESSAGE);
+
+                // 5. Refrescar interfaz
+                this.MostrarProveedores();
+                limpiarCamposProveedor();
+
+            } catch (SQLException ex) {
+                // --- CAPTURA DE ERRORES SEGÚN TU SQL (MYSQL_ERRNO) ---
+                int errorCode = ex.getErrorCode();
+
+                switch (errorCode) {
+                    case 20169 -> JOptionPane.showMessageDialog(this, "Error: El RUC ingresado ya pertenece a otro proveedor.", "Duplicado", JOptionPane.ERROR_MESSAGE);
+                    case 20164 -> JOptionPane.showMessageDialog(this, "Error: El formato de correo es rechazado por el servidor.", "Validación SQL", JOptionPane.ERROR_MESSAGE);
+                    case 20161 -> JOptionPane.showMessageDialog(this, "Error: El proveedor que intenta editar ya no existe en la base de datos.", "Error de ID", JOptionPane.ERROR_MESSAGE);
+                    default -> JOptionPane.showMessageDialog(this, "Error crítico (" + errorCode + "):\n" + ex.getMessage(), "Error de base de datos", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
     }//GEN-LAST:event_BTN_ModificarActionPerformed
 
     private void BTN_EXCELActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_EXCELActionPerformed
@@ -702,41 +744,58 @@ public class Frm_Proveedor extends javax.swing.JFrame {
     }//GEN-LAST:event_txtcodigoProveedorKeyTyped
 
     private void BTN_DesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_DesactivarActionPerformed
-
+        // Obtener la fila seleccionada
         int filaSeleccionada = JTABLE_Mant_Proveedor.getSelectedRow();
 
+        // Validación inicial: ¿Seleccionó algo?
         if (filaSeleccionada == -1) {
             JOptionPane.showMessageDialog(this, "Seleccione un proveedor de la tabla.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Validar si ya está desactivado (Columna 7 es Estado)
-        String estado = JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 7).toString();
-        if (estado.equalsIgnoreCase("Inactivo")) {
-            JOptionPane.showMessageDialog(this, "El proveedor ya se encuentra desactivado.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-            // Quitamos la palomilla si el usuario intentó marcar algo ya desactivado
-            jCheckBoxListarInactivos.setSelected(false);
+        // 1. Obtener datos de la fila de forma segura
+        // Usamos .toString() y trim() para evitar errores de puntero nulo o espacios
+        int codigoProveedor = Integer.parseInt(JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 0).toString());
+        String nombreProv = JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 1).toString().trim();
+        String estadoActual = JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 7).toString().trim();
+
+        // 2. Validar si ya está desactivado para no trabajar en vano
+        if (estadoActual.equalsIgnoreCase("Inactivo")) {
+            JOptionPane.showMessageDialog(this, "El proveedor '" + nombreProv + "' ya se encuentra desactivado.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
-        int codigoProveedor = Integer.parseInt(JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 0).toString());
-        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Seguro que desea desactivar este proveedor?", "Confirmar", JOptionPane.YES_NO_OPTION);
+        // 3. Confirmación personalizada (Avisando que el historial se mantiene)
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+                "¿Está seguro de que desea desactivar al proveedor: " + nombreProv + "?\n",
+                "Confirmar Desactivación", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
             try {
+                // 4. Llamada al método del DAO/Manager
                 PM.desactivarProveedor(codigoProveedor);
-                JOptionPane.showMessageDialog(this, "Proveedor desactivado correctamente.");
 
-                // QUITAMOS LA PALOMILLA
-                jCheckBoxListarInactivos.setSelected(false);
+                JOptionPane.showMessageDialog(this, "Proveedor desactivado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
-                MostrarProveedores();
+                // 5. Actualizar interfaz respetando el filtro que el usuario tenga puesto
+                if (jCheckBoxListarInactivos.isSelected()) {
+                    MostrarProveedoresInactivos();
+                } else {
+                    MostrarProveedores(); // El registro debería desaparecer de la lista de activos
+                }
+
+                // 6. Limpiar el formulario para evitar confusiones
                 limpiarCamposProveedor();
+
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                String mensajeError = (ex.getErrorCode() == 20170) ? "El proveedor no existe en la base de datos." : ex.getMessage();
+
+                JOptionPane.showMessageDialog(this,
+                        "No se pudo cambiar el estado del proveedor.\nDetalle: " + mensajeError,
+                        "Error de Base de Datos",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
-
     }//GEN-LAST:event_BTN_DesactivarActionPerformed
 
     private void jCheckBoxListarInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxListarInactivosActionPerformed
@@ -751,45 +810,77 @@ public class Frm_Proveedor extends javax.swing.JFrame {
     }//GEN-LAST:event_jCheckBoxListarInactivosActionPerformed
 
     private void jCheckBoxActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxActivarActionPerformed
+        // Obtener fila seleccionada
         int filaSeleccionada = JTABLE_Mant_Proveedor.getSelectedRow();
 
+        // 1. Validar selección inicial
         if (filaSeleccionada == -1) {
             JOptionPane.showMessageDialog(this, "Seleccione un proveedor para reactivarlo.", "Aviso", JOptionPane.WARNING_MESSAGE);
-            jCheckBoxActivar.setSelected(false); // Quita la palomilla si no hay selección
+            if (jCheckBoxActivar.isSelected()) {
+                jCheckBoxActivar.setSelected(false);
+            }
             return;
         }
 
-        // Validar si ya está activo
-        String estado = JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 7).toString();
-        if (estado.equalsIgnoreCase("Activo")) {
-            JOptionPane.showMessageDialog(this, "El proveedor ya se encuentra activo.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-            jCheckBoxActivar.setSelected(false); // QUITA LA PALOMILLA
-            return;
-        }
-
+        // 2. Obtener datos de la fila de forma segura
         int codigoProveedor = Integer.parseInt(JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 0).toString());
-        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Desea reactivar al proveedor?", "Confirmar", JOptionPane.YES_NO_OPTION);
+        String nombreProv = JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 1).toString().trim();
+        String estadoActual = JTABLE_Mant_Proveedor.getValueAt(filaSeleccionada, 7).toString().trim();
+
+        // 3. Validar si ya está reactivado (Mensaje mejorado)
+        if (estadoActual.equalsIgnoreCase("Activo")) {
+            JOptionPane.showMessageDialog(this,
+                    "El proveedor '" + nombreProv + "' ya está reactivado.",
+                    "Aviso", JOptionPane.INFORMATION_MESSAGE);
+            jCheckBoxActivar.setSelected(false);
+            return;
+        }
+
+        // 4. Confirmación con nombre y diseño profesional
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+                "¿Desea reactivar al proveedor: " + nombreProv + "?",
+                "Confirmar Reactivación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
             try {
+                // 5. Ejecutar la reactivación en la Base de Datos
                 PM.reactivarProveedor(codigoProveedor);
-                JOptionPane.showMessageDialog(this, "Proveedor reactivado con éxito.");
 
-                // QUITA LA PALOMILLA
-                jCheckBoxActivar.setSelected(false);
+                JOptionPane.showMessageDialog(this,
+                        "¡Listo! El proveedor '" + nombreProv + "' ha sido reactivado con éxito.",
+                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+                // 6. Sincronizar Interfaz
+                // Regresamos a la vista de activos para ver el cambio reflejado
                 jCheckBoxListarInactivos.setSelected(false);
+                jCheckBoxActivar.setSelected(false);
 
+                // Refrescar tabla y limpiar formulario
                 MostrarProveedores();
                 limpiarCamposProveedor();
+
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                // Manejo de errores específicos (20170: El registro desapareció de la DB)
+                String msj = (ex.getErrorCode() == 20170) ? "El proveedor no existe en el sistema." : ex.getMessage();
+
+                JOptionPane.showMessageDialog(this,
+                        "Error al intentar reactivar:\n" + msj,
+                        "Error de Base de Datos",
+                        JOptionPane.ERROR_MESSAGE);
+
                 jCheckBoxActivar.setSelected(false);
             }
         } else {
-            // Si el usuario cancela el cuadro de diálogo, también quitamos la palomilla
+            // Si el usuario cancela la acción
             jCheckBoxActivar.setSelected(false);
         }
     }//GEN-LAST:event_jCheckBoxActivarActionPerformed
+
+    private void TXT_BuscarProveedorKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TXT_BuscarProveedorKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_TXT_BuscarProveedorKeyPressed
 
     /**
      * @param args the command line arguments
@@ -853,6 +944,16 @@ public class Frm_Proveedor extends javax.swing.JFrame {
     private javax.swing.JTextField txtrazonSocial;
     private javax.swing.JTextField txttelefonoProveedor;
     // End of variables declaration//GEN-END:variables
+    //Validar campos vacios
+    private boolean campoVacio(javax.swing.JTextField txt, String nombreCampo) {
+        if (txt.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El campo " + nombreCampo + " es obligatorio.", "Campo requerido", JOptionPane.WARNING_MESSAGE);
+            txt.requestFocus();
+            return true; // Sí está vacío
+        }
+        return false; // No está vacío
+    }
+
     //Método para mostrar las Mesaes
     public void MostrarProveedores() {
         //Ordenar ASC, DESC
@@ -917,6 +1018,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
             txttelefonoProveedor.setText("");
             txtcorreoProveedor.setText("");
             txtdireccionProveedor.setText("");
+            txtobservaciones.setText("");
             BTN_Guardar.setEnabled(true);
             BTN_Nuevo.setEnabled(false);
             BTN_Modificar.setEnabled(false);
@@ -936,14 +1038,13 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                     rs.getString("Razón Social (Nombre del Proveedor)"),
                     rs.getString("Teléfono de contacto"),
                     rs.getString("Correo de contacto"),
-                    rs.getString("Dirección"),
-                    rs.getString("Observaciones")
+                    rs.getString("Dirección")
                 };
                 modeloTablaProveedor.addRow(fila);
             }
 
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al buscar Mesaes:\n" + e.getMessage(),
+            JOptionPane.showMessageDialog(null, "Error al buscar Mensajes:\n" + e.getMessage(),
                     "Error de búsqueda", JOptionPane.ERROR_MESSAGE);
         }
     }

@@ -23,7 +23,7 @@ public class ConnectionDB {
     private static final String URL = "jdbc:mysql://localhost:3306/db_restaurant";
 
     private static final String USER = "root"; //=> USUARIO : El que manipula MySQL
-    private static final String PASSWORD = "Pa$$Word-72328363%"; //=> PASSWORD : Vacío por XAMPP
+    private static final String PASSWORD = ""; //=> PASSWORD : Vacío por XAMPP
 
 
      //================================================//

@@ -438,7 +438,7 @@ public class Frm_Producto extends javax.swing.JFrame {
             if (!encontrado) {
                 JOptionPane.showMessageDialog(this,
                     "No se encontró la unidad de medida en la lista del combo.",
-                    "Facultad no encontrada", JOptionPane.WARNING_MESSAGE);
+                    "Unidad de medida no encontrada", JOptionPane.WARNING_MESSAGE);
             }
         }
     }//GEN-LAST:event_JTABLE_Mant_ProductoMouseClicked
@@ -449,7 +449,7 @@ public class Frm_Producto extends javax.swing.JFrame {
             XSSFWorkbook workbook = new XSSFWorkbook();
 
             // 2. Crear una hoja dentro del libro
-            XSSFSheet sheet = workbook.createSheet("Facultades");
+            XSSFSheet sheet = workbook.createSheet("Proveedores");
 
             // 3. Escribir la fila de encabezados desde el JTable
             XSSFRow headerRow = sheet.createRow(0); // Fila 0 para encabezados

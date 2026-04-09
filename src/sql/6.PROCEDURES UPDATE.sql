@@ -1055,75 +1055,88 @@ Mas campos  a comparación de Oracle
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS Update_Proveedor //
+
 CREATE PROCEDURE Update_Proveedor (
-    IN p_id_proveedor  INT,
-    IN p_ruc           CHAR(11),
-    IN p_razon_social  VARCHAR(150),
-    IN p_telefono      VARCHAR(15),
-    IN p_correo        VARCHAR(150),
-    IN p_direccion     VARCHAR(150),
-    IN p_observacion   TEXT
+    IN p_id_proveedor   INT,
+    IN p_ruc            CHAR(11),
+    IN p_razon_social   VARCHAR(150),
+    IN p_telefono       VARCHAR(15),
+    IN p_correo         VARCHAR(150),
+    IN p_direccion      VARCHAR(150),
+    IN p_observacion    TEXT
 )
 BEGIN
-    -- Declaración de variables locales
-    DECLARE v_existencia INT;
-    DECLARE v_ruc        CHAR(11)     DEFAULT TRIM(p_ruc);
-    DECLARE v_razon      VARCHAR(150) DEFAULT TRIM(p_razon_social);
-    DECLARE v_correo     VARCHAR(150) DEFAULT LOWER(TRIM(p_correo));
-    DECLARE v_obs        TEXT         DEFAULT TRIM(p_observacion);
+    -- Declaración de variables para control
+    DECLARE v_id_existe INT;
+    DECLARE v_ruc_duplicado INT;
 
-    -- 1. Validar existencia del proveedor
-    SELECT COUNT(*) INTO v_existencia FROM proveedor WHERE id_proveedor = p_id_proveedor;
-    IF v_existencia = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El proveedor no existe.', MYSQL_ERRNO = 20161;
-    END IF;
+    -- 1. MANEJO DE ERRORES Y TRANSACCIONES
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
 
-    -- 2. Validar RUC (11 dígitos y no nulo)
-    IF v_ruc IS NULL OR v_ruc NOT REGEXP '^[0-9]{11}$' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El RUC debe tener 11 dígitos numéricos.', MYSQL_ERRNO = 20168;
-    END IF;
+    START TRANSACTION;
 
-    -- 3. Validar RUC duplicado
-    SELECT COUNT(*) INTO v_existencia FROM proveedor 
-    WHERE ruc = v_ruc AND id_proveedor <> p_id_proveedor;
-    IF v_existencia > 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El RUC ya pertenece a otro proveedor.', MYSQL_ERRNO = 20169;
-    END IF;
-
-    -- 4. Validar Razón Social
-    IF v_razon IS NULL OR v_razon = '' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La razón social es obligatoria.', MYSQL_ERRNO = 20162;
-    END IF;
-
-    -- 5. Validar Teléfono (Mínimo 7, máximo 15 según tu CHECK)
-    IF p_telefono IS NULL OR p_telefono NOT REGEXP '^[0-9]{7,15}$' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Teléfono inválido (7 a 15 dígitos).', MYSQL_ERRNO = 20163;
-    END IF;
-
-    -- 6. Validar Correo
-    IF v_correo NOT REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Formato de correo inválido.', MYSQL_ERRNO = 20164;
-    END IF;
+    -- 2. VALIDAR EXISTENCIA DEL ID
+    SELECT COUNT(*) INTO v_id_existe FROM proveedor WHERE id_proveedor = p_id_proveedor;
     
-    --7. Validar que la observacion no exeda 500 caracteres 
-    IF v_obs IS NOT NULL AND CHAR_LENGTH(v_obs) > 500 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La observación es demasiado larga (máx 500 caracteres).', MYSQL_ERRNO = 20165;
+    IF v_id_existe = 0 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El proveedor con el ID proporcionado no existe.', 
+        MYSQL_ERRNO = 20161;
     END IF;
 
-    -- 8. Ejecutar actualización
+    -- 3. VALIDAR FORMATO DE RUC (Solo números y 11 dígitos)
+    IF TRIM(p_ruc) NOT REGEXP '^[0-9]{11}$' THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El RUC debe contener exactamente 11 dígitos numéricos.', 
+        MYSQL_ERRNO = 20168;
+    END IF;
+
+    -- 4. VALIDAR RUC DUPLICADO (Que no lo tenga OTRO proveedor)
+    SELECT COUNT(*) INTO v_ruc_duplicado FROM proveedor 
+    WHERE ruc = TRIM(p_ruc) AND id_proveedor <> p_id_proveedor;
+
+    IF v_ruc_duplicado > 0 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El RUC ingresado ya pertenece a otro proveedor registrado.', 
+        MYSQL_ERRNO = 20169;
+    END IF;
+
+    -- 5. VALIDAR RAZÓN SOCIAL
+    IF p_razon_social IS NULL OR TRIM(p_razon_social) = '' THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: La razón social es un campo obligatorio.', 
+        MYSQL_ERRNO = 20162;
+    END IF;
+
+    -- 6. VALIDAR CORREO (Regex profesional y duplicados)
+    IF LOWER(TRIM(p_correo)) NOT REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$' THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El formato del correo electrónico es inválido.', 
+        MYSQL_ERRNO = 20164;
+    END IF;
+
+    -- 7. VALIDAR LONGITUD DE OBSERVACIÓN
+    IF p_observacion IS NOT NULL AND CHAR_LENGTH(TRIM(p_observacion)) > 500 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: La observación no puede exceder los 500 caracteres.', 
+        MYSQL_ERRNO = 20165;
+    END IF;
+
+    -- 8. EJECUTAR ACTUALIZACIÓN CON NORMALIZACIÓN
     UPDATE proveedor
-    SET ruc                 = v_ruc,
-        razon_social        = v_razon,
+    SET ruc                 = TRIM(p_ruc),
+        razon_social        = UPPER(TRIM(p_razon_social)), -- Mantener consistencia con INSERT
         telefono_proveedor  = TRIM(p_telefono),
-        correo_proveedor    = v_correo,
+        correo_proveedor    = LOWER(TRIM(p_correo)),    -- Mantener consistencia con INSERT
         direccion_proveedor = TRIM(p_direccion),
-        observacion_proveedor = v_obs
+        observacion_proveedor = TRIM(p_observacion)
     WHERE id_proveedor = p_id_proveedor;
 
-    -- 9. Verificar si hubo cambios
-    IF ROW_COUNT() = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No se realizaron cambios en el proveedor.', MYSQL_ERRNO = 20167;
-    END IF;
+    COMMIT;
 
 END //
 

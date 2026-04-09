@@ -737,87 +737,95 @@ CREATE PROCEDURE insertar_proveedor(
     IN p_telefono VARCHAR(50),
     IN p_correo VARCHAR(255),
     IN p_direccion VARCHAR(255),
-    IN p_observacion TEXT -- Nuevo parámetro
+    IN p_observacion TEXT
 )
 BEGIN
+    -- Declaración de variables para control
     DECLARE v_count INT;
-    DECLARE v_obs TEXT DEFAULT TRIM(p_observacion);
+    DECLARE v_estado_existente TINYINT;
+    DECLARE v_msg VARCHAR(255);
 
-    -- 1. Validar duplicado por RUC
-    SELECT COUNT(*) INTO v_count
-    FROM proveedor
-    WHERE ruc = p_ruc; -- Nombre de columna corregido a 'ruc'
+    -- 1. MANEJO DE ERRORES Y TRANSACCIONES
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL; -- Re-lanza el error para que Java lo capture
+    END;
 
-    IF v_count > 0 THEN
+    START TRANSACTION;
+
+    -- 2. VALIDACIÓN DE FORMATO (Longitud y que sea solo números)
+    IF LENGTH(TRIM(p_ruc)) <> 11 OR TRIM(p_ruc) NOT REGEXP '^[0-9]+$' THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Ya existe un proveedor con el mismo RUC.',
-        MYSQL_ERRNO = 1034;
-    END IF;
-
-    -- 2. Validar duplicado por Correo
-    SELECT COUNT(*) INTO v_count
-    FROM proveedor
-    WHERE correo_proveedor = p_correo;
-
-    IF v_count > 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Ya existe un proveedor con el mismo correo.',
-        MYSQL_ERRNO = 1035;
-    END IF;
-
-    -- 3. Validar longitud del RUC
-    IF LENGTH(TRIM(p_ruc)) <> 11 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El RUC debe tener exactamente 11 caracteres.',
+        SET MESSAGE_TEXT = 'El RUC debe tener exactamente 11 dígitos numéricos.',
         MYSQL_ERRNO = 1036;
     END IF;
 
-    -- 4. Validar campos obligatorios
-    IF p_razon_social IS NULL OR TRIM(p_razon_social) = '' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La razón social no puede estar vacía.',
-        MYSQL_ERRNO = 1037;
+    -- 3. VALIDACIÓN DE CAMPOS OBLIGATORIOS
+    IF TRIM(p_razon_social) = '' OR p_razon_social IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La razón social es obligatoria.', MYSQL_ERRNO = 1037;
     END IF;
 
-    IF p_telefono IS NULL OR TRIM(p_telefono) = '' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El teléfono no puede estar vacío.',
-        MYSQL_ERRNO = 1038;
+    -- 4. VALIDACIÓN DE FORMATO DE CORREO (Regex profesional)
+    IF TRIM(p_correo) NOT REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El formato del correo es inválido.', MYSQL_ERRNO = 1042;
     END IF;
 
-    IF p_correo IS NULL OR TRIM(p_correo) = '' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El correo no puede estar vacío.',
-        MYSQL_ERRNO = 1039;
+    -- 5. VALIDACIÓN DE DUPLICADOS (Detecta si está activo o inactivo)
+    SELECT COUNT(*), MAX(estado) INTO v_count, v_estado_existente 
+    FROM proveedor 
+    WHERE ruc = TRIM(p_ruc);
+
+    IF v_count > 0 THEN
+        IF v_estado_existente = 0 THEN
+            -- Caso especial: El RUC existe pero fue borrado/desactivado antes
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'El RUC ya existe pero está INACTIVO. Debe reactivarlo.',
+            MYSQL_ERRNO = 1043;
+        ELSE
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Ya existe un proveedor activo con este RUC.',
+            MYSQL_ERRNO = 1034;
+        END IF;
     END IF;
 
-    IF p_direccion IS NULL OR TRIM(p_direccion) = '' THEN
+    -- 6. VALIDACIÓN DE CORREO DUPLICADO
+    IF EXISTS(SELECT 1 FROM proveedor WHERE correo_proveedor = TRIM(p_correo)) THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La dirección no puede estar vacía.',
-        MYSQL_ERRNO = 1040;
+        SET MESSAGE_TEXT = 'El correo electrónico ya está registrado por otro proveedor.',
+        MYSQL_ERRNO = 1035;
     END IF;
-
-    -- 5. Ejecutar inserción
+    
+    -- 7. Validar longitud de la observación
+    IF p_observacion IS NOT NULL AND LENGTH(TRIM(p_observacion)) > 500 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La observación es demasiado larga (máximo 500 caracteres).',
+        MYSQL_ERRNO = 1044; -- Código correlativo al anterior
+    END IF;
+    
+    -- 8. INSERCIÓN CON NORMALIZACIÓN
     INSERT INTO proveedor(
-        ruc,
-        razon_social,
-        telefono_proveedor,
-        correo_proveedor,
-        direccion_proveedor,
-        observacion_proveedor, -- Campo añadido
-        estado        -- Campo añadido (Valor 1 por defecto)
+        ruc, 
+        razon_social, 
+        telefono_proveedor, 
+        correo_proveedor, 
+        direccion_proveedor, 
+        observacion_proveedor, 
+        estado
     )
     VALUES(
         TRIM(p_ruc),
-        TRIM(p_razon_social),
+        UPPER(TRIM(p_razon_social)), -- Mayúsculas para uniformidad en reportes
         TRIM(p_telefono),
-        LOWER(TRIM(p_correo)),
+        LOWER(TRIM(p_correo)),        -- Minúsculas para correos
         TRIM(p_direccion),
-        v_obs,
-        1 -- Estado activo por defecto
+        TRIM(p_observacion),
+        1                             -- Estado activo por defecto
     );
 
-    SELECT 'Proveedor insertado exitosamente.' AS mensaje;
+    COMMIT;
+    
+    SELECT 'Proveedor registrado exitosamente.' AS mensaje;
 
 END$$
 
