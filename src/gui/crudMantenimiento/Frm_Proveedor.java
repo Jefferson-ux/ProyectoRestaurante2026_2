@@ -52,6 +52,15 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         JTABLE_Mant_Proveedor.getColumnModel().getColumn(0).setMinWidth(0);
         JTABLE_Mant_Proveedor.getColumnModel().getColumn(0).setMaxWidth(0);
         JTABLE_Mant_Proveedor.getColumnModel().getColumn(0).setWidth(0);
+        
+        //Ocultar Observacion y estado
+        JTABLE_Mant_Proveedor.getColumnModel().getColumn(6).setMinWidth(0);
+        JTABLE_Mant_Proveedor.getColumnModel().getColumn(6).setMaxWidth(0);
+        JTABLE_Mant_Proveedor.getColumnModel().getColumn(6).setWidth(0);
+        
+        JTABLE_Mant_Proveedor.getColumnModel().getColumn(7).setMinWidth(0);
+        JTABLE_Mant_Proveedor.getColumnModel().getColumn(7).setMaxWidth(0);
+        JTABLE_Mant_Proveedor.getColumnModel().getColumn(7).setWidth(0);
 
         //Desactivar button
         BTN_Guardar.setEnabled(false);
