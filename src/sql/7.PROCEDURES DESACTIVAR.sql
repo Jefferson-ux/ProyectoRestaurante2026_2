@@ -46,37 +46,44 @@ CALL cambiar_estado_empleado(1, 1);
 
 
 
-/* ===================================================
+//* ===================================================
                 PRODUCTO
 ===================================================== */
-DROP PROCEDURE IF EXISTS Desactivar_Producto;
-DELIMITER //
-CREATE PROCEDURE Desactivar_Producto(IN p_id_producto INT)
+DROP PROCEDURE IF EXISTS CambiarEstadoProducto;
+DELIMITER $$
+
+CREATE PROCEDURE CambiarEstadoProducto (
+    IN p_id_producto INT,
+    IN p_nuevo_estado TINYINT
+)
 BEGIN
-    DECLARE existe INT DEFAULT 0;
-    DECLARE yaDesactivado INT DEFAULT 0;
-    /* Verificar si el Empleado existe */
-    SELECT COUNT(*) INTO existe
-    FROM Producto WHERE id_producto = p_id_producto;
-    IF existe = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: El código del producto no existe. ';
-    ELSE
-        /* Verificar si ya está desactivada */
-        SELECT COUNT(*) INTO yaDesactivado
-        FROM Producto
-        WHERE id_producto = p_id_producto AND estado = 0;
-        IF yaDesactivado > 0 THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El Producto ya está desactivado.';
-        ELSE
-            /* Proceder con la desactivación */
-            UPDATE Producto
-            SET estado = 0
-            WHERE id_producto = p_id_producto;
-        END IF;
+    -- 1. Verificar que el producto exista
+    IF NOT EXISTS (
+        SELECT 1 FROM producto WHERE id_producto = p_id_producto
+    ) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El producto no existe.', 
+        MYSQL_ERRNO = 20180;
     END IF;
-END //
+
+    -- 2. Validar que el nuevo estado sea válido (0 o 1)
+    -- Aunque la tabla tiene un CHECK, validarlo aquí permite enviar un mensaje personalizado
+    IF p_nuevo_estado NOT IN (0, 1) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El estado debe ser 0 (inactivo) o 1 (activo).', 
+        MYSQL_ERRNO = 20181;
+    END IF;
+
+    -- 3. Actualizar estado
+    -- Se mantiene la integridad referencial con otras tablas (como detalle_ingreso o proveedor_producto)
+    UPDATE producto
+    SET estado = p_nuevo_estado
+    WHERE id_producto = p_id_producto;
+
+    SELECT CONCAT('Producto "', (SELECT nombre_producto FROM producto WHERE id_producto = p_id_producto), 
+                  '" actualizado a estado: ', p_nuevo_estado) AS mensaje;
+END$$
+
 DELIMITER ;
 
 /* ===================================================

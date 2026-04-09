@@ -954,12 +954,12 @@ CALL Update_Plato_Menu(
     1                               -- p_estado (Activo)
 );
 
-/**************************************
-12- PRODUCTO
-Cambio de nombres a comparación de Oracle
-**************************************/
+/* ============================================================
+    12.- PRODUCTO 
+============================================================ */
 DELIMITER //
 DROP PROCEDURE IF EXISTS Update_Producto //
+
 CREATE PROCEDURE Update_Producto (
     IN p_id_producto       INT,
     IN p_nombre            VARCHAR(100),
@@ -971,7 +971,9 @@ CREATE PROCEDURE Update_Producto (
 )
 BEGIN
     -- Declaración de variables locales
-    DECLARE v_existencia INT;
+    DECLARE v_count INT;
+    DECLARE v_estado_existente TINYINT;
+    DECLARE v_estado_um TINYINT;
     DECLARE v_nombre     VARCHAR(100) DEFAULT TRIM(p_nombre);
     DECLARE v_obs        TEXT         DEFAULT TRIM(p_observacion);
 
@@ -980,8 +982,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El ID del producto no puede ser NULL.', MYSQL_ERRNO = 20140;
     END IF;
 
-    SELECT COUNT(*) INTO v_existencia FROM producto WHERE id_producto = p_id_producto;
-    IF v_existencia = 0 THEN
+    IF NOT EXISTS (SELECT 1 FROM producto WHERE id_producto = p_id_producto) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No existe el producto con el ID proporcionado.', MYSQL_ERRNO = 20141;
     END IF;
 
@@ -990,59 +991,67 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El nombre del producto no puede estar vacío.', MYSQL_ERRNO = 20142;
     END IF;
 
-    -- 3. Validar duplicado (Nombre ya ocupado por otro ID)
-    SELECT COUNT(*) INTO v_existencia FROM producto 
-    WHERE UPPER(nombre_producto) = UPPER(v_nombre) AND id_producto <> p_id_producto;
+    -- 3. Validar duplicado y ESTADO (Nombre ya ocupado por OTRO ID)
+    -- Usamos MAX(estado) por si hubiera duplicados inconsistentes, 
+    -- y filtramos que no sea el mismo ID que estamos editando.
+    SELECT COUNT(*), MAX(estado) INTO v_count, v_estado_existente
+    FROM producto 
+    WHERE UPPER(TRIM(nombre_producto)) = UPPER(v_nombre) 
+      AND id_producto <> p_id_producto;
 
-    IF v_existencia > 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Ya existe otro producto con ese nombre.', MYSQL_ERRNO = 20143;
+    IF v_count > 0 THEN
+        IF v_estado_existente = 0 THEN
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'Error: El nombre ya pertenece a un producto INACTIVO. Reactívelo en lugar de duplicarlo.', 
+            MYSQL_ERRNO = 1043;
+        ELSE
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'Error: Ya existe otro producto ACTIVO con ese nombre.', 
+            MYSQL_ERRNO = 20143;
+        END IF;
     END IF;
 
-    -- 4. Validar precio (No negativo)
+    -- 4. Validar precio y stocks
     IF p_precio_unitario IS NULL OR p_precio_unitario < 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El precio no puede ser negativo.', MYSQL_ERRNO = 20144;
     END IF;
 
-    -- 5. Validar stock mínimo y actual
-    IF p_stock_minimo IS NULL OR p_stock_minimo < 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock mínimo no puede ser negativo.', MYSQL_ERRNO = 20145;
+    IF p_stock_minimo < 0 OR p_stock_actual < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock no puede ser negativo.', MYSQL_ERRNO = 20145;
     END IF;
 
-    IF p_stock_actual IS NULL OR p_stock_actual < 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock actual no puede ser negativo.', MYSQL_ERRNO = 20146;
-    END IF;
-
-    -- 6. Validar relación de stock (Lógica de inventario)
+    -- 5. Lógica de inventario (Stock mínimo no debe superar al actual)
     IF p_stock_minimo > p_stock_actual THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock mínimo no puede ser mayor al stock actual.', MYSQL_ERRNO = 20147;
     END IF;
 
-    --7. Validar que la observacion no exeda 500 caracteres 
-    IF v_obs IS NOT NULL AND CHAR_LENGTH(v_obs) > 500 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La observación es demasiado larga (máx 500 caracteres).', MYSQL_ERRNO = 20165;
-    END IF;
-
-    -- 8. Validar unidad de medida
-    SELECT COUNT(*) INTO v_existencia FROM unidad_medida WHERE id_unidad_medida = p_id_unidad_medida;
-    IF v_existencia = 0 THEN
+    -- 6. Validar unidad de medida (Existencia y Estado)
+    SELECT estado INTO v_estado_um FROM unidad_medida WHERE id_unidad_medida = p_id_unidad_medida;
+    
+    IF v_estado_um IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La unidad de medida no existe.', MYSQL_ERRNO = 20149;
+    ELSIF v_estado_um = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No puede asignar una unidad de medida inactiva.', MYSQL_ERRNO = 20151;
     END IF;
 
-    -- 9. Ejecutar actualización
+    -- 7. Validar longitud de observación
+    IF v_obs IS NOT NULL AND CHAR_LENGTH(v_obs) > 500 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Observación demasiado larga (máx 500).', MYSQL_ERRNO = 20165;
+    END IF;
+
+    -- 8. Ejecutar actualización
     UPDATE producto
     SET nombre_producto  = v_nombre,
         precio_producto  = p_precio_unitario,
         stock_minimo     = p_stock_minimo,
         stock_actual     = p_stock_actual,
-        observacion_producto = v_obs,
+        observacion_producto = IF(v_obs = '', NULL, v_obs),
         id_unidad_medida = p_id_unidad_medida
     WHERE id_producto = p_id_producto;
 
-    -- 10. Verificar si hubo cambios
-    IF ROW_COUNT() = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No se realizaron cambios en el producto.', MYSQL_ERRNO = 20150;
-    END IF;
-
+    -- Nota: Eliminamos la validación de ROW_COUNT() = 0 porque si el usuario 
+    -- le da a "Guardar" sin cambiar nada, no debería lanzarse un error de SQL, 
+    -- simplemente no hace nada.
 END //
 
 DELIMITER ;

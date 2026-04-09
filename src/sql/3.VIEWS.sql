@@ -213,11 +213,11 @@ SELECT
     p.id_producto	AS `ID`,
     p.nombre_producto AS `Nombre del Producto`,
     um.nombre_unidad_medida AS `Unidad de Medida`,
-    um.abreviatura AS `Abreviatura`,
     CONCAT('S/ ', FORMAT(p.precio_producto, 2)) AS `Precio`,
     p.stock_minimo AS `Stock Mínimo`,
     p.stock_actual AS `Stock Actual`,
-    p.observacion_producto AS `Observaciones`
+    p.observacion_producto AS `Observaciones`,
+    p.estado AS `Estado`
 FROM producto p
 INNER JOIN unidad_medida um
     ON p.id_unidad_medida = um.id_unidad_medida;

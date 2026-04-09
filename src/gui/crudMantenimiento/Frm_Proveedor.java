@@ -38,7 +38,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         FlatLightLaf.setup();
         initComponents();
         this.setLocationRelativeTo(null);
-        this.setTitle("Mantenimiento de las mesa");
+        this.setTitle("Mantenimiento de proveedores");
         
         this.PM = new ProveedorMethod();
         
@@ -231,8 +231,8 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 10, -1, -1));
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel10.setText("ID");
-        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 10, -1, -1));
+        jLabel10.setText("Codigo del proveedor");
+        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
 
         jPanel4.setBackground(new java.awt.Color(51, 51, 51));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -347,11 +347,10 @@ public class Frm_Proveedor extends javax.swing.JFrame {
     }//GEN-LAST:event_txtrazonSocialKeyTyped
 
     private void BTN_VerProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerProveedorActionPerformed
-        this.MostrarProveedores();
+        this.listarProveedores();
         this.BTN_Guardar.setEnabled(false);
         this.BTN_Modificar.setEnabled(false);
         this.BTN_VerProveedor.setEnabled(false);
-        this.jCheckBoxListarInactivos.setSelected(false);
     }//GEN-LAST:event_BTN_VerProveedorActionPerformed
 
     private void txtdireccionProveedorKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtdireccionProveedorKeyTyped
@@ -473,7 +472,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Proveedor registrado correctamente", "Registro exitoso", JOptionPane.INFORMATION_MESSAGE);
 
                 // 5. Actualizar tabla y limpiar campos
-                this.MostrarProveedores(); // Tu método para refrescar la tabla
+                this.listarProveedores(); // Tu método para refrescar la tabla
                 this.limpiarCamposProveedor(); // Tu método para limpiar TXTs
 
             } catch (SQLException ex) {
@@ -558,7 +557,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Proveedor modificado correctamente", "Modificación exitosa", JOptionPane.INFORMATION_MESSAGE);
 
                 // 5. Refrescar interfaz
-                this.MostrarProveedores();
+                this.listarProveedores();
                 limpiarCamposProveedor();
 
             } catch (SQLException ex) {
@@ -788,9 +787,9 @@ public class Frm_Proveedor extends javax.swing.JFrame {
 
                 // 5. Actualizar interfaz respetando el filtro que el usuario tenga puesto
                 if (jCheckBoxListarInactivos.isSelected()) {
-                    MostrarProveedoresInactivos();
+                   listarProveedoresInactivos();
                 } else {
-                    MostrarProveedores(); // El registro debería desaparecer de la lista de activos
+                    listarProveedores(); // El registro debería desaparecer de la lista de activos
                 }
 
                 // 6. Limpiar el formulario para evitar confusiones
@@ -808,7 +807,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
     }//GEN-LAST:event_BTN_DesactivarActionPerformed
 
     private void jCheckBoxListarInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxListarInactivosActionPerformed
-        this.MostrarProveedoresInactivos();
+        this.listarProveedoresInactivos();
 
         // Bloquear el botón de desactivar porque ya están inactivos
         this.BTN_Desactivar.setEnabled(false);
@@ -867,7 +866,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                 jCheckBoxActivar.setSelected(false);
 
                 // Refrescar tabla y limpiar formulario
-                MostrarProveedores();
+                listarProveedores();
                 limpiarCamposProveedor();
 
             } catch (SQLException ex) {
@@ -963,8 +962,8 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         return false; // No está vacío
     }
 
-    //Método para mostrar las Mesaes
-    public void MostrarProveedores() {
+    //Método para listar Proveedores
+    public void listarProveedores() {
         //Ordenar ASC, DESC
         JTABLE_Mant_Proveedor.setAutoCreateRowSorter(true);
         //Limpiar la tabla antes de mostrar nuevos datos
@@ -992,7 +991,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         }
     }
     
-    public void MostrarProveedoresInactivos() {
+    public void listarProveedoresInactivos() {
         //Ordenar ASC, DESC
         JTABLE_Mant_Proveedor.setAutoCreateRowSorter(true);
         //Limpiar la tabla antes de mostrar nuevos datos
@@ -1031,7 +1030,6 @@ public class Frm_Proveedor extends javax.swing.JFrame {
             BTN_Guardar.setEnabled(true);
             BTN_Nuevo.setEnabled(false);
             BTN_Modificar.setEnabled(false);
-            //BTN_Desactivar.setEnabled(false);
             BTN_VerProveedor.setEnabled(false);
         }
     
@@ -1043,6 +1041,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
             ResultSet rs = this.PM.buscarProovedor(nombre);
             while (rs.next()) {
                 Object[] fila = {
+                    rs.getInt("ID"),
                     rs.getString("RUC"),
                     rs.getString("Razón Social (Nombre del Proveedor)"),
                     rs.getString("Teléfono de contacto"),

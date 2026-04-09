@@ -50,7 +50,14 @@ public class ProductoMethod {
     
     /* VIEWS --> MOSTRAR DATOS */
         public ResultSet listarProductos() throws SQLException{
-        String sql = "Select * from vista_producto";/*SQL Query*/
+        String sql = "Select * from vista_producto WHERE `Estado` = 1";/*SQL Query*/
+        Statement st = conn.createStatement(); /*Creamos la sentencia*/
+        return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
+    }
+        
+    /* VIEWS --> MOSTRAR DATOS DESACTIVADOS */
+        public ResultSet listarProductosDesactivados() throws SQLException{
+        String sql = "Select * from vista_producto WHERE `Estado` = 0";/*SQL Query*/
         Statement st = conn.createStatement(); /*Creamos la sentencia*/
         return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
     }
@@ -104,20 +111,26 @@ public class ProductoMethod {
 
 
 
-    //DESACTIVAR
-    public void darDeBajaProducto(int codigoProducto) throws SQLException{
-        String sql="CALL Desactivar_Producto(?)";
+    //Desactivar y activar
+     public void reactivarProducto(int codigoProducto) throws SQLException {
+        if (codigoProducto <= 0) {
+            throw new IllegalArgumentException("El código del proveedor es inválido.");
+        }
+        String sql = "{CALL CambiarEstadoProducto(?, ?)}";
         CallableStatement cs = conn.prepareCall(sql);
-        cs.setInt(1, codigoProducto); //Solo se pasa el codigo, el estado lo maneja el procedure
-        cs.execute();
-    }
-    
-    //ACtivar
-    public void activarProducto(int codigoEscuela) throws SQLException{
-        String sql = "CALL Activar_Producto(?)";
-        CallableStatement cs = conn.prepareCall(sql);
-            cs.setInt(1, codigoEscuela);
+        cs.setInt(1, codigoProducto);  // Código del proveedor
+        cs.setInt(2, 1);              // Estado: 1 = activo
         cs.execute();
     }
      
+     public void desactivarProducto(int codigoProducto) throws SQLException {
+        if (codigoProducto <= 0) {
+            throw new IllegalArgumentException("El código del proveedor es inválido.");
+        }
+        String sql = "{CALL CambiarEstadoProducto(?, ?)}";
+        CallableStatement cs = conn.prepareCall(sql);
+        cs.setInt(1, codigoProducto);  // Código del proveedor
+        cs.setInt(2, 0);              // Estado: 0 = desactivado
+        cs.execute();
+    }  
 }

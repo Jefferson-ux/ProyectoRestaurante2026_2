@@ -623,11 +623,8 @@ DELIMITER ;
 
 
 /* ============================================================
-    11. PRODUCTO
-    Valida nombre único, campos no vacíos, valores numéricos,
-    existencia de unidad de medida e inserta observación.
-    El estado se asigna como 1 (Activo) por defecto.
-   ============================================================ */
+    11. PRODUCTO 
+============================================================ */
 DROP PROCEDURE IF EXISTS insertar_producto;
 DELIMITER $$
 
@@ -636,62 +633,63 @@ CREATE PROCEDURE insertar_producto(
     IN p_precio_unitario DECIMAL(10,2),
     IN p_stock_minimo INT,
     IN p_stock_actual INT,
-    IN p_observacion TEXT, -- Único parámetro nuevo conservado
+    IN p_observacion TEXT,
     IN p_id_unidad_medida INT
 )
 BEGIN
     DECLARE v_count INT;
+    DECLARE v_estado_existente TINYINT;
+    DECLARE v_estado_um TINYINT;
     DECLARE v_obs TEXT DEFAULT TRIM(p_observacion);
 
-    -- 1. Validar nombre único
-    SELECT COUNT(*) INTO v_count
-    FROM producto
-    WHERE UPPER(TRIM(nombre_producto)) = UPPER(TRIM(p_nombre));
-
-    IF v_count > 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Ya existe un producto con el mismo nombre.',
-        MYSQL_ERRNO = 1028;
-    END IF;
-
-    -- 2. Validar que el nombre no esté vacío
+    -- 1. Validar que el nombre no esté vacío PRIMERO
     IF p_nombre IS NULL OR TRIM(p_nombre) = '' THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El nombre del producto no puede estar vacío.',
+        SET MESSAGE_TEXT = 'Error: El nombre del producto no puede estar vacío.',
         MYSQL_ERRNO = 1029;
+    END IF;
+
+    -- 2. Validar nombre duplicado y su estado (Lógica solicitada)
+    SELECT COUNT(*), MAX(estado) INTO v_count, v_estado_existente
+    FROM producto
+    WHERE UPPER(TRIM(nombre_producto)) = UPPER(TRIM(p_nombre))
+    GROUP BY nombre_producto;
+
+    IF v_count > 0 THEN
+        IF v_estado_existente = 0 THEN
+            -- El producto existe pero está desactivado
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'El producto ya existe pero está INACTIVO. Debe reactivarlo en el panel de gestión.',
+            MYSQL_ERRNO = 1043;
+        ELSE
+            -- El producto ya está activo
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Ya existe un producto ACTIVO con este nombre.',
+            MYSQL_ERRNO = 1034;
+        END IF;
     END IF;
 
     -- 3. Validar precios y stock
     IF p_precio_unitario < 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El precio unitario debe ser mayor o igual a 0.',
-        MYSQL_ERRNO = 1030;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El precio debe ser >= 0.', MYSQL_ERRNO = 1030;
     END IF;
 
-    IF p_stock_minimo < 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El stock mínimo debe ser mayor o igual a 0.',
-        MYSQL_ERRNO = 1031;
+    IF p_stock_minimo < 0 OR p_stock_actual < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock no puede ser negativo.', MYSQL_ERRNO = 1031;
     END IF;
 
-    IF p_stock_actual < 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El stock actual debe ser mayor o igual a 0.',
-        MYSQL_ERRNO = 1032;
-    END IF;
-
-    -- 4. Validar existencia de unidad de medida
-    SELECT COUNT(*) INTO v_count
-    FROM unidad_medida
+    -- 4. Validar existencia y estado de la Unidad de Medida
+    SELECT estado INTO v_estado_um 
+    FROM unidad_medida 
     WHERE id_unidad_medida = p_id_unidad_medida;
 
-    IF v_count = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La unidad de medida no existe.',
-        MYSQL_ERRNO = 1033;
+    IF v_estado_um IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La unidad de medida no existe.', MYSQL_ERRNO = 1033;
+    ELSIF v_estado_um = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La unidad de medida seleccionada está inactiva.', MYSQL_ERRNO = 1034;
     END IF;
 
-    -- 5. Ejecutar inserción (Estado se manda como 1 internamente)
+    -- 5. Ejecutar inserción
     INSERT INTO producto(
         nombre_producto,
         precio_producto,
@@ -706,12 +704,12 @@ BEGIN
         p_precio_unitario,
         p_stock_minimo,
         p_stock_actual,
-        v_obs,
+        IF(v_obs = '', NULL, v_obs),
         p_id_unidad_medida,
-        1 -- Se asigna "Activo" automáticamente
+        1
     );
 
-    SELECT 'Producto insertado exitosamente.' AS mensaje;
+    SELECT CONCAT('Producto "', TRIM(p_nombre), '" registrado correctamente.') AS mensaje;
 
 END$$
 
