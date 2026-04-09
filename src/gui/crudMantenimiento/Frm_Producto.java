@@ -48,6 +48,8 @@ public class Frm_Producto extends javax.swing.JFrame {
     public Frm_Producto() {
         FlatLightLaf.setup();
         initComponents();
+        //titulo
+        this.setTitle("Mantenimiento de Productos");
         
         //Posicion
         this.setLocationRelativeTo(null);
@@ -105,10 +107,6 @@ public class Frm_Producto extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         txtobservaciones = new javax.swing.JTextArea();
         jLabel10 = new javax.swing.JLabel();
-        BTN_ListarProductos = new javax.swing.JButton();
-        jPanel4 = new javax.swing.JPanel();
-        jCheckBoxListarInactivos = new javax.swing.JCheckBox();
-        jCheckBoxActivar = new javax.swing.JCheckBox();
         BTN_Desactivar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         JTABLE_Mant_Producto = new javax.swing.JTable();
@@ -124,6 +122,10 @@ public class Frm_Producto extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         BTN_Modificar = new javax.swing.JButton();
         BTN_Guardar = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        jCheckBoxListarInactivos = new javax.swing.JCheckBox();
+        jCheckBoxActivar = new javax.swing.JCheckBox();
+        BTN_ListarProductos = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -223,27 +225,6 @@ public class Frm_Producto extends javax.swing.JFrame {
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 770, 230));
 
-        BTN_ListarProductos.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_ListarProductos.setText("LISTAR PRODUCTOS");
-        BTN_ListarProductos.addActionListener(this::BTN_ListarProductosActionPerformed);
-        getContentPane().add(BTN_ListarProductos, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 30, 165, 50));
-
-        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Acciones", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 12), new java.awt.Color(0, 0, 204))); // NOI18N
-        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jCheckBoxListarInactivos.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jCheckBoxListarInactivos.setText("Listar Productos desactivados");
-        jCheckBoxListarInactivos.addActionListener(this::jCheckBoxListarInactivosActionPerformed);
-        jPanel4.add(jCheckBoxListarInactivos, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 190, 30));
-
-        jCheckBoxActivar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jCheckBoxActivar.setText("Reactivar docentes");
-        jCheckBoxActivar.addActionListener(this::jCheckBoxActivarActionPerformed);
-        jPanel4.add(jCheckBoxActivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, 140, -1));
-
-        getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 120, 210, 120));
-
         BTN_Desactivar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Desactivar.setText("DESACTIVAR");
         BTN_Desactivar.addActionListener(this::BTN_DesactivarActionPerformed);
@@ -331,7 +312,7 @@ public class Frm_Producto extends javax.swing.JFrame {
         BTN_Modificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_cancel_cogs.png"))); // NOI18N
         BTN_Modificar.setText("    MODIFICAR");
         BTN_Modificar.addActionListener(this::BTN_ModificarActionPerformed);
-        jPanel3.add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 280, 165, 48));
+        jPanel3.add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 280, 165, 48));
 
         BTN_Guardar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Guardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_save.png"))); // NOI18N
@@ -343,6 +324,28 @@ public class Frm_Producto extends javax.swing.JFrame {
         });
         BTN_Guardar.addActionListener(this::BTN_GuardarActionPerformed);
         jPanel3.add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 280, 165, 48));
+
+        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Acciones", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 12), new java.awt.Color(0, 0, 204))); // NOI18N
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jCheckBoxListarInactivos.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jCheckBoxListarInactivos.setText("Listar Productos desactivados");
+        jCheckBoxListarInactivos.addActionListener(this::jCheckBoxListarInactivosActionPerformed);
+        jPanel4.add(jCheckBoxListarInactivos, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 190, 30));
+
+        jCheckBoxActivar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jCheckBoxActivar.setText("Reactivar Producto");
+        jCheckBoxActivar.addActionListener(this::jCheckBoxActivarActionPerformed);
+        jPanel4.add(jCheckBoxActivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, 140, -1));
+
+        jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 130, 210, 120));
+
+        BTN_ListarProductos.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_ListarProductos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/information.png"))); // NOI18N
+        BTN_ListarProductos.setText("LISTAR PRODUCTOS");
+        BTN_ListarProductos.addActionListener(this::BTN_ListarProductosActionPerformed);
+        jPanel3.add(BTN_ListarProductos, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 40, 200, 50));
 
         getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1010, 710));
 
@@ -376,7 +379,7 @@ public class Frm_Producto extends javax.swing.JFrame {
         this.BTN_Modificar.setEnabled(false);
         this.BTN_ListarProductos.setEnabled(false);
         this.jCheckBoxListarInactivos.setSelected(false);
-        txtNombreProducto.requestFocus();
+        jPanel3.requestFocus();
 
     }//GEN-LAST:event_BTN_ListarProductosActionPerformed
 
@@ -396,7 +399,7 @@ public class Frm_Producto extends javax.swing.JFrame {
         // 3. Obtener datos de la fila de forma segura
         int codigoProducto = Integer.parseInt(JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 0).toString());
         String nombreProd = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 1).toString().trim();
-        String estadoActual = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 8).toString().trim();
+        String estadoActual = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 7).toString().trim();
 
         // 4. Validar si ya está reactivado para evitar llamadas innecesarias
         if (estadoActual.equalsIgnoreCase("Activo")) {
@@ -549,12 +552,12 @@ public class Frm_Producto extends javax.swing.JFrame {
             String codigo = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 0).toString().trim();
             String nombreProducto = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 1).toString().trim();
             String unidadDeMedida = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 2).toString().trim();
-            String precioUnitario = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 4).toString().trim();
-            String stockMinimo = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 5).toString().trim();
-            String stockActual = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 6).toString().trim();
+            String precioUnitario = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 3).toString().trim();
+            String stockMinimo = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 4).toString().trim();
+            String stockActual = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 5).toString().trim();
 
             // Tratamiento especial para observaciones (evitar NullPointerException)
-            Object celdaObservacion = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 7);
+            Object celdaObservacion = JTABLE_Mant_Producto.getValueAt(filaSeleccionada, 6);
             String observacionProducto = (celdaObservacion != null) ? celdaObservacion.toString().trim() : "";
 
             // 4. Mostrar en los controles (TextFields)
@@ -749,7 +752,6 @@ public class Frm_Producto extends javax.swing.JFrame {
 
     private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
         limpiarCamposProducto();
-        BTN_Nuevo.setVisible(false);
     }//GEN-LAST:event_BTN_NuevoActionPerformed
 
     private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
@@ -1138,14 +1140,14 @@ public class Frm_Producto extends javax.swing.JFrame {
                     rs.getString("Nombre del Producto"),
                     rs.getString("Unidad de Medida"),
                     rs.getString("Precio"),
-                    rs.getString("Stock Minimo"),
+                    rs.getString("Stock Mínimo"),
                     rs.getString("Stock Actual"),
                     rs.getString("Observaciones")
                 };
                 modeloTablaProducto.addRow(fila);
             }
             if(!hayResultados){
-                JOptionPane.showMessageDialog(this, "No se encontraron proveedores ",
+                JOptionPane.showMessageDialog(this, "No se encontraron productos ",
                     "Sin resultados", JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException e) {

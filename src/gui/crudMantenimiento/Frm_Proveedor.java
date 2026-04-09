@@ -82,8 +82,6 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         txtrazonSocial = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         txtdireccionProveedor = new javax.swing.JTextField();
-        jPanel3 = new javax.swing.JPanel();
-        BTN_VerProveedor = new javax.swing.JButton();
         txtRuc = new javax.swing.JTextField();
         txttelefonoProveedor = new javax.swing.JTextField();
         txtcorreoProveedor = new javax.swing.JTextField();
@@ -94,13 +92,9 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         txtobservaciones = new javax.swing.JTextArea();
         jLabel7 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        jPanel4 = new javax.swing.JPanel();
-        jCheckBoxListarInactivos = new javax.swing.JCheckBox();
-        jCheckBoxActivar = new javax.swing.JCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         JTABLE_Mant_Proveedor = new javax.swing.JTable();
         BTN_Nuevo = new javax.swing.JButton();
-        BTN_Guardar = new javax.swing.JButton();
         BTN_Modificar = new javax.swing.JButton();
         BTN_EXCEL = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
@@ -110,13 +104,19 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         BTN_Cerrar1 = new javax.swing.JButton();
         BTN_PDF = new javax.swing.JButton();
         BTN_Desactivar = new javax.swing.JButton();
+        jPanel5 = new javax.swing.JPanel();
+        jCheckBoxListarInactivos = new javax.swing.JCheckBox();
+        jCheckBoxActivar = new javax.swing.JCheckBox();
+        jPanel3 = new javax.swing.JPanel();
+        BTN_VerProveedor = new javax.swing.JButton();
+        BTN_Guardar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setText("MANTENIMIENTO DE PROVEEDORES");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 0, 240, 30));
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 0, 240, 30));
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder(new java.awt.Color(204, 0, 51), null));
@@ -124,11 +124,11 @@ public class Frm_Proveedor extends javax.swing.JFrame {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel2.setText("correo del proveedor");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 80, -1, -1));
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 40, -1, -1));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel3.setText("direccion del proveedor");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 80, -1, -1));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 70, -1, -1));
 
         txtrazonSocial.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txtrazonSocial.setForeground(new java.awt.Color(0, 0, 204));
@@ -139,11 +139,11 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                 txtrazonSocialKeyTyped(evt);
             }
         });
-        jPanel1.add(txtrazonSocial, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 30, 290, 30));
+        jPanel1.add(txtrazonSocial, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 70, 250, -1));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel6.setText("Observaciones");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 160, -1, -1));
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 120, -1, -1));
 
         txtdireccionProveedor.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txtdireccionProveedor.setForeground(new java.awt.Color(0, 0, 204));
@@ -154,19 +154,8 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                 txtdireccionProveedorKeyTyped(evt);
             }
         });
-        jPanel1.add(txtdireccionProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 100, 250, 30));
+        jPanel1.add(txtdireccionProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 70, 250, -1));
 
-        jPanel3.setBackground(new java.awt.Color(51, 51, 51));
-        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        BTN_VerProveedor.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_VerProveedor.setText("VER PROVEEDORES");
-        BTN_VerProveedor.addActionListener(this::BTN_VerProveedorActionPerformed);
-        jPanel3.add(BTN_VerProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 180, 50));
-
-        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 10, 210, 120));
-
-        txtRuc.setEditable(false);
         txtRuc.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txtRuc.setForeground(new java.awt.Color(0, 0, 204));
         txtRuc.setHorizontalAlignment(javax.swing.JTextField.CENTER);
@@ -176,7 +165,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                 txtRucKeyTyped(evt);
             }
         });
-        jPanel1.add(txtRuc, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 30, 250, 30));
+        jPanel1.add(txtRuc, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 40, 250, 20));
 
         txttelefonoProveedor.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txttelefonoProveedor.setForeground(new java.awt.Color(0, 0, 204));
@@ -187,7 +176,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                 txttelefonoProveedorKeyTyped(evt);
             }
         });
-        jPanel1.add(txttelefonoProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 250, 30));
+        jPanel1.add(txttelefonoProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 10, 250, -1));
 
         txtcorreoProveedor.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txtcorreoProveedor.setForeground(new java.awt.Color(0, 0, 204));
@@ -198,15 +187,15 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                 txtcorreoProveedorKeyTyped(evt);
             }
         });
-        jPanel1.add(txtcorreoProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 100, 250, 30));
+        jPanel1.add(txtcorreoProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 40, 250, -1));
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel8.setText("telefono del proveedor");
-        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 80, -1, -1));
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 10, -1, -1));
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel9.setText("razon social");
-        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 10, -1, -1));
+        jLabel9.setText("razon social*");
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, -1, -1));
 
         txtcodigoProveedor.setEditable(false);
         txtcodigoProveedor.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -218,38 +207,23 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                 txtcodigoProveedorKeyTyped(evt);
             }
         });
-        jPanel1.add(txtcodigoProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 170, 30));
+        jPanel1.add(txtcodigoProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 10, 250, 20));
 
         txtobservaciones.setColumns(20);
         txtobservaciones.setRows(5);
         jScrollPane3.setViewportView(txtobservaciones);
 
-        jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 180, 330, 60));
+        jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 140, 350, 80));
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel7.setText("ruc");
-        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 10, -1, -1));
+        jLabel7.setText("ruc*");
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, -1, -1));
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel10.setText("Codigo del proveedor");
-        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
+        jLabel10.setText("Codigo");
+        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
 
-        jPanel4.setBackground(new java.awt.Color(51, 51, 51));
-        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jCheckBoxListarInactivos.setForeground(new java.awt.Color(255, 255, 255));
-        jCheckBoxListarInactivos.setText("LISTAR PROVEEDORES INACTIVOS");
-        jCheckBoxListarInactivos.addActionListener(this::jCheckBoxListarInactivosActionPerformed);
-        jPanel4.add(jCheckBoxListarInactivos, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
-
-        jCheckBoxActivar.setForeground(new java.awt.Color(255, 255, 255));
-        jCheckBoxActivar.setText("REACTIVACION");
-        jCheckBoxActivar.addActionListener(this::jCheckBoxActivarActionPerformed);
-        jPanel4.add(jCheckBoxActivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, -1, -1));
-
-        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 140, 220, 120));
-
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 1020, 270));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 780, 240));
 
         JTABLE_Mant_Proveedor.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         JTABLE_Mant_Proveedor.setForeground(new java.awt.Color(0, 0, 204));
@@ -271,32 +245,25 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(JTABLE_Mant_Proveedor);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 450, 1040, 220));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 410, 1060, 220));
 
         BTN_Nuevo.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_add.png"))); // NOI18N
         BTN_Nuevo.setText("      NUEVO");
         BTN_Nuevo.addActionListener(this::BTN_NuevoActionPerformed);
-        getContentPane().add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 330, 190, 50));
-
-        BTN_Guardar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Guardar.setText("     GUARDAR");
-        BTN_Guardar.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                BTN_GuardarMouseClicked(evt);
-            }
-        });
-        BTN_Guardar.addActionListener(this::BTN_GuardarActionPerformed);
-        getContentPane().add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 330, 190, 50));
+        getContentPane().add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 290, 190, 50));
 
         BTN_Modificar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Modificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_cancel_cogs.png"))); // NOI18N
         BTN_Modificar.setText("    MODIFICAR");
         BTN_Modificar.addActionListener(this::BTN_ModificarActionPerformed);
-        getContentPane().add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 330, 200, 50));
+        getContentPane().add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 290, 200, 50));
 
         BTN_EXCEL.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_EXCEL.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/excel.png"))); // NOI18N
         BTN_EXCEL.setText("     Exportar XLSX");
         BTN_EXCEL.addActionListener(this::BTN_EXCELActionPerformed);
-        getContentPane().add(BTN_EXCEL, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 680, 170, 40));
+        getContentPane().add(BTN_EXCEL, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 650, 170, 50));
 
         jPanel2.setBackground(new java.awt.Color(0, 0, 0));
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -323,21 +290,62 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         jLabel5.setText("BUSCAR");
         jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 10, 120, 30));
 
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 400, 1040, 50));
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 360, 1060, 50));
 
         BTN_Cerrar1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Cerrar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_cancel.png"))); // NOI18N
         BTN_Cerrar1.setText("     Cerrar");
         BTN_Cerrar1.addActionListener(this::BTN_Cerrar1ActionPerformed);
-        getContentPane().add(BTN_Cerrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 680, 130, 40));
+        getContentPane().add(BTN_Cerrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(880, 650, 170, 50));
 
+        BTN_PDF.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/pdf.png"))); // NOI18N
         BTN_PDF.setText("     Exportar PDF");
         BTN_PDF.addActionListener(this::BTN_PDFActionPerformed);
-        getContentPane().add(BTN_PDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 680, 170, 40));
+        getContentPane().add(BTN_PDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 650, 170, 50));
 
         BTN_Desactivar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Desactivar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_delete.png"))); // NOI18N
         BTN_Desactivar.setText("DESACTIVAR");
         BTN_Desactivar.addActionListener(this::BTN_DesactivarActionPerformed);
-        getContentPane().add(BTN_Desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 330, 170, 50));
+        getContentPane().add(BTN_Desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 290, 200, 50));
+
+        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Acciones", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 12), new java.awt.Color(0, 0, 204))); // NOI18N
+        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jCheckBoxListarInactivos.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jCheckBoxListarInactivos.setText("LISTAR PROVEEDORES DESACTIVADOS");
+        jCheckBoxListarInactivos.addActionListener(this::jCheckBoxListarInactivosActionPerformed);
+        jPanel5.add(jCheckBoxListarInactivos, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
+
+        jCheckBoxActivar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jCheckBoxActivar.setText("REACTIVACION");
+        jCheckBoxActivar.addActionListener(this::jCheckBoxActivarActionPerformed);
+        jPanel5.add(jCheckBoxActivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, -1, -1));
+
+        getContentPane().add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 140, 260, 120));
+
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        BTN_VerProveedor.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_VerProveedor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/information.png"))); // NOI18N
+        BTN_VerProveedor.setText("LISTAR PROVEEDORES");
+        BTN_VerProveedor.addActionListener(this::BTN_VerProveedorActionPerformed);
+        jPanel3.add(BTN_VerProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 40, 230, 50));
+
+        BTN_Guardar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Guardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_save.png"))); // NOI18N
+        BTN_Guardar.setText("     GUARDAR");
+        BTN_Guardar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                BTN_GuardarMouseClicked(evt);
+            }
+        });
+        BTN_Guardar.addActionListener(this::BTN_GuardarActionPerformed);
+        jPanel3.add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 290, 190, 50));
+
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1070, 720));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -351,6 +359,8 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         this.BTN_Guardar.setEnabled(false);
         this.BTN_Modificar.setEnabled(false);
         this.BTN_VerProveedor.setEnabled(false);
+        this.jCheckBoxListarInactivos.setSelected(false);
+        this.jPanel3.requestFocus(true);
     }//GEN-LAST:event_BTN_VerProveedorActionPerformed
 
     private void txtdireccionProveedorKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtdireccionProveedorKeyTyped
@@ -392,23 +402,8 @@ public class Frm_Proveedor extends javax.swing.JFrame {
     }//GEN-LAST:event_JTABLE_Mant_ProveedorMouseClicked
 
     private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
-        txtcodigoProveedor.setText("");
-        txtRuc.setText("");
-        txtrazonSocial.setText("");
-        txttelefonoProveedor.setText("");
-        txtcorreoProveedor.setText("");
-        txtdireccionProveedor.setText("");
-        txtobservaciones.setText("");
-
-        txtRuc.setEnabled(true);
-        txtRuc.requestFocus();
-        txtrazonSocial.setEnabled(true);
-        txttelefonoProveedor.setEnabled(true);
-        txtcorreoProveedor.setEnabled(true);
-        txtdireccionProveedor.setEnabled(true);
-
-        BTN_Guardar.setEnabled(true);
-        BTN_Modificar.setEnabled(false);
+        limpiarCamposProveedor();
+        this.BTN_Nuevo.setEnabled(false);
     }//GEN-LAST:event_BTN_NuevoActionPerformed
 
     private void BTN_GuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BTN_GuardarMouseClicked
@@ -806,17 +801,6 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_BTN_DesactivarActionPerformed
 
-    private void jCheckBoxListarInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxListarInactivosActionPerformed
-        this.listarProveedoresInactivos();
-
-        // Bloquear el botón de desactivar porque ya están inactivos
-        this.BTN_Desactivar.setEnabled(false);
-
-        this.BTN_Guardar.setEnabled(false);
-        this.BTN_Modificar.setEnabled(false);
-        this.BTN_VerProveedor.setEnabled(true);
-    }//GEN-LAST:event_jCheckBoxListarInactivosActionPerformed
-
     private void jCheckBoxActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxActivarActionPerformed
         // Obtener fila seleccionada
         int filaSeleccionada = JTABLE_Mant_Proveedor.getSelectedRow();
@@ -890,6 +874,17 @@ public class Frm_Proveedor extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_TXT_BuscarProveedorKeyPressed
 
+    private void jCheckBoxListarInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxListarInactivosActionPerformed
+        this.listarProveedoresInactivos();
+
+        // Bloquear el botón de desactivar porque ya están inactivos
+        this.BTN_Desactivar.setEnabled(false);
+
+        this.BTN_Guardar.setEnabled(false);
+        this.BTN_Modificar.setEnabled(false);
+        this.BTN_VerProveedor.setEnabled(true);
+    }//GEN-LAST:event_jCheckBoxListarInactivosActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -941,7 +936,7 @@ public class Frm_Proveedor extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextField txtRuc;
@@ -1031,15 +1026,18 @@ public class Frm_Proveedor extends javax.swing.JFrame {
             BTN_Nuevo.setEnabled(false);
             BTN_Modificar.setEnabled(false);
             BTN_VerProveedor.setEnabled(false);
+            this.txtRuc.requestFocus();
         }
     
     public void BuscarProveedorPorNombre() {
         modeloTablaProveedor.setRowCount(0);
         String nombre = TXT_BuscarProveedor.getText().trim();
         try {
+            boolean hayResultados = false;
             //Llama al método que retorna los datos de Mesaes
             ResultSet rs = this.PM.buscarProovedor(nombre);
             while (rs.next()) {
+                hayResultados = true;
                 Object[] fila = {
                     rs.getInt("ID"),
                     rs.getString("RUC"),
@@ -1049,6 +1047,10 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                     rs.getString("Dirección")
                 };
                 modeloTablaProveedor.addRow(fila);
+            }
+            if(!hayResultados){
+                JOptionPane.showMessageDialog(this, "No se encontraron productos ",
+                    "Sin resultados", JOptionPane.ERROR_MESSAGE);
             }
 
         } catch (SQLException e) {
