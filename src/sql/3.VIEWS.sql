@@ -75,22 +75,27 @@ WHERE
 /* vista_detalle_pedido */
 CREATE OR REPLACE VIEW vista_detalle_pedido AS
 SELECT
-    d.id_detalle 		AS `ID detalle`, 
-    p.id_pedido                 AS `ID pedido`,
-    
-    pm.nombre_plato         AS `Nombre de Platillo`,
-    d.cantidad           AS `Cantidad Pedida`,
-    -- Formato de fecha para MySQL
+    d.id_detalle        AS `ID detalle`, 
+    p.id_pedido         AS `ID pedido`,
+    pm.nombre_plato     AS `Nombre de Platillo`,
+    d.cantidad          AS `Cantidad Pedida`,
     DATE_FORMAT(p.fecha_pedido, '%d/%m/%Y') AS `Fecha del pedido`,
-    -- Formato de moneda para MySQL
+    d.precio_unitario   AS `Precio Unitario`,
     CONCAT('S/ ', FORMAT(d.precio_unitario, 2)) AS `Precio Formateado`,
-    d.precio_unitario AS `Precio Unitario`,
     (d.precio_unitario * d.cantidad) AS `Subtotal`,
-    IFNULL(d.observacion_detalle,'Sin Observaciones')   AS `Observaciones`
+    CONCAT('S/ ', FORMAT(d.precio_unitario * d.cantidad, 2)) AS `Subtotal Formateado`,
+    -- Datos del Cliente para tus txtFields
+    c.dni_cliente       AS `DNI Cliente`,
+    CONCAT(c.nombre_cliente, ' ', c.apellido_cliente) AS `Nombre Cliente`,
+    -- Datos del Empleado para tus txtFields
+    e.dni_empleado      AS `DNI Empleado`,
+    CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS `Nombre Empleado`,
+    IFNULL(d.observacion_detalle, 'Sin Observaciones')  AS `Observaciones`
 FROM detalle_pedido d
 INNER JOIN pedido p      ON d.id_pedido = p.id_pedido
-INNER JOIN plato_menu pm ON d.id_plato_menu = pm.id_plato_menu;
-
+INNER JOIN plato_menu pm ON d.id_plato_menu = pm.id_plato_menu
+INNER JOIN cliente c     ON p.id_cliente = c.id_cliente
+INNER JOIN empleado e    ON p.id_empleado = e.id_empleado;
 
 
 
@@ -188,7 +193,7 @@ LEFT JOIN (
 ) totales ON p.id_pedido = totales.id_pedido
 WHERE p.estado = 1;
 
-    
+    Select * from vista_detalle_pedido WHERE `ID pedido`=3;
 
 
 
@@ -204,6 +209,9 @@ SELECT
 FROM plato_menu pm
 INNER JOIN categoria c ON pm.id_categoria = c.id_categoria
 WHERE pm.estado = 1;
+
+
+
 
 
 

@@ -6,64 +6,86 @@ import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import logic.dao.DetallePedidoMethod;
+import logic.dao.DetallePedidoMethod.DetallePedido;
 
-public class JD_AgregarPlato extends javax.swing.JDialog {
 
+
+public final class JD_AgregarPlato extends javax.swing.JDialog {
+    LocalDate current_date; 
+    DetallePedidoMethod objetoMetodo;
+    
     DefaultTableModel modeloTabla = new DefaultTableModel();
-    public JD_AgregarPlato(java.awt.Frame parent, boolean modal) {
+    
+    int idPedidoLocal;
+    
+    String fecha_pedido;
+    
+    public JD_AgregarPlato(java.awt.Frame parent, boolean modal, int idPedido,String fecha) {
         super(parent, modal);
         FlatLightLaf.setup();
+        this.objetoMetodo = new DetallePedidoMethod();
         initComponents();
+        
         this.setLocationRelativeTo(this);
         this.setTitle("Pedidos");
         this.setResizable(false);
-        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(spnPrecio, "0.00");
-        spnPrecio.setEditor(editor);
+        this.current_date = LocalDate.now();
+        this.fecha_pedido = fecha;
         
-        String[] header = {"ID","Plato","Cantidad","Precio","Subtotal","Observaciones"};
+        String[] header = {"ID Detalle","Plato","Cantidad","Precio","Subtotal","Observaciones","Fecha"};
         modeloTabla.setColumnIdentifiers(header);
         JTABLE_Dialog.setModel(modeloTabla);
         Table_Size();
+        cargarCombo();
+        
+        
+        
+        this.idPedidoLocal = idPedido;
+                
+        calcularSubtotalRapido();
+        mostrarIdPedido();
+        this.txtIdPedido.setEditable(false);
+        if (idPedidoLocal>0){
+            MostrarDetalles(idPedidoLocal);
+        }
+        txtFechaRegistro.setText(fecha);
         
         
     }
-    
-    
     
     private void Table_Size() {
         // ID: Lo ocultamos
         TableColumnModel colModel = JTABLE_Dialog.getColumnModel();
  
-        colModel.getColumn(0).setMinWidth(20);
-        colModel.getColumn(0).setPreferredWidth(40);
-        colModel.getColumn(0).setMaxWidth(40);
+        colModel.getColumn(0).setMinWidth(0);
+        colModel.getColumn(0).setPreferredWidth(0);
+        colModel.getColumn(0).setMaxWidth(0);
+        
+        colModel.getColumn(1).setMinWidth(110);
+        colModel.getColumn(1).setPreferredWidth(130);
 
-        colModel.getColumn(1).setMinWidth(120);
-        colModel.getColumn(1).setPreferredWidth(100);
+        colModel.getColumn(2).setMinWidth(50);
+        colModel.getColumn(2).setPreferredWidth(50);
 
-        colModel.getColumn(0).setMinWidth(120);
-        colModel.getColumn(2).setPreferredWidth(100);
+        colModel.getColumn(3).setMinWidth(60);
+        colModel.getColumn(3).setPreferredWidth(60);
 
-        colModel.getColumn(0).setMinWidth(90);
-        colModel.getColumn(3).setPreferredWidth(80);
+        colModel.getColumn(4).setMinWidth(60);
+        colModel.getColumn(4).setPreferredWidth(60);
 
-        colModel.getColumn(0).setMinWidth(90);
-        colModel.getColumn(4).setPreferredWidth(80);
-
-        colModel.getColumn(0).setMinWidth(100);
-        colModel.getColumn(5).setPreferredWidth(200);
-
+        colModel.getColumn(5).setMinWidth(100);
+        colModel.getColumn(5).setPreferredWidth(150);
         
         JTABLE_Dialog.getTableHeader().setReorderingAllowed(false); // No mover columnas
         JTABLE_Dialog.setRowHeight(25); // Filas más altas para que respire el diseño
-        
     }
-    
-    
-    
-    
-    
-
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -71,9 +93,8 @@ public class JD_AgregarPlato extends javax.swing.JDialog {
 
         jPanel1 = new javax.swing.JPanel();
         txtFechaRegistro = new javax.swing.JTextField();
-        cmbPlato = new javax.swing.JComboBox<>();
+        cmbPlatillo = new javax.swing.JComboBox<>();
         spnCantidad = new javax.swing.JSpinner();
-        spnPrecio = new javax.swing.JSpinner();
         scrollObs = new javax.swing.JScrollPane();
         txtObservaciones = new javax.swing.JTextArea();
         txtSubtotal = new javax.swing.JFormattedTextField();
@@ -93,6 +114,7 @@ public class JD_AgregarPlato extends javax.swing.JDialog {
         btn_actualizar = new javax.swing.JButton();
         btn_quitar = new javax.swing.JButton();
         btn_salir = new javax.swing.JButton();
+        txtPrecio = new javax.swing.JFormattedTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setModal(true);
@@ -112,27 +134,40 @@ public class JD_AgregarPlato extends javax.swing.JDialog {
                 txtFechaRegistroActionPerformed(evt);
             }
         });
-        jPanel1.add(txtFechaRegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 150, 150, 30));
+        jPanel1.add(txtFechaRegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 130, 160, 30));
 
-        cmbPlato.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jPanel1.add(cmbPlato, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 100, 180, 30));
+        cmbPlatillo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbPlatillo.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cmbPlatilloItemStateChanged(evt);
+            }
+        });
+        jPanel1.add(cmbPlatillo, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 90, 190, 30));
 
         spnCantidad.setModel(new javax.swing.SpinnerNumberModel(1, 1, 50, 1));
+        spnCantidad.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spnCantidadStateChanged(evt);
+            }
+        });
         jPanel1.add(spnCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 50, 120, 30));
-
-        spnPrecio.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, 500.0d, 0.1d));
-        jPanel1.add(spnPrecio, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 100, 120, 30));
 
         txtObservaciones.setColumns(20);
         txtObservaciones.setRows(5);
         scrollObs.setViewportView(txtObservaciones);
 
-        jPanel1.add(scrollObs, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 200, 450, 60));
+        jPanel1.add(scrollObs, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 170, 450, 60));
 
         txtSubtotal.setEditable(false);
         txtSubtotal.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.00"))));
+        txtSubtotal.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         txtSubtotal.setFocusable(false);
-        jPanel1.add(txtSubtotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 150, 120, 30));
+        txtSubtotal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSubtotalActionPerformed(evt);
+            }
+        });
+        jPanel1.add(txtSubtotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 130, 120, 30));
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel12.setText("Platillo:");
@@ -140,39 +175,46 @@ public class JD_AgregarPlato extends javax.swing.JDialog {
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel7.setText("Cantidad");
-        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 50, 80, -1));
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 50, 80, -1));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel6.setText("Observaciones (Opcional):");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 200, 160, -1));
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 180, 160, -1));
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel8.setText("Precio Unitario");
-        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 100, 90, -1));
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 90, 90, -1));
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel2.setText("Subtotal");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 150, 90, -1));
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 130, 90, -1));
 
-        txtIdPedido.setEditable(false);
         txtIdPedido.setBackground(new java.awt.Color(255, 255, 255));
         txtIdPedido.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         txtIdPedido.setForeground(new java.awt.Color(0, 0, 204));
         txtIdPedido.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtIdPedido.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtIdPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 50, 110, 30));
+        txtIdPedido.setFocusable(false);
+        txtIdPedido.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                txtIdPedidoInputMethodTextChanged(evt);
+            }
+        });
+        jPanel1.add(txtIdPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 50, 120, 30));
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel11.setText("Codigo de Pedido Actual");
-        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 690, -1));
+        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 540, -1));
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
-        jLabel9.setText("Fecha de Registro");
-        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 150, 130, -1));
+        jLabel9.setText("Fecha de Registro:");
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 140, 130, -1));
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
-        jLabel13.setText("Codigo de Pedido Actual");
+        jLabel13.setText("Codigo de Pedido Actual:");
         jPanel1.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 50, 170, -1));
 
         JTABLE_Dialog.setModel(new javax.swing.table.DefaultTableModel(
@@ -186,21 +228,41 @@ public class JD_AgregarPlato extends javax.swing.JDialog {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        JTABLE_Dialog.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JTABLE_DialogMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(JTABLE_Dialog);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 280, 610, 210));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 250, 610, 170));
 
         btn_guardar.setText("Guardar");
-        jPanel1.add(btn_guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 510, 100, 40));
+        jPanel1.add(btn_guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 430, 100, 40));
 
         btn_añadir.setText("Añadir");
-        jPanel1.add(btn_añadir, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 510, 100, 40));
+        btn_añadir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_añadirActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btn_añadir, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 430, 100, 40));
 
         btn_actualizar.setText("Actualizar");
-        jPanel1.add(btn_actualizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 510, 100, 40));
+        btn_actualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_actualizarActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btn_actualizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 430, 100, 40));
 
         btn_quitar.setText("Quitar");
-        jPanel1.add(btn_quitar, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 510, 100, 40));
+        btn_quitar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_quitarActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btn_quitar, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 430, 100, 40));
 
         btn_salir.setText("Salir");
         btn_salir.addActionListener(new java.awt.event.ActionListener() {
@@ -208,9 +270,15 @@ public class JD_AgregarPlato extends javax.swing.JDialog {
                 btn_salirActionPerformed(evt);
             }
         });
-        jPanel1.add(btn_salir, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 510, 100, 40));
+        jPanel1.add(btn_salir, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 430, 100, 40));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 690, 580));
+        txtPrecio.setEditable(false);
+        txtPrecio.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.00"))));
+        txtPrecio.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txtPrecio.setText("0");
+        jPanel1.add(txtPrecio, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 90, 120, 30));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 690, 490));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -225,14 +293,253 @@ public class JD_AgregarPlato extends javax.swing.JDialog {
                 "Confirmar salida",
                 JOptionPane.YES_NO_OPTION);
         if (confirmacion == JOptionPane.YES_OPTION) {
-            dispose(); // o this.dispose() si estás dentro del formulario
+            // Limpiamos tabla
+            modeloTabla.setRowCount(0);
+
+            // Limpiamos campos de texto y spinners
+            txtPrecio.setText("0.00");
+            txtSubtotal.setText("0.00");
+            spnCantidad.setValue(1);
+            txtObservaciones.setText("");
+
+            // Cerramos
+            this.dispose();
         }
 
     }//GEN-LAST:event_btn_salirActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    private void spnCantidadStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_spnCantidadStateChanged
+        calcularSubtotalRapido();
+    }//GEN-LAST:event_spnCantidadStateChanged
+
+    
+    
+    
+    
+    
+    private void btn_añadirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_añadirActionPerformed
+                                         
+        
+            try {
+                String seleccionado = cmbPlatillo.getSelectedItem().toString();
+                int idReal = objetoMetodo.obtenerIdPlatilloPorNombre(seleccionado);
+
+                if (idReal != -1) {
+                    // ¡Ya tienes el ID! Ahora puedes agregarlo a tu tabla temporal
+                    System.out.println("ID del plato a insertar: " + idReal);
+                }
+            } catch (SQLException e) {
+                
+            }
+    try {
+        // 1. Validar que haya algo seleccionado en el combo
+        if (cmbPlatillo.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(this, "Por favor, selecciona un platillo.");
+            return;
+        }
+
+        // 2. Obtener el ID Real usando TU variable 'objetoMetodo'
+        String nombreSeleccionado = cmbPlatillo.getSelectedItem().toString();
+        int idPlatillo = objetoMetodo.obtenerIdPlatilloPorNombre(nombreSeleccionado);
+
+        if (idPlatillo == -1) {
+            JOptionPane.showMessageDialog(this, "No se pudo recuperar el ID del platillo.");
+            return;
+        }
+
+        // 3. Capturar valores de tus Spinners
+        int cantidad = (Integer) spnCantidad.getValue();
+        double precio = Double.parseDouble(txtPrecio.getText());
+        
+        if (cantidad <= 0) {
+            JOptionPane.showMessageDialog(this, "La cantidad debe ser mayor a 0.");
+            return;
+        }
+
+        // 4. Calcular Subtotal (usando el formato que ya definiste)
+        double subtotal = Double.parseDouble(txtSubtotal.getText());
+        
+        // 5. Capturar tus Observaciones (usando tu variable 'txtObservaciones')
+        String obs = txtObservaciones.getText().trim();
+        if (obs.isEmpty()) {
+            obs = "Sin observaciones";
+        }
+
+        // 6. Usar 'modeloTabla' que ya declaraste arriba para llenar 'JTABLE_Dialog'
+        // Estructura según tu header: {"ID","Plato","Cantidad","Precio","Subtotal","Observaciones"}
+        Object[] fila = {
+            idPlatillo, 
+            nombreSeleccionado, 
+            cantidad, 
+            String.format("S/. %.2f", precio),
+            String.format("S/. %.2f", subtotal),
+            obs
+        };
+
+        // 7. ¡A la tabla!
+
+
+        // 8. Limpiar los campos para el siguiente plato
+        limpiarCamposDetalle();
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Error de base de datos: " + ex.getMessage());
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error inesperado: " + e.getMessage());
+    }
+        
+              
+        
+    }//GEN-LAST:event_btn_añadirActionPerformed
+
+    private void txtSubtotalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSubtotalActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSubtotalActionPerformed
+
+    private void cmbPlatilloItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbPlatilloItemStateChanged
+        String plato = (String) cmbPlatillo.getSelectedItem();
+        String param = null;
+        try {
+            param = String.valueOf(objetoMetodo.obtenerPrecioPorPlatoMenu(plato));
+        } catch (SQLException ex) {
+            Logger.getLogger(JD_AgregarPlato.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.txtPrecio.setText(param);
+        calcularSubtotalRapido();
+    }//GEN-LAST:event_cmbPlatilloItemStateChanged
+
+    private void txtIdPedidoInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_txtIdPedidoInputMethodTextChanged
+        
+    }//GEN-LAST:event_txtIdPedidoInputMethodTextChanged
+
+    private void btn_quitarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_quitarActionPerformed
+                                         
+    // 1. Obtener el índice de la fila seleccionada
+    int filaSeleccionada = JTABLE_Dialog.getSelectedRow();
+
+    // 2. Validar que realmente haya una fila seleccionada
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Por favor, selecciona el plato que deseas quitar de la lista.");
+        return;
+    }
+
+    // 3. (Opcional) Confirmar la eliminación
+    int confirmar = JOptionPane.showConfirmDialog(this, 
+            "¿Estás seguro de quitar este platillo del pedido?", 
+            "Confirmar", JOptionPane.YES_NO_OPTION);
+
+    if (confirmar == JOptionPane.YES_OPTION) {
+        // 4. Eliminar la fila del modelo de la tabla
+        modeloTabla.removeRow(filaSeleccionada);
+        
+        // 5. Limpiar los campos de edición para evitar confusiones
+        limpiarCamposDetalle();
+        
+        JOptionPane.showMessageDialog(this, "Platillo quitado de la lista temporal.");
+    }
+
+    }//GEN-LAST:event_btn_quitarActionPerformed
+
+    private void btn_actualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_actualizarActionPerformed
+                                                   
+    int filaSeleccionada = JTABLE_Dialog.getSelectedRow();
+    
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Selecciona una fila para modificar.");
+        return;
+    }
+
+    try {
+        // Captura de datos
+        String plato = cmbPlatillo.getSelectedItem().toString();
+        int idPlatillo = objetoMetodo.obtenerIdPlatilloPorNombre(plato);
+        int cantidad = (Integer) spnCantidad.getValue();
+        
+        String strPrecio = txtPrecio.getText().replace("S/. ", "").replace(",", "");
+        double precio = Double.parseDouble(strPrecio);
+        double subtotal = precio * cantidad;
+        
+        String obs = txtObservaciones.getText().trim();
+        if (obs.isEmpty()) obs = "Sin observaciones";
+
+        int filaModelo = JTABLE_Dialog.convertRowIndexToModel(filaSeleccionada);
+
+        // --- ACTUALIZACIÓN DE COLUMNAS (Índices Corregidos) ---
+        modeloTabla.setValueAt(idPlatillo, filaModelo, 0); // ID Detalle
+        modeloTabla.setValueAt(plato, filaModelo, 1);      // Nombre Platillo
+        modeloTabla.setValueAt(cantidad, filaModelo, 2);   // Cantidad
+        modeloTabla.setValueAt(String.format("S/. %.2f", precio), filaModelo, 3);
+        modeloTabla.setValueAt(String.format("S/. %.2f", subtotal), filaModelo, 4);
+        modeloTabla.setValueAt(obs, filaModelo, 5);        // Observaciones (Última columna)
+
+        JOptionPane.showMessageDialog(this, "Fila actualizada.");
+        limpiarCamposDetalle();
+        JTABLE_Dialog.clearSelection();
+
+    } catch (Exception e) {
+        // Esto te dirá si aún hay algún índice mal
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+    }
+
+    }//GEN-LAST:event_btn_actualizarActionPerformed
+
+    private void JTABLE_DialogMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTABLE_DialogMouseClicked
+               if (!JTABLE_Dialog.isEnabled()) {
+            return;
+        }
+/*
+        int selectRow = JTABLE_Dialog.getSelectedRow();
+        
+        //String[] header = {"ID Detalle","Plato","Cantidad","Precio","Subtotal","Observaciones"};
+        if (selectRow >= 0) {
+            // String id = JTABLE_Dialog.getValueAt(selectRow, 0).toString().trim();
+            String platillo = JTABLE_Dialog.getValueAt(selectRow, 1).toString().trim();
+            String cantidad = JTABLE_Dialog.getValueAt(selectRow, 2).toString().trim();
+            // String precio = JTABLE_Dialog.getValueAt(selectRow, 3).toString().trim();
+            // String subtotal = JTABLE_Dialog.getValueAt(selectRow, 4).toString().trim();
+            String observaciones = JTABLE_Dialog.getValueAt(selectRow, 5).toString().trim();
+            
+            
+            txtIdPedido.setText(id);
+            txtDNICliente.setText(dni_cliente);
+            txtDNIEmpleado.setText(dni_empleado);
+            //String categoriaOriginal = categoria;
+            boolean find = false;
+            for (int i=0;i<comboTipoPedido.getItemCount();i++){
+                String item = comboTipoPedido.getItemAt(i).trim();
+                if (item.equalsIgnoreCase(tipo_pedido)){
+                    comboTipoPedido.setSelectedIndex(i);
+                    find=true;
+                    break;
+                }
+
+            }
+            txtFechaPedido.setText(fecha_pedido);
+            
+            String nombresC = JTABLE_Dialog.getValueAt(selectRow, 8).toString().trim();
+            String apellidosC = JTABLE_Dialog.getValueAt(selectRow, 9).toString().trim();
+            String nombresE = JTABLE_Dialog.getValueAt(selectRow, 10).toString().trim();
+            String apellidosE = JTABLE_Dialog.getValueAt(selectRow, 11).toString().trim();
+            
+            txtNombresCliente.setText(nombresC);
+            txtNombresEmpleado.setText(nombresE);
+            txtApellidosCliente.setText(apellidosC);
+            txtApellidosEmpleado.setText(apellidosE);
+        
+
+        
+
+        BTN_Guardar.setEnabled(false);
+        BTN_VerPlatos.setEnabled(false);
+        BTN_Modificar.setEnabled(true);
+        BTN_Desactivar.setEnabled(true);
+
+    }*/
+    }//GEN-LAST:event_JTABLE_DialogMouseClicked
+
+    
+    
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -261,7 +568,7 @@ public class JD_AgregarPlato extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                JD_AgregarPlato dialog = new JD_AgregarPlato(new javax.swing.JFrame(), true);
+                JD_AgregarPlato dialog = new JD_AgregarPlato(new javax.swing.JFrame(), true, -1, "");
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -280,7 +587,7 @@ public class JD_AgregarPlato extends javax.swing.JDialog {
     private javax.swing.JButton btn_guardar;
     private javax.swing.JButton btn_quitar;
     private javax.swing.JButton btn_salir;
-    private javax.swing.JComboBox<String> cmbPlato;
+    private javax.swing.JComboBox<String> cmbPlatillo;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -293,10 +600,85 @@ public class JD_AgregarPlato extends javax.swing.JDialog {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane scrollObs;
     private javax.swing.JSpinner spnCantidad;
-    private javax.swing.JSpinner spnPrecio;
     private javax.swing.JTextField txtFechaRegistro;
     private javax.swing.JTextField txtIdPedido;
     private javax.swing.JTextArea txtObservaciones;
+    private javax.swing.JFormattedTextField txtPrecio;
     private javax.swing.JFormattedTextField txtSubtotal;
     // End of variables declaration//GEN-END:variables
+    
+    private void calcularSubtotalRapido() {
+        double p = Double.parseDouble(txtPrecio.getText());
+        int c = (Integer) spnCantidad.getValue();
+        txtSubtotal.setText(String.format("%.2f", p * c));
+    }
+    
+    public void cargarCombo() {
+    try {
+        cmbPlatillo.removeAllItems(); // Limpiamos por si acaso
+        cmbPlatillo.addItem("<<Seleccionar>>");
+        ResultSet rs = objetoMetodo.comboListarPlatillos();
+        
+        while (rs.next()) {
+            cmbPlatillo.addItem(rs.getString(1));
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar platos: " + e.getMessage());
+    }
+}
+   
+    
+    private void limpiarCamposDetalle() {
+        spnCantidad.setValue(1);
+        txtObservaciones.setText("");
+        cmbPlatillo.setSelectedIndex(0);
+    }
+    
+    private void mostrarIdPedido (){
+        if (idPedidoLocal<=0){
+            this.txtIdPedido.setText("PENDIENTE");
+        } else {
+            this.txtIdPedido.setText(String.valueOf(idPedidoLocal));
+        }
+    }
+    
+    //private void llenar 
+    
+public void MostrarDetalles(int idPedido) {
+    // 1. Limpiar y preparar
+    JTABLE_Dialog.setAutoCreateRowSorter(true);
+    modeloTabla.setRowCount(0);
+    
+    // 2. Llamar al método que retorna la LISTA de objetos
+    List<DetallePedido> lista = this.objetoMetodo.listarDetalles(idPedido);
+    
+    // 3. Recorrer la lista con un for-each
+    for (DetallePedido d : lista) {
+        Object[] fila = {
+            d.idDetalle,
+            d.nombrePlato,
+            d.cantidad,
+            String.format("S/ %.2f", d.precioUnitario), // Formateamos aquí en Java
+            String.format("S/ %.2f", d.subtotal),
+            d.observacion
+        };
+        modeloTabla.addRow(fila);
+    }
+}
+    
+
+        public void detalleEmpty() {
+    // 1. Limpiar campos de texto
+    txtFechaRegistro.setText(String.valueOf(current_date));
+    txtPrecio.setText("");
+    txtObservaciones.setText("");
+    spnCantidad.setValue(1);
+    
+    if (cmbPlatillo.getItemCount() > 0) {
+        cmbPlatillo.setSelectedIndex(0);
+    }
+    
+}
+    
+
 }

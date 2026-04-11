@@ -9,13 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import logic.dao.EmpleadoMethod;
+import logic.dao.DetallePedidoMethod;
 
 
 public final class JD_Empleado extends javax.swing.JDialog {
 
     DefaultTableModel model;
-    EmpleadoMethod methods;
+    DetallePedidoMethod methods;
     public String dniProp = "";
     public String nombreProp = "";
     public String apellidoProp = "";
@@ -24,7 +24,7 @@ public final class JD_Empleado extends javax.swing.JDialog {
     
     public JD_Empleado(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
-        methods = new EmpleadoMethod();
+        methods = new DetallePedidoMethod();
         initComponents();
         this.setLocationRelativeTo(this);
         this.setTitle("Buscar Empleado");

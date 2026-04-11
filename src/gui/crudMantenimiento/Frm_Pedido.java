@@ -11,7 +11,6 @@ import javax.swing.JOptionPane;
    /*Método de Mesa*/
 import logic.dao.PedidoMethod;
 
-
   /*excel*/
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,6 +25,12 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.table.TableColumnModel;
 import gui.crudMantenimiento.JD_Empleado;
 import gui.crudMantenimiento.JD_Cliente;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JButton;
 
 //import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 //import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -42,6 +47,12 @@ public class Frm_Pedido extends javax.swing.JFrame {
     DefaultTableModel modeloTablaReserva = new DefaultTableModel();
     JD_Empleado modalEmpleado;
     JD_Cliente modalCliente;
+    JD_AgregarPlato dialogo;
+    LocalDate current_date; 
+// Estas variables guardan los IDs de los buscadores que ya tienes
+private int idClienteSeleccionado = -1;
+private int idEmpleadoSeleccionado = -1;
+private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
     
     //Objeto conexión a la base de datos
     PedidoMethod methods;
@@ -61,11 +72,13 @@ public class Frm_Pedido extends javax.swing.JFrame {
         Image imagen = icono.getImage();
         // 3. Lo asignamos a la ventana
         this.setIconImage(imagen);
-
+        current_date = LocalDate.now(); 
+        
+        
         this.methods = new PedidoMethod();
 
         // Títulos que verá el usuario
-        String[] header = {"ID","DNI Cliente","Cliente","DNI Empleado","Empleado","Tipo de Pedido","Fecha de Pedido","Cantidad de Platos","Nombre C","Apellido C","Nombre E","Apellidos E"};
+        String[] header = {"ID","DNI Cliente","Cliente","DNI Empleado","Empleado","Tipo de Pedido","Fecha de Pedido","Cantidad de Platos","Nombre C","Apellido C","Nombre E","Apellidos E","Detalles"};
 
         modeloTablaReserva.setColumnIdentifiers(header);
         JTABLE_Mant_Pedido.setModel(modeloTablaReserva);
@@ -129,9 +142,6 @@ public class Frm_Pedido extends javax.swing.JFrame {
         BTN_Modificar.setEnabled(false);
         txtIdPedido.setEnabled(false);
         formato = DateTimeFormatter.ofPattern("dd/MM/yy");
-        
-        
-        
 
     }
 
@@ -182,6 +192,8 @@ public class Frm_Pedido extends javax.swing.JFrame {
         jLabel16 = new javax.swing.JLabel();
         comboTipoPedido = new javax.swing.JComboBox<>();
         txtFechaPedido = new javax.swing.JTextField();
+        jLabel17 = new javax.swing.JLabel();
+        btnViewDetails = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -364,7 +376,7 @@ public class Frm_Pedido extends javax.swing.JFrame {
         txtIdPedido.setForeground(new java.awt.Color(0, 0, 204));
         txtIdPedido.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtIdPedido.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        panel.add(txtIdPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 90, 20));
+        panel.add(txtIdPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, 90, 20));
 
         jPanelCliente.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "   Cliente Atendido   ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Segoe UI", 1, 12))); // NOI18N
         jPanelCliente.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -374,21 +386,21 @@ public class Frm_Pedido extends javax.swing.JFrame {
                 txtDNIClienteActionPerformed(evt);
             }
         });
-        jPanelCliente.add(txtDNICliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 140, 22));
+        jPanelCliente.add(txtDNICliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, 140, 22));
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel13.setText("Nombres:*");
-        jPanelCliente.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 95, 90, -1));
-        jPanelCliente.add(txtApellidosCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 220, 22));
-        jPanelCliente.add(txtNombresCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 115, 220, 22));
+        jPanelCliente.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 90, -1));
+        jPanelCliente.add(txtApellidosCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 170, 220, 22));
+        jPanelCliente.add(txtNombresCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, 220, 22));
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel14.setText("Apellidos:*");
-        jPanelCliente.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 90, -1));
+        jPanelCliente.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, 90, -1));
 
         jLabel15.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel15.setText("DNI:*");
-        jPanelCliente.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 90, -1));
+        jPanelCliente.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 90, -1));
 
         jButton2.setText("Buscar");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -396,9 +408,9 @@ public class Frm_Pedido extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanelCliente.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(162, 50, 80, -1));
+        jPanelCliente.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 80, -1));
 
-        panel.add(jPanelCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 80, 280, 230));
+        panel.add(jPanelCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 90, 280, 230));
 
         jPanelEmpleado.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "   Empleado Encargado   ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Segoe UI", 1, 12))); // NOI18N
         jPanelEmpleado.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -408,21 +420,21 @@ public class Frm_Pedido extends javax.swing.JFrame {
                 txtDNIEmpleadoActionPerformed(evt);
             }
         });
-        jPanelEmpleado.add(txtDNIEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 140, 22));
+        jPanelEmpleado.add(txtDNIEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, 140, 22));
 
         jLabel18.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel18.setText("DNI:*");
-        jPanelEmpleado.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 90, -1));
+        jPanelEmpleado.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 90, -1));
 
         jLabel19.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel19.setText("Nombres:*");
-        jPanelEmpleado.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 95, 90, -1));
-        jPanelEmpleado.add(txtApellidosEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 220, 22));
-        jPanelEmpleado.add(txtNombresEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 115, 220, 22));
+        jPanelEmpleado.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 90, -1));
+        jPanelEmpleado.add(txtApellidosEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 170, 220, 22));
+        jPanelEmpleado.add(txtNombresEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, 220, 22));
 
         jLabel20.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel20.setText("Apellidos:*");
-        jPanelEmpleado.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 90, -1));
+        jPanelEmpleado.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, 90, -1));
 
         searchEmpleado.setText("Buscar");
         searchEmpleado.addActionListener(new java.awt.event.ActionListener() {
@@ -430,30 +442,48 @@ public class Frm_Pedido extends javax.swing.JFrame {
                 searchEmpleadoActionPerformed(evt);
             }
         });
-        jPanelEmpleado.add(searchEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(162, 50, 80, -1));
+        jPanelEmpleado.add(searchEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 80, -1));
 
-        panel.add(jPanelEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 280, 230));
+        panel.add(jPanelEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 280, 220));
 
         jLabel3.setFont(new java.awt.Font("Yu Gothic UI Light", 1, 36)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("→");
-        panel.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 160, 50, -1));
+        panel.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 168, 60, 60));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel6.setText("ID:");
         panel.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, 30, -1));
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel12.setText("Fecha de Pedido:*");
-        panel.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 20, 130, -1));
+        jLabel12.setText("Fecha de Pedido:");
+        panel.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 20, 130, -1));
 
         jLabel16.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel16.setText("Tipo de Pedido:*");
-        panel.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 20, 130, -1));
+        jLabel16.setText("Detalles del Pedido");
+        panel.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 20, 120, -1));
 
         comboTipoPedido.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        panel.add(comboTipoPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 40, 210, -1));
-        panel.add(txtFechaPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 40, 160, -1));
+        panel.add(comboTipoPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 40, 150, -1));
+
+        txtFechaPedido.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtFechaPedidoActionPerformed(evt);
+            }
+        });
+        panel.add(txtFechaPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 40, 140, -1));
+
+        jLabel17.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel17.setText("Tipo de Pedido:*");
+        panel.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 20, 130, -1));
+
+        btnViewDetails.setText("Añadir o Ver");
+        btnViewDetails.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnViewDetailsActionPerformed(evt);
+            }
+        });
+        panel.add(btnViewDetails, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 40, 120, -1));
 
         jPanel3.add(panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 700, 330));
 
@@ -461,8 +491,6 @@ public class Frm_Pedido extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-
 
     // Rellenar el ComboBox
     private void cargarComboBoxTipoPedido() {
@@ -479,18 +507,7 @@ public class Frm_Pedido extends javax.swing.JFrame {
       }
 
 
-    private void limpiarCamposPlatoMenu () {
-        txtIdPedido.setText("");
-        /*
-        txtNombrePlato.setText("");
-        jComboBoxCategoria.setSelectedIndex(0);
-        BTN_Guardar.setEnabled(true);
-        BTN_Modificar.setEnabled(false);
-        BTN_Desactivar.setEnabled(false);
-        BTN_VerPlatos.setEnabled(false);
-        */
-
-    }
+ 
     
     
     
@@ -735,117 +752,43 @@ public class Frm_Pedido extends javax.swing.JFrame {
     }//GEN-LAST:event_BTN_CancelActionPerformed
 
     private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
-/*
-        txtcodigoplato.setText("");
-        txtNombrePlato.setText("");
-        txtPrecio.setText("");
-        txtNombrePlato.setText("");
-        jTextAreaObservaciones.setText("");
 
-        txtNombrePlato.requestFocus();
-        txtNombrePlato.setEditable(true);
-        txtPrecio.setEditable(true);
-        jComboBoxCategoria.setEnabled(false);
-        jTextAreaObservaciones.setEditable(true);
+        String string_current = String.valueOf(current_date); 
+        this.txtFechaPedido.setText(string_current);
+        
+        txtApellidosCliente.setText("");
+        txtApellidosEmpleado.setText("");
+        txtDNICliente.setText("");
+        txtDNIEmpleado.setText("");
+        txtIdPedido.setText("");
+        txtNombresCliente.setText("");
+        txtNombresEmpleado.setText("");
+        
+        
+        if (dialogo!=null){
+            dialogo.detalleEmpty();
+        }
+        
+        comboTipoPedido.setSelectedIndex(0);
+        
+        comboTipoPedido.setEnabled(true);
 
         // 1. Limpiar la selección actual (Que no quede nada pintado de azul)
-        JTABLE_Mant_Reserva.clearSelection();
-
-        // 2. Deshabilitar la tabla para que no se pueda hacer clic
-        JTABLE_Mant_Reserva.setEnabled(false);
-
-        txtNombrePlato.setEditable(true);
-        txtPrecio.setEditable(true);
-        jTextAreaObservaciones.setEditable(true);
-        jComboBoxCategoria.setEnabled(true);
+        JTABLE_Mant_Pedido.clearSelection();
 
         BTN_Guardar.setEnabled(true);
         BTN_Desactivar.setEnabled(false);
         BTN_Modificar.setEnabled(false);
         BTN_Nuevo.setVisible(false);
         BTN_Cancel.setVisible(true);
-        */
+        
+        
+        
     }//GEN-LAST:event_BTN_NuevoActionPerformed
 
     private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
-/*
-        // 1. Validar que el campo no esté vacío
-        String nombre = txtNombrePlato.getText().trim();
-        String precio = txtPrecio.getText().trim();
-        String categoria = (String) jComboBoxCategoria.getSelectedItem();
-        String descripcion = jTextAreaObservaciones.getText().trim();
-
-        if (nombre==null || nombre.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese el nombre del Plato", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-            txtNombrePlato.requestFocus();
-            return;
-        }
-        if (precio==null || precio.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese el precio del Plato", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-            txtPrecio.requestFocus();
-            return;
-        }
-        int codigoCategoria=-1;
-        try {
-            codigoCategoria = methods.comboSeleccionarID(categoria);
-        } catch (SQLException ex) {
-            Logger.getLogger(Frm_Pedido.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        if (codigoCategoria==-1){
-            JOptionPane.showMessageDialog(null, "No se encontró la categoría seleccionada", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try {
-            if (this.methods.existePlatoConNombre(nombre, 0)) {
-                JOptionPane.showMessageDialog(this, "Ya existe otra categoría con el mismo nombre.",
-                    "Validación", JOptionPane.WARNING_MESSAGE);
-                return;
-            }       } catch (SQLException ex) {
-                Logger.getLogger(Frm_Categoria.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            // 2. Confirmar si el usuario desea guardar
-            int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea guardar el registro?", "Confirmación", JOptionPane.YES_NO_OPTION);
-            if (respuesta == JOptionPane.YES_OPTION) {
-
-                try {
-                    // 3. Llamar al método para insertar
-                    this.methods.insertarPlatoMenu(nombre,descripcion,Double.parseDouble(precio),codigoCategoria);
-
-                    // 4. Mostrar mensaje de éxito
-                    JOptionPane.showMessageDialog(this, "Plato registrado correctamente", "Registro exitoso", JOptionPane.INFORMATION_MESSAGE);
-
-                    // 5. Actualizar tabla y limpiar campos
-                    this.MostrarPedidos();
-                    this.limpiarCamposPlatoMenu();
-
-                    txtNombrePlato.setEditable(false);
-                    txtPrecio.setEditable(false);
-                    jTextAreaObservaciones.setEditable(false);
-                    jComboBoxCategoria.setEnabled(false);
-
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(this, "Error al registrar el plato:\n" + ex.getMessage(), "Error de base de datos", JOptionPane.ERROR_MESSAGE);
-                } finally {
-                    txtNombrePlato.setEditable(false);
-                    txtPrecio.setEditable(false);
-                    jComboBoxCategoria.setEditable(false);
-                    jTextAreaObservaciones.setEditable(false);
-
-                    BTN_Guardar.setEnabled(false);
-                    BTN_VerPlatos.setEnabled(false);
-                    BTN_Modificar.setEnabled(false);
-                    BTN_Desactivar.setEnabled(false);
-                    BTN_Nuevo.setVisible(true);
-                    BTN_Cancel.setVisible(false);
-                    JTABLE_Mant_Reserva.setEnabled(true);
-                }
-
-            }
-        
-        */
+ 
+        ejecutarGuardado();
         
     }//GEN-LAST:event_BTN_GuardarActionPerformed
 
@@ -970,13 +913,15 @@ public class Frm_Pedido extends javax.swing.JFrame {
 
     private void BTN_VerPlatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerPlatosActionPerformed
         this.MostrarPedidos();
-
         cargarComboBoxTipoPedido();
         this.BTN_Nuevo.setEnabled(true);
         this.BTN_Guardar.setEnabled(false);
         this.BTN_Desactivar.setEnabled(false);
         this.BTN_Modificar.setEnabled(false);
         this.BTN_VerPlatos.setEnabled(false);
+        String string_current = String.valueOf(current_date); 
+        this.txtFechaPedido.setText(string_current);
+        
         
         
         String fechaActual = LocalDate.now().format(formato);
@@ -1026,6 +971,24 @@ public class Frm_Pedido extends javax.swing.JFrame {
         txtApellidosCliente.setText(buscador.apellidoProp);
     }
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void btnViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewDetailsActionPerformed
+        String id_pedido = txtIdPedido.getText();
+        String fecha = txtFechaPedido.getText();
+        
+        int id_pedido_int;
+        if (id_pedido.isEmpty()||id_pedido==null){
+            id_pedido_int = -1;
+        } else {
+            id_pedido_int = Integer.parseInt(id_pedido);
+        }
+        dialogo = new JD_AgregarPlato(this, true,(id_pedido_int),fecha);
+        dialogo.setVisible(true);
+    }//GEN-LAST:event_btnViewDetailsActionPerformed
+
+    private void txtFechaPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFechaPedidoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtFechaPedidoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1139,6 +1102,7 @@ public class Frm_Pedido extends javax.swing.JFrame {
     private javax.swing.JButton BTN_VerPlatos;
     private javax.swing.JTable JTABLE_Mant_Pedido;
     private javax.swing.JTextField TXT_BuscarMesas;
+    private javax.swing.JButton btnViewDetails;
     private javax.swing.JComboBox<String> comboTipoPedido;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
@@ -1147,6 +1111,7 @@ public class Frm_Pedido extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel20;
@@ -1195,8 +1160,7 @@ public class Frm_Pedido extends javax.swing.JFrame {
                     rs.getString("Nombre del Cliente"),
                     rs.getString("Apellidos del Cliente"),
                     rs.getString("Nombre del Empleado"),
-                    rs.getString("Apellidos del Empleado"),
-                    
+                    rs.getString("Apellidos del Empleado")
                     
                 };
                 modeloTablaReserva.addRow(fila);
@@ -1243,4 +1207,68 @@ public class Frm_Pedido extends javax.swing.JFrame {
         }
     }
 
+
+    
+    
+    
+    private void ejecutarGuardado() {
+    // Validaciones de IDs
+    if (idClienteSeleccionado == -1 || idEmpleadoSeleccionado == -1) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar Cliente y Empleado primero.");
+        return;
+    }
+
+    // Validar tabla no vacía
+    DefaultTableModel modelo = (DefaultTableModel) JTABLE_Mant_Pedido.getModel();
+    if (modelo.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(this, "El pedido no tiene platos agregados.");
+        return;
+    }
+
+    // Fecha (usando el formato de tu Procedure TIMESTAMP)
+    String fechaSQL = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+    PedidoMethod dao = new PedidoMethod();
+    if (dao.guardarPedidoCompleto(fechaSQL, idClienteSeleccionado, idEmpleadoSeleccionado, idTipoPedidoSeleccionado, modelo)) {
+        JOptionPane.showMessageDialog(this, "¡Pedido registrado con éxito!");
+        limpiarTodo();
+    }
+}
+    
+    private void limpiarTodo() {
+    // 1. Limpiar campos de texto de Cabecera
+    txtIdPedido.setText("");
+    txtFechaPedido.setText(""); // O podrías poner la fecha actual: LocalDate.now().toString()
+    
+    // 2. Limpiar datos de Cliente
+    txtDNICliente.setText("");
+    txtNombresCliente.setText("");
+    txtApellidosCliente.setText("");
+    idClienteSeleccionado = -1; // Resetear el ID
+    
+    // 3. Limpiar datos de Empleado
+    txtDNIEmpleado.setText("");
+    txtNombresEmpleado.setText("");
+    txtApellidosEmpleado.setText("");
+    idEmpleadoSeleccionado = -1; // Resetear el ID
+    
+    // 4. Resetear el ComboBox del tipo de pedido
+    if (comboTipoPedido.getItemCount() > 0) {
+        comboTipoPedido.setSelectedIndex(0);
+    }
+    
+    // 5. Limpiar la JTable (el detalle del pedido)
+    DefaultTableModel modeloDetalle = (DefaultTableModel) JTABLE_Mant_Pedido.getModel();
+    modeloDetalle.setRowCount(0);
+    
+    // 6. Resetear estados de botones si es necesario
+    BTN_Guardar.setEnabled(true);
+    BTN_Modificar.setEnabled(false);
+    BTN_Desactivar.setEnabled(false);
+    
+    // Foco inicial
+    txtDNICliente.requestFocus();
+}
+    
+    
 }

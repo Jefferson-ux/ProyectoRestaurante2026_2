@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 public class PedidoMethod {
 private Connection conn;
@@ -253,6 +254,67 @@ public boolean registrarVentaCompleta(String fecha, int idCliente, int idEmplead
         try { if(conn != null) conn.setAutoCommit(true); } catch (SQLException e) {}
     }
 }
+
+
+
+
+
+public boolean guardarPedidoCompleto(String fecha, int idCli, int idEmp, int idTipo, DefaultTableModel modeloDetalle) {
+    String sqlPedido = "{call insertar_pedido(?, ?, ?, ?)}";
+    String sqlDetalle = "{call insertar_detalle_pedido(?, ?, ?, ?, ?)}";
+    
+    try {
+        conn.setAutoCommit(false); // Iniciamos transacción
+
+        // 1. Insertar Cabecera
+        CallableStatement csP = conn.prepareCall(sqlPedido);
+        csP.setString(1, fecha);
+        csP.setInt(2, idCli);
+        csP.setInt(3, idEmp);
+        csP.setInt(4, idTipo);
+        csP.execute();
+
+        // 2. Obtener el ID del pedido recién creado
+        int idPedidoGenerado = 0;
+        Statement st = conn.createStatement();
+        ResultSet rs = st.executeQuery("SELECT LAST_INSERT_ID()");
+        if (rs.next()) idPedidoGenerado = rs.getInt(1);
+
+        // 3. Insertar Detalles desde la JTable
+        CallableStatement csD = conn.prepareCall(sqlDetalle);
+        for (int i = 0; i < modeloDetalle.getRowCount(); i++) {
+            csD.setInt(1, idPedidoGenerado);
+            csD.setInt(2, Integer.parseInt(modeloDetalle.getValueAt(i, 0).toString())); // ID Plato
+            csD.setInt(3, Integer.parseInt(modeloDetalle.getValueAt(i, 2).toString())); // Cantidad
+            // Limpiar formato S/ 0.00
+            String precioLimpio = modeloDetalle.getValueAt(i, 3).toString().replaceAll("[^0-9.]", "");
+            csD.setDouble(4, Double.parseDouble(precioLimpio));
+            csD.setString(5, modeloDetalle.getValueAt(i, 5).toString()); // Observación
+            csD.execute();
+        }
+
+        conn.commit();
+        return true;
+    } catch (SQLException e) {
+        try { conn.rollback(); } catch (SQLException ex) {}
+        JOptionPane.showMessageDialog(null, "Error al guardar: " + e.getMessage());
+        return false;
+    } finally {
+        try { conn.setAutoCommit(true); } catch (SQLException e) {}
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -9,13 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import logic.dao.ClienteMethod;
+import logic.dao.DetallePedidoMethod;
 
 
 public final class JD_Cliente extends javax.swing.JDialog {
 
     DefaultTableModel model;
-    ClienteMethod methods;
+    DetallePedidoMethod methods;
     public String dniProp = "";
     public String nombreProp = "";
     public String apellidoProp = "";
@@ -24,10 +24,10 @@ public final class JD_Cliente extends javax.swing.JDialog {
     
     public JD_Cliente(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
-        methods = new ClienteMethod();
+        methods = new DetallePedidoMethod();
         initComponents();
         this.setLocationRelativeTo(this);
-        this.setTitle("Buscar Empleado");
+        this.setTitle("Buscar Cliente");
         this.setResizable(false);
         this.model = (DefaultTableModel) table.getModel();
         llenarTablaBuscador();
@@ -140,7 +140,7 @@ public final class JD_Cliente extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void txtBuscarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBuscarKeyReleased
-       // buscarEnLaTabla();
+       buscarEnLaTabla();
     }//GEN-LAST:event_txtBuscarKeyReleased
 
     private void btnElegirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnElegirActionPerformed
@@ -236,18 +236,17 @@ public final class JD_Cliente extends javax.swing.JDialog {
 
 
     public void llenarTablaBuscador() {
-      /*  //Ordenar ASC, DESC
         table.setAutoCreateRowSorter(true);        
         //Limpiar la tabla antes de mostrar nuevos datos
         model.setRowCount(0);
         try {
             //Llama al método que retorna los datos de plato menues
-         ....CORTO CIRCUITO...   ResultSet rs = this.methods.listarMesas(); 
+            ResultSet rs = this.methods.listarCliente(); 
             while (rs.next()) {
                 Object[] fila = {
                     rs.getString("DNI"),
-                    rs.getString("Nombre de Empleado"),
-                    rs.getString("Apellido de Empleado")
+                    rs.getString("Nombre de Cliente"),
+                    rs.getString("Apellido de Cliente")
                 };
                 model.addRow(fila);
             }
@@ -270,13 +269,13 @@ public final class JD_Cliente extends javax.swing.JDialog {
         table.setAutoCreateRowSorter(true);   
         model.setRowCount(0);
         try {
-            ResultSet rs = this.methods.buscarEmpleados(parametro);
+            ResultSet rs = this.methods.buscarCliente(parametro);
             
             while (rs.next()) {
                 Object[] fila = {
                     rs.getString("DNI"),
-                    rs.getString("Nombre de Empleado"),
-                    rs.getString("Apellido de Empleado")
+                    rs.getString("Nombre de Cliente"),
+                    rs.getString("Apellido de Cliente")
                 };
                 model.addRow(fila);
             }
@@ -284,7 +283,7 @@ public final class JD_Cliente extends javax.swing.JDialog {
 
         } catch (SQLException e) {
             System.err.println("Error silencioso en búsqueda: " + e.getMessage());
-        }*/
+        }
     }
     
     
