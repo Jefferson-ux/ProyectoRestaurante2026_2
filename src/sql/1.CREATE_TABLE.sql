@@ -252,9 +252,14 @@ CREATE TABLE proveedor (
     direccion_proveedor VARCHAR(150) NOT NULL,
     observacion_proveedor TEXT,
     estado TINYINT(1) NOT NULL DEFAULT 1,
+
     CHECK (estado IN (0, 1)),
+    CHECK (ruc REGEXP '^[0-9]{11}$'), -- Asegura 11 dígitos numéricos
+    CHECK (TRIM(razon_social) <> ''), -- Evita nombres vacíos
+    CHECK (TRIM(direccion_proveedor) <> ''), -- Evita direcciones vacías
     CHECK (telefono_proveedor REGEXP '^[0-9]{7,15}$'),
-    CHECK (correo_proveedor REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
+    CHECK (correo_proveedor REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'),
+    CHECK (CHAR_LENGTH(observacion_proveedor) <= 500) -- Limite físico en la tabla
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
@@ -266,11 +271,13 @@ CREATE TABLE proveedor_producto (
     precio_compra DECIMAL(10,2) NOT NULL,
     tiempo_entrega INT NOT NULL,
     fecha_registro DATE NOT NULL,
+    estado TINYINT NOT NULL DEFAULT 1,
     PRIMARY KEY (id_proveedor, id_producto),
     FOREIGN KEY (id_proveedor) REFERENCES proveedor(id_proveedor),
     FOREIGN KEY (id_producto) REFERENCES producto(id_producto),
     CHECK (precio_compra >= 0),
-    CHECK (tiempo_entrega >= 0)
+    CHECK (tiempo_entrega >= 0),
+    CHECK (estado IN (0, 1)) 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
   /*==========================================*/

@@ -29,6 +29,17 @@ public class ProveedorMethod {
         }
     }
     
+    public boolean existeProveedorConNombre(String nombre, int id_producto) throws SQLException {
+        String sql = "SELECT 1 FROM Proveedor "
+            + "WHERE LOWER(nombre_proveedor) = LOWER(?) "
+            + "AND id_producto <> ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, nombre.trim());
+        ps.setInt(2, id_producto); // 0 si es insertar
+        ResultSet rs = ps.executeQuery();
+        return rs.next(); // si devuelve algo, ya existe
+    }
+    
     /* VIEWS --> MOSTRAR DATOS */
     public ResultSet listarProveedor() throws SQLException{
         String sql = "Select * from vista_Proveedor WHERE `Estado` = 1";/*SQL Query*/
@@ -52,6 +63,9 @@ public class ProveedorMethod {
     
     /* INSERT--> AGREGAR DATOS */
     public void insertarProveedor(String ruc, String razon_social, String telefono, String correo, String direccion, String observacion) throws SQLException{
+        if(existeProveedorConNombre(razon_social, 0)){
+            throw  new IllegalArgumentException("Ya exsiste un proveedor con ese nombre.");
+        }
         String sql = "CALL insertar_proveedor(?,?,?,?,?,?)";//Llamada al procedimiento
         try 
             (PreparedStatement ps =conn.prepareCall(sql)){

@@ -623,11 +623,8 @@ DELIMITER ;
 
 
 /* ============================================================
-    11. PRODUCTO
-    Valida nombre único, campos no vacíos, valores numéricos,
-    existencia de unidad de medida e inserta observación.
-    El estado se asigna como 1 (Activo) por defecto.
-   ============================================================ */
+    11. PRODUCTO 
+============================================================ */
 DROP PROCEDURE IF EXISTS insertar_producto;
 DELIMITER $$
 
@@ -636,62 +633,60 @@ CREATE PROCEDURE insertar_producto(
     IN p_precio_unitario DECIMAL(10,2),
     IN p_stock_minimo INT,
     IN p_stock_actual INT,
-    IN p_observacion TEXT, -- Único parámetro nuevo conservado
+    IN p_observacion TEXT,
     IN p_id_unidad_medida INT
 )
 BEGIN
-    DECLARE v_count INT;
+    DECLARE v_count INT DEFAULT 0;
+    DECLARE v_estado_existente TINYINT;
+    DECLARE v_estado_um TINYINT DEFAULT NULL; -- Inicializado aquí directamente
     DECLARE v_obs TEXT DEFAULT TRIM(p_observacion);
 
-    -- 1. Validar nombre único
-    SELECT COUNT(*) INTO v_count
+    -- 1. Validar nombre vacío
+    IF p_nombre IS NULL OR TRIM(p_nombre) = '' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El nombre del producto no puede estar vacío.',
+        MYSQL_ERRNO = 1029;
+    END IF;
+
+    -- 2. Validar nombre duplicado
+    SELECT COUNT(*), MAX(estado) INTO v_count, v_estado_existente
     FROM producto
     WHERE UPPER(TRIM(nombre_producto)) = UPPER(TRIM(p_nombre));
 
     IF v_count > 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Ya existe un producto con el mismo nombre.',
-        MYSQL_ERRNO = 1028;
-    END IF;
-
-    -- 2. Validar que el nombre no esté vacío
-    IF p_nombre IS NULL OR TRIM(p_nombre) = '' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El nombre del producto no puede estar vacío.',
-        MYSQL_ERRNO = 1029;
+        IF v_estado_existente = 0 THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'El producto ya existe pero está INACTIVO. Debe reactivarlo.',
+            MYSQL_ERRNO = 1043;
+        ELSE
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Ya existe un producto ACTIVO con este nombre.',
+            MYSQL_ERRNO = 1034;
+        END IF;
     END IF;
 
     -- 3. Validar precios y stock
     IF p_precio_unitario < 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El precio unitario debe ser mayor o igual a 0.',
-        MYSQL_ERRNO = 1030;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El precio debe ser >= 0.', MYSQL_ERRNO = 1030;
     END IF;
 
-    IF p_stock_minimo < 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El stock mínimo debe ser mayor o igual a 0.',
-        MYSQL_ERRNO = 1031;
+    IF p_stock_minimo < 0 OR p_stock_actual < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock no puede ser negativo.', MYSQL_ERRNO = 1031;
     END IF;
 
-    IF p_stock_actual < 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El stock actual debe ser mayor o igual a 0.',
-        MYSQL_ERRNO = 1032;
-    END IF;
-
-    -- 4. Validar existencia de unidad de medida
-    SELECT COUNT(*) INTO v_count
-    FROM unidad_medida
+    -- 4. Validar existencia y estado de la Unidad de Medida
+    SELECT estado INTO v_estado_um 
+    FROM unidad_medida 
     WHERE id_unidad_medida = p_id_unidad_medida;
 
-    IF v_count = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La unidad de medida no existe.',
-        MYSQL_ERRNO = 1033;
+    IF v_estado_um IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La unidad de medida no existe.', MYSQL_ERRNO = 1033;
+    ELSEIF v_estado_um = 0 THEN -- En MariaDB se prefiere ELSEIF todo junto o bloques claros
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La unidad de medida está inactiva.', MYSQL_ERRNO = 1035;
     END IF;
 
-    -- 5. Ejecutar inserción (Estado se manda como 1 internamente)
+    -- 5. Ejecutar inserción
     INSERT INTO producto(
         nombre_producto,
         precio_producto,
@@ -706,12 +701,12 @@ BEGIN
         p_precio_unitario,
         p_stock_minimo,
         p_stock_actual,
-        v_obs,
+        NULLIF(v_obs, ''),
         p_id_unidad_medida,
-        1 -- Se asigna "Activo" automáticamente
+        1
     );
 
-    SELECT 'Producto insertado exitosamente.' AS mensaje;
+    SELECT CONCAT('Producto "', TRIM(p_nombre), '" registrado correctamente.') AS mensaje;
 
 END$$
 
@@ -737,87 +732,95 @@ CREATE PROCEDURE insertar_proveedor(
     IN p_telefono VARCHAR(50),
     IN p_correo VARCHAR(255),
     IN p_direccion VARCHAR(255),
-    IN p_observacion TEXT -- Nuevo parámetro
+    IN p_observacion TEXT
 )
 BEGIN
+    -- Declaración de variables para control
     DECLARE v_count INT;
-    DECLARE v_obs TEXT DEFAULT TRIM(p_observacion);
+    DECLARE v_estado_existente TINYINT;
+    DECLARE v_msg VARCHAR(255);
 
-    -- 1. Validar duplicado por RUC
-    SELECT COUNT(*) INTO v_count
-    FROM proveedor
-    WHERE ruc = p_ruc; -- Nombre de columna corregido a 'ruc'
+    -- 1. MANEJO DE ERRORES Y TRANSACCIONES
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL; -- Re-lanza el error para que Java lo capture
+    END;
 
-    IF v_count > 0 THEN
+    START TRANSACTION;
+
+    -- 2. VALIDACIÓN DE FORMATO (Longitud y que sea solo números)
+    IF LENGTH(TRIM(p_ruc)) <> 11 OR TRIM(p_ruc) NOT REGEXP '^[0-9]+$' THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Ya existe un proveedor con el mismo RUC.',
-        MYSQL_ERRNO = 1034;
-    END IF;
-
-    -- 2. Validar duplicado por Correo
-    SELECT COUNT(*) INTO v_count
-    FROM proveedor
-    WHERE correo_proveedor = p_correo;
-
-    IF v_count > 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Ya existe un proveedor con el mismo correo.',
-        MYSQL_ERRNO = 1035;
-    END IF;
-
-    -- 3. Validar longitud del RUC
-    IF LENGTH(TRIM(p_ruc)) <> 11 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El RUC debe tener exactamente 11 caracteres.',
+        SET MESSAGE_TEXT = 'El RUC debe tener exactamente 11 dígitos numéricos.',
         MYSQL_ERRNO = 1036;
     END IF;
 
-    -- 4. Validar campos obligatorios
-    IF p_razon_social IS NULL OR TRIM(p_razon_social) = '' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La razón social no puede estar vacía.',
-        MYSQL_ERRNO = 1037;
+    -- 3. VALIDACIÓN DE CAMPOS OBLIGATORIOS
+    IF TRIM(p_razon_social) = '' OR p_razon_social IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La razón social es obligatoria.', MYSQL_ERRNO = 1037;
     END IF;
 
-    IF p_telefono IS NULL OR TRIM(p_telefono) = '' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El teléfono no puede estar vacío.',
-        MYSQL_ERRNO = 1038;
+    -- 4. VALIDACIÓN DE FORMATO DE CORREO (Regex profesional)
+    IF TRIM(p_correo) NOT REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El formato del correo es inválido.', MYSQL_ERRNO = 1042;
     END IF;
 
-    IF p_correo IS NULL OR TRIM(p_correo) = '' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El correo no puede estar vacío.',
-        MYSQL_ERRNO = 1039;
+    -- 5. VALIDACIÓN DE DUPLICADOS (Detecta si está activo o inactivo)
+    SELECT COUNT(*), MAX(estado) INTO v_count, v_estado_existente 
+    FROM proveedor 
+    WHERE ruc = TRIM(p_ruc);
+
+    IF v_count > 0 THEN
+        IF v_estado_existente = 0 THEN
+            -- Caso especial: El RUC existe pero fue borrado/desactivado antes
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'El RUC ya existe pero está INACTIVO. Debe reactivarlo.',
+            MYSQL_ERRNO = 1043;
+        ELSE
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Ya existe un proveedor activo con este RUC.',
+            MYSQL_ERRNO = 1034;
+        END IF;
     END IF;
 
-    IF p_direccion IS NULL OR TRIM(p_direccion) = '' THEN
+    -- 6. VALIDACIÓN DE CORREO DUPLICADO
+    IF EXISTS(SELECT 1 FROM proveedor WHERE correo_proveedor = TRIM(p_correo)) THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La dirección no puede estar vacía.',
-        MYSQL_ERRNO = 1040;
+        SET MESSAGE_TEXT = 'El correo electrónico ya está registrado por otro proveedor.',
+        MYSQL_ERRNO = 1035;
     END IF;
-
-    -- 5. Ejecutar inserción
+    
+    -- 7. Validar longitud de la observación
+    IF p_observacion IS NOT NULL AND LENGTH(TRIM(p_observacion)) > 500 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La observación es demasiado larga (máximo 500 caracteres).',
+        MYSQL_ERRNO = 1044; -- Código correlativo al anterior
+    END IF;
+    
+    -- 8. INSERCIÓN CON NORMALIZACIÓN
     INSERT INTO proveedor(
-        ruc,
-        razon_social,
-        telefono_proveedor,
-        correo_proveedor,
-        direccion_proveedor,
-        observacion_proveedor, -- Campo añadido
-        estado        -- Campo añadido (Valor 1 por defecto)
+        ruc, 
+        razon_social, 
+        telefono_proveedor, 
+        correo_proveedor, 
+        direccion_proveedor, 
+        observacion_proveedor, 
+        estado
     )
     VALUES(
         TRIM(p_ruc),
-        TRIM(p_razon_social),
+        UPPER(TRIM(p_razon_social)),
         TRIM(p_telefono),
-        LOWER(TRIM(p_correo)),
+        LOWER(TRIM(p_correo)),     
         TRIM(p_direccion),
-        v_obs,
-        1 -- Estado activo por defecto
+        TRIM(p_observacion),
+        1                           
     );
 
-    SELECT 'Proveedor insertado exitosamente.' AS mensaje;
+    COMMIT;
+    
+    SELECT 'Proveedor registrado exitosamente.' AS mensaje;
 
 END$$
 
@@ -831,9 +834,9 @@ DELIMITER ;
    13. PROVEEDOR_PRODUCTO
    Valida precio, tiempo de entrega y existencia de proveedor y producto.
    ============================================================ */
-DROP PROCEDURE IF EXISTS insertar_proveedor_producto;
-DELIMITER $$
 
+DELIMITER $$
+DROP PROCEDURE IF EXISTS insertar_proveedor_producto$$
 CREATE PROCEDURE insertar_proveedor_producto(
     IN p_id_proveedor INT,
     IN p_id_producto INT,
@@ -842,56 +845,48 @@ CREATE PROCEDURE insertar_proveedor_producto(
 )
 BEGIN
     DECLARE v_count INT;
-	DECLARE v_msg VARCHAR(500);
+    DECLARE v_estado_existente TINYINT;
 
+    -- 1. Validaciones de valores (CHECKs lógicos)
     IF p_precio_compra < 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El precio de compra debe ser mayor o igual a 0.',
-        MYSQL_ERRNO = 1041;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El precio no puede ser negativo.', MYSQL_ERRNO = 1041;
     END IF;
 
-    IF p_tiempo_entrega_dias < 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El tiempo de entrega debe ser mayor o igual a 0.',
-        MYSQL_ERRNO = 1042;
+    -- 2. VALIDACIÓN DE DUPLICADOS (Crucial por tu Primary Key)
+    SELECT COUNT(*), MAX(estado) INTO v_count, v_estado_existente 
+    FROM proveedor_producto 
+    WHERE id_proveedor = p_id_proveedor AND id_producto = p_id_producto;
+
+    IF v_count > 0 THEN
+        IF v_estado_existente = 0 THEN
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'Esta relación ya existe pero está INACTIVA. Debe reactivarla en lugar de insertar.',
+            MYSQL_ERRNO = 1046;
+        ELSE
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'El proveedor ya tiene asignado este producto actualmente.',
+            MYSQL_ERRNO = 1047;
+        END IF;
     END IF;
 
-    SELECT COUNT(*) INTO v_count
-    FROM proveedor
-    WHERE id_proveedor = p_id_proveedor;
-
-    IF v_count = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El proveedor no existe.',
-        MYSQL_ERRNO = 1043;
-    END IF;
-
-    SELECT COUNT(*) INTO v_count
-    FROM producto
-    WHERE id_producto = p_id_producto;
-
-    IF v_count = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El producto no existe.',
-        MYSQL_ERRNO = 1044;
-    END IF;
-
-    INSERT INTO proveedor_producto(
-        id_proveedor,
-        id_producto,
-        precio_compra,
-        tiempo_entrega,
-        fecha_registro_pp
-    )
-    VALUES(
-        p_id_proveedor,
-        p_id_producto,
-        p_precio_compra,
-        p_tiempo_entrega_dias,
-        NOW()
+    -- 3. Inserción (Si pasó las validaciones)
+    INSERT INTO proveedor_producto (
+        id_proveedor, 
+        id_producto, 
+        precio_compra, 
+        tiempo_entrega, 
+        fecha_registro, 
+        estado
+    ) VALUES (
+        p_id_proveedor, 
+        p_id_producto, 
+        p_precio_compra, 
+        p_tiempo_entrega_dias, 
+        CURDATE(), 
+        1
     );
 
-    SELECT 'Proveedor-Producto insertado exitosamente.' AS mensaje;
+    SELECT 'Relación registrada con éxito.' AS mensaje;
 
 END$$
 

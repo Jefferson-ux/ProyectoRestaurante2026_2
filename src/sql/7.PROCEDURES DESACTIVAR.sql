@@ -46,70 +46,121 @@ CALL cambiar_estado_empleado(1, 1);
 
 
 
-/* ===================================================
+//* ===================================================
                 PRODUCTO
 ===================================================== */
-DROP PROCEDURE IF EXISTS Desactivar_Producto;
-DELIMITER //
-CREATE PROCEDURE Desactivar_Producto(IN p_id_producto INT)
+DROP PROCEDURE IF EXISTS CambiarEstadoProducto;
+DELIMITER $$
+
+CREATE PROCEDURE CambiarEstadoProducto (
+    IN p_id_producto INT,
+    IN p_nuevo_estado TINYINT
+)
 BEGIN
-    DECLARE existe INT DEFAULT 0;
-    DECLARE yaDesactivado INT DEFAULT 0;
-    /* Verificar si el Empleado existe */
-    SELECT COUNT(*) INTO existe
-    FROM Producto WHERE id_producto = p_id_producto;
-    IF existe = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: El código del producto no existe. ';
-    ELSE
-        /* Verificar si ya está desactivada */
-        SELECT COUNT(*) INTO yaDesactivado
-        FROM Producto
-        WHERE id_producto = p_id_producto AND estado = 0;
-        IF yaDesactivado > 0 THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El Producto ya está desactivado.';
-        ELSE
-            /* Proceder con la desactivación */
-            UPDATE Producto
-            SET estado = 0
-            WHERE id_producto = p_id_producto;
-        END IF;
+    -- 1. Verificar que el producto exista
+    IF NOT EXISTS (
+        SELECT 1 FROM producto WHERE id_producto = p_id_producto
+    ) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El producto no existe.', 
+        MYSQL_ERRNO = 20180;
     END IF;
-END //
+
+    -- 2. Validar que el nuevo estado sea válido (0 o 1)
+    -- Aunque la tabla tiene un CHECK, validarlo aquí permite enviar un mensaje personalizado
+    IF p_nuevo_estado NOT IN (0, 1) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El estado debe ser 0 (inactivo) o 1 (activo).', 
+        MYSQL_ERRNO = 20181;
+    END IF;
+
+    -- 3. Actualizar estado
+    UPDATE producto
+    SET estado = p_nuevo_estado
+    WHERE id_producto = p_id_producto;
+
+    SELECT CONCAT('Producto "', (SELECT nombre_producto FROM producto WHERE id_producto = p_id_producto), 
+                  '" actualizado a estado: ', p_nuevo_estado) AS mensaje;
+END$$
+
 DELIMITER ;
 
 /* ===================================================
                 PROVEEDOR
 ===================================================== */
-DROP PROCEDURE IF EXISTS Desactivar_Proveedor;
-DELIMITER //
-CREATE PROCEDURE Desactivar_Proveedor(IN p_id_proveedor INT)
+DROP PROCEDURE IF EXISTS CambiarEstadoProveedor;
+DELIMITER $$
+
+CREATE PROCEDURE CambiarEstadoProveedor (
+    IN p_id_proveedor INT,
+    IN p_nuevo_estado TINYINT
+)
 BEGIN
-    DECLARE existe INT DEFAULT 0;
-    DECLARE yaDesactivado INT DEFAULT 0;
-    /* Verificar si el Empleado existe */
-    SELECT COUNT(*) INTO existe
-    FROM Proveedor WHERE id_proveedor = p_id_proveedor;
-    IF existe = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: El código del proveedor no existe. ';
-    ELSE
-        /* Verificar si ya está desactivada */
-        SELECT COUNT(*) INTO yaDesactivado
-        FROM Proveedor
-        WHERE id_proveedor = p_id_proveedor AND estado = 0;
-        IF yaDesactivado > 0 THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El Proveedor ya está desactivado.';
-        ELSE
-            /* Proceder con la desactivación */
-            UPDATE Proveedor
-            SET estado = 0
-            WHERE id_producto = p_id_producto;
-        END IF;
+    -- 1. Verificar que el proveedor exista
+    IF NOT EXISTS (
+        SELECT 1 FROM proveedor WHERE id_proveedor = p_id_proveedor
+    ) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El proveedor no existe.', 
+        MYSQL_ERRNO = 20170;
     END IF;
-END //
+
+    -- 2. Validar que el nuevo estado sea válido (0 o 1)
+    IF p_nuevo_estado NOT IN (0, 1) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El estado debe ser 0 o 1.', 
+        MYSQL_ERRNO = 20171;
+    END IF;
+
+    -- 3. Actualizar estado (Sin importar si tiene productos vinculados)
+    UPDATE proveedor
+    SET estado = p_nuevo_estado
+    WHERE id_proveedor = p_id_proveedor;
+
+    SELECT CONCAT('Proveedor actualizado a estado: ', p_nuevo_estado) AS mensaje;
+END$$
+
+DELIMITER ;
+
+/* ===================================================
+              PROVEEDOR_PRODUCTO
+===================================================== */
+DROP PROCEDURE IF EXISTS CambiarEstadoProveedorProducto;
+DELIMITER $$
+
+CREATE PROCEDURE CambiarEstadoProveedorProducto (
+    IN p_id_proveedor INT,
+    IN p_id_producto INT,
+    IN p_nuevo_estado TINYINT
+)
+BEGIN
+    -- 1. Verificar que la relación exista
+    IF NOT EXISTS (
+        SELECT 1 FROM proveedor_producto 
+        WHERE id_proveedor = p_id_proveedor AND id_producto = p_id_producto
+    ) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: No existe una relación registrada entre este proveedor y este producto.', 
+        MYSQL_ERRNO = 3010; -- Código personalizado
+    END IF;
+
+    -- 2. Validar que el nuevo estado sea válido (0 o 1)
+    IF p_nuevo_estado NOT IN (0, 1) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El estado debe ser 0 (inactivo) o 1 (activo).', 
+        MYSQL_ERRNO = 3011;
+    END IF;
+
+    -- 3. Actualizar estado de la relación
+    UPDATE proveedor_producto
+    SET estado = p_nuevo_estado
+    WHERE id_proveedor = p_id_proveedor AND id_producto = p_id_producto;
+
+    -- 4. Mensaje informativo de éxito
+    SELECT CONCAT('Relación Proveedor(ID:', p_id_proveedor, ') - Producto(ID:', p_id_producto, 
+                  ') actualizada a estado: ', IF(p_nuevo_estado = 1, 'ACTIVO', 'INACTIVO')) AS mensaje;
+END$$
+
 DELIMITER ;
 
 

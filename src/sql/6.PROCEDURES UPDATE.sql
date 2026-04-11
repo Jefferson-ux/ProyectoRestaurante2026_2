@@ -954,12 +954,12 @@ CALL Update_Plato_Menu(
     1                               -- p_estado (Activo)
 );
 
-/**************************************
-12- PRODUCTO
-Cambio de nombres a comparación de Oracle
-**************************************/
+/* ============================================================
+    12.- PRODUCTO (UPDATE)
+============================================================ */
+DROP PROCEDURE IF EXISTS Update_Producto;
 DELIMITER //
-DROP PROCEDURE IF EXISTS Update_Producto //
+
 CREATE PROCEDURE Update_Producto (
     IN p_id_producto       INT,
     IN p_nombre            VARCHAR(100),
@@ -971,17 +971,20 @@ CREATE PROCEDURE Update_Producto (
 )
 BEGIN
     -- Declaración de variables locales
-    DECLARE v_existencia INT;
+    DECLARE v_count INT DEFAULT 0;
+    DECLARE v_estado_existente TINYINT;
+    DECLARE v_estado_um TINYINT DEFAULT NULL;
     DECLARE v_nombre     VARCHAR(100) DEFAULT TRIM(p_nombre);
     DECLARE v_obs        TEXT         DEFAULT TRIM(p_observacion);
+    DECLARE v_existe_prod INT DEFAULT 0;
 
     -- 1. Validar ID y existencia del producto
     IF p_id_producto IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El ID del producto no puede ser NULL.', MYSQL_ERRNO = 20140;
     END IF;
 
-    SELECT COUNT(*) INTO v_existencia FROM producto WHERE id_producto = p_id_producto;
-    IF v_existencia = 0 THEN
+    SELECT COUNT(*) INTO v_existe_prod FROM producto WHERE id_producto = p_id_producto;
+    IF v_existe_prod = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No existe el producto con el ID proporcionado.', MYSQL_ERRNO = 20141;
     END IF;
 
@@ -990,58 +993,63 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El nombre del producto no puede estar vacío.', MYSQL_ERRNO = 20142;
     END IF;
 
-    -- 3. Validar duplicado (Nombre ya ocupado por otro ID)
-    SELECT COUNT(*) INTO v_existencia FROM producto 
-    WHERE UPPER(nombre_producto) = UPPER(v_nombre) AND id_producto <> p_id_producto;
+    -- 3. Validar duplicado (Nombre ya ocupado por OTRO ID)
+    SELECT COUNT(*), MAX(estado) INTO v_count, v_estado_existente
+    FROM producto 
+    WHERE UPPER(TRIM(nombre_producto)) = UPPER(v_nombre) 
+      AND id_producto <> p_id_producto;
 
-    IF v_existencia > 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Ya existe otro producto con ese nombre.', MYSQL_ERRNO = 20143;
+    IF v_count > 0 THEN
+        IF v_estado_existente = 0 THEN
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'Error: El nombre ya pertenece a un producto INACTIVO. Reactívelo.', 
+            MYSQL_ERRNO = 1043;
+        ELSE
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'Error: Ya existe otro producto ACTIVO con ese nombre.', 
+            MYSQL_ERRNO = 20143;
+        END IF;
     END IF;
 
-    -- 4. Validar precio (No negativo)
+    -- 4. Validar precio y stocks
     IF p_precio_unitario IS NULL OR p_precio_unitario < 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El precio no puede ser negativo.', MYSQL_ERRNO = 20144;
     END IF;
 
-    -- 5. Validar stock mínimo y actual
-    IF p_stock_minimo IS NULL OR p_stock_minimo < 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock mínimo no puede ser negativo.', MYSQL_ERRNO = 20145;
+    IF p_stock_minimo < 0 OR p_stock_actual < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock no puede ser negativo.', MYSQL_ERRNO = 20145;
     END IF;
 
-    IF p_stock_actual IS NULL OR p_stock_actual < 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock actual no puede ser negativo.', MYSQL_ERRNO = 20146;
-    END IF;
-
-    -- 6. Validar relación de stock (Lógica de inventario)
+    -- 5. Lógica de inventario
     IF p_stock_minimo > p_stock_actual THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock mínimo no puede ser mayor al stock actual.', MYSQL_ERRNO = 20147;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El stock mínimo no puede ser mayor al actual.', MYSQL_ERRNO = 20147;
     END IF;
 
-    --7. Validar que la observacion no exeda 500 caracteres 
-    IF v_obs IS NOT NULL AND CHAR_LENGTH(v_obs) > 500 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La observación es demasiado larga (máx 500 caracteres).', MYSQL_ERRNO = 20165;
-    END IF;
-
-    -- 8. Validar unidad de medida
-    SELECT COUNT(*) INTO v_existencia FROM unidad_medida WHERE id_unidad_medida = p_id_unidad_medida;
-    IF v_existencia = 0 THEN
+    -- 6. Validar unidad de medida (Existencia y Estado)
+    SELECT estado INTO v_estado_um FROM unidad_medida WHERE id_unidad_medida = p_id_unidad_medida;
+    
+    IF v_estado_um IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La unidad de medida no existe.', MYSQL_ERRNO = 20149;
+    ELSEIF v_estado_um = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No puede asignar una unidad de medida inactiva.', MYSQL_ERRNO = 20151;
     END IF;
 
-    -- 9. Ejecutar actualización
+    -- 7. Validar longitud de observación
+    IF v_obs IS NOT NULL AND CHAR_LENGTH(v_obs) > 500 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Observación demasiado larga (máx 500).', MYSQL_ERRNO = 20165;
+    END IF;
+
+    -- 8. Ejecutar actualización
     UPDATE producto
     SET nombre_producto  = v_nombre,
         precio_producto  = p_precio_unitario,
         stock_minimo     = p_stock_minimo,
         stock_actual     = p_stock_actual,
-        observacion_producto = v_obs,
+        observacion_producto = NULLIF(v_obs, ''),
         id_unidad_medida = p_id_unidad_medida
     WHERE id_producto = p_id_producto;
 
-    -- 10. Verificar si hubo cambios
-    IF ROW_COUNT() = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No se realizaron cambios en el producto.', MYSQL_ERRNO = 20150;
-    END IF;
+    SELECT CONCAT('Producto "', v_nombre, '" actualizado correctamente.') AS mensaje;
 
 END //
 
@@ -1055,75 +1063,88 @@ Mas campos  a comparación de Oracle
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS Update_Proveedor //
+
 CREATE PROCEDURE Update_Proveedor (
-    IN p_id_proveedor  INT,
-    IN p_ruc           CHAR(11),
-    IN p_razon_social  VARCHAR(150),
-    IN p_telefono      VARCHAR(15),
-    IN p_correo        VARCHAR(150),
-    IN p_direccion     VARCHAR(150),
-    IN p_observacion   TEXT
+    IN p_id_proveedor   INT,
+    IN p_ruc            CHAR(11),
+    IN p_razon_social   VARCHAR(150),
+    IN p_telefono       VARCHAR(15),
+    IN p_correo         VARCHAR(150),
+    IN p_direccion      VARCHAR(150),
+    IN p_observacion    TEXT
 )
 BEGIN
-    -- Declaración de variables locales
-    DECLARE v_existencia INT;
-    DECLARE v_ruc        CHAR(11)     DEFAULT TRIM(p_ruc);
-    DECLARE v_razon      VARCHAR(150) DEFAULT TRIM(p_razon_social);
-    DECLARE v_correo     VARCHAR(150) DEFAULT LOWER(TRIM(p_correo));
-    DECLARE v_obs        TEXT         DEFAULT TRIM(p_observacion);
+    -- Declaración de variables para control
+    DECLARE v_id_existe INT;
+    DECLARE v_ruc_duplicado INT;
 
-    -- 1. Validar existencia del proveedor
-    SELECT COUNT(*) INTO v_existencia FROM proveedor WHERE id_proveedor = p_id_proveedor;
-    IF v_existencia = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El proveedor no existe.', MYSQL_ERRNO = 20161;
-    END IF;
+    -- 1. MANEJO DE ERRORES Y TRANSACCIONES
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
 
-    -- 2. Validar RUC (11 dígitos y no nulo)
-    IF v_ruc IS NULL OR v_ruc NOT REGEXP '^[0-9]{11}$' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El RUC debe tener 11 dígitos numéricos.', MYSQL_ERRNO = 20168;
-    END IF;
+    START TRANSACTION;
 
-    -- 3. Validar RUC duplicado
-    SELECT COUNT(*) INTO v_existencia FROM proveedor 
-    WHERE ruc = v_ruc AND id_proveedor <> p_id_proveedor;
-    IF v_existencia > 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El RUC ya pertenece a otro proveedor.', MYSQL_ERRNO = 20169;
-    END IF;
-
-    -- 4. Validar Razón Social
-    IF v_razon IS NULL OR v_razon = '' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La razón social es obligatoria.', MYSQL_ERRNO = 20162;
-    END IF;
-
-    -- 5. Validar Teléfono (Mínimo 7, máximo 15 según tu CHECK)
-    IF p_telefono IS NULL OR p_telefono NOT REGEXP '^[0-9]{7,15}$' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Teléfono inválido (7 a 15 dígitos).', MYSQL_ERRNO = 20163;
-    END IF;
-
-    -- 6. Validar Correo
-    IF v_correo NOT REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Formato de correo inválido.', MYSQL_ERRNO = 20164;
-    END IF;
+    -- 2. VALIDAR EXISTENCIA DEL ID
+    SELECT COUNT(*) INTO v_id_existe FROM proveedor WHERE id_proveedor = p_id_proveedor;
     
-    --7. Validar que la observacion no exeda 500 caracteres 
-    IF v_obs IS NOT NULL AND CHAR_LENGTH(v_obs) > 500 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La observación es demasiado larga (máx 500 caracteres).', MYSQL_ERRNO = 20165;
+    IF v_id_existe = 0 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El proveedor con el ID proporcionado no existe.', 
+        MYSQL_ERRNO = 20161;
     END IF;
 
-    -- 8. Ejecutar actualización
+    -- 3. VALIDAR FORMATO DE RUC (Solo números y 11 dígitos)
+    IF TRIM(p_ruc) NOT REGEXP '^[0-9]{11}$' THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El RUC debe contener exactamente 11 dígitos numéricos.', 
+        MYSQL_ERRNO = 20168;
+    END IF;
+
+    -- 4. VALIDAR RUC DUPLICADO (Que no lo tenga OTRO proveedor)
+    SELECT COUNT(*) INTO v_ruc_duplicado FROM proveedor 
+    WHERE ruc = TRIM(p_ruc) AND id_proveedor <> p_id_proveedor;
+
+    IF v_ruc_duplicado > 0 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El RUC ingresado ya pertenece a otro proveedor registrado.', 
+        MYSQL_ERRNO = 20169;
+    END IF;
+
+    -- 5. VALIDAR RAZÓN SOCIAL
+    IF p_razon_social IS NULL OR TRIM(p_razon_social) = '' THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: La razón social es un campo obligatorio.', 
+        MYSQL_ERRNO = 20162;
+    END IF;
+
+    -- 6. VALIDAR CORREO (Regex profesional y duplicados)
+    IF LOWER(TRIM(p_correo)) NOT REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$' THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El formato del correo electrónico es inválido.', 
+        MYSQL_ERRNO = 20164;
+    END IF;
+
+    -- 7. VALIDAR LONGITUD DE OBSERVACIÓN
+    IF p_observacion IS NOT NULL AND CHAR_LENGTH(TRIM(p_observacion)) > 500 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: La observación no puede exceder los 500 caracteres.', 
+        MYSQL_ERRNO = 20165;
+    END IF;
+
+    -- 8. EJECUTAR ACTUALIZACIÓN CON NORMALIZACIÓN
     UPDATE proveedor
-    SET ruc                 = v_ruc,
-        razon_social        = v_razon,
+    SET ruc                 = TRIM(p_ruc),
+        razon_social        = UPPER(TRIM(p_razon_social)), -- Mantener consistencia con INSERT
         telefono_proveedor  = TRIM(p_telefono),
-        correo_proveedor    = v_correo,
+        correo_proveedor    = LOWER(TRIM(p_correo)),    -- Mantener consistencia con INSERT
         direccion_proveedor = TRIM(p_direccion),
-        observacion_proveedor = v_obs
+        observacion_proveedor = TRIM(p_observacion)
     WHERE id_proveedor = p_id_proveedor;
 
-    -- 9. Verificar si hubo cambios
-    IF ROW_COUNT() = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No se realizaron cambios en el proveedor.', MYSQL_ERRNO = 20167;
-    END IF;
+    COMMIT;
 
 END //
 
@@ -1136,6 +1157,7 @@ DELIMITER ;
 14- PROVEEDOR_PRODUCTO
 Cambio de nombres a comparación de Oracle
 **************************************/
+DROP PROCEDURE IF EXISTS Update_ProveedorProducto;
 DELIMITER //
 
 CREATE PROCEDURE Update_ProveedorProducto (
@@ -1146,55 +1168,67 @@ CREATE PROCEDURE Update_ProveedorProducto (
     IN p_fecha         DATE
 )
 BEGIN
-    -- Declaración de variable para validaciones
-    DECLARE v_existencia INT;
+    -- Declaración de variables para validaciones
+    DECLARE v_estado_prov TINYINT DEFAULT NULL;
+    DECLARE v_estado_prod TINYINT DEFAULT NULL;
+    DECLARE v_estado_rel  TINYINT DEFAULT NULL;
 
-    -- 1. Validar existencia del proveedor
-    SELECT COUNT(*) INTO v_existencia FROM proveedor WHERE id_proveedor = p_id_proveedor;
-    IF v_existencia = 0 THEN
+    -- 1. Validar existencia y estado del PROVEEDOR
+    SELECT estado INTO v_estado_prov FROM proveedor WHERE id_proveedor = p_id_proveedor;
+    
+    IF v_estado_prov IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El proveedor no existe.', MYSQL_ERRNO = 20168;
+    ELSEIF v_estado_prov = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El proveedor está inactivo.', MYSQL_ERRNO = 20175;
     END IF;
 
-    -- 2. Validar existencia del producto
-    SELECT COUNT(*) INTO v_existencia FROM producto WHERE id_producto = p_id_producto;
-    IF v_existencia = 0 THEN
+    -- 2. Validar existencia y estado del PRODUCTO
+    SELECT estado INTO v_estado_prod FROM producto WHERE id_producto = p_id_producto;
+    
+    IF v_estado_prod IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El producto no existe.', MYSQL_ERRNO = 20169;
+    ELSEIF v_estado_prod = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El producto está inactivo.', MYSQL_ERRNO = 20176;
     END IF;
 
-    -- 3. Validar existencia de la relación (Llave primaria compuesta)
-    SELECT COUNT(*) INTO v_existencia FROM proveedor_producto 
+    -- 3. Validar existencia de la RELACIÓN y su estado actual
+    SELECT estado INTO v_estado_rel 
+    FROM proveedor_producto 
     WHERE id_proveedor = p_id_proveedor AND id_producto = p_id_producto;
     
-    IF v_existencia = 0 THEN
+    IF v_estado_rel IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No existe la relación proveedor-producto.', MYSQL_ERRNO = 20173;
+    ELSEIF v_estado_rel = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La relación existe pero está INACTIVA. Debe reactivarla.', MYSQL_ERRNO = 1046;
     END IF;
 
-    -- 4. Validar precio de compra (Según CHECK >= 0)
+    -- 4. Validaciones de valores (CHECKs lógicos)
     IF p_precio_compra IS NULL OR p_precio_compra < 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El precio de compra no puede ser negativo.', MYSQL_ERRNO = 20170;
     END IF;
 
-    -- 5. Validar tiempo de entrega (Según CHECK >= 0)
     IF p_tiempo IS NULL OR p_tiempo < 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El tiempo de entrega no puede ser negativo.', MYSQL_ERRNO = 20171;
     END IF;
 
-    -- 6. Validar fecha (No nula ni futura)
+    -- 5. Validar fecha (No nula ni futura)
     IF p_fecha IS NULL OR p_fecha > CURDATE() THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Fecha de registro inválida o futura.', MYSQL_ERRNO = 20172;
     END IF;
 
-    -- 7. Ejecutar actualización
+    -- 6. Ejecutar actualización
     UPDATE proveedor_producto
     SET precio_compra  = p_precio_compra,
         tiempo_entrega = p_tiempo,
         fecha_registro = p_fecha
-    WHERE id_proveedor = p_id_proveedor 
+    WHERE id_proveedor = p_id_proveedor  
       AND id_producto  = p_id_producto;
 
-    -- 8. Verificar si hubo cambios
+    -- 7. Verificar si se realizó algún cambio
     IF ROW_COUNT() = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: No se realizaron cambios en el registro.', MYSQL_ERRNO = 20174;
+        SELECT 'No se realizaron cambios (los datos ingresados son idénticos a los actuales).' AS mensaje;
+    ELSE
+        SELECT CONCAT('Relación Proveedor-Producto actualizada correctamente.') AS mensaje;
     END IF;
 
 END //

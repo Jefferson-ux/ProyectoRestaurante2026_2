@@ -3,12 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/connection/ConnectionDB.java</file>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/sql/1.CREATE_TABLE.sql</file>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/logic/dao/PedidoMethod.java</file>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/gui/crudMantenimiento/JD_AgregarPlato.java</file>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/gui/crudMantenimiento/Frm_Pedido.java</file>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/sql/4.PROCEDURES%20INSERT.sql</file>
+            <file>file:/C:/Users/ETHAN/OneDrive/Documentos/ProyectoRestaurante2026_2/src/gui/crudMantenimiento/Frm_Proveedor.java</file>
+            <file>file:/C:/Users/ETHAN/OneDrive/Documentos/ProyectoRestaurante2026_2/src/gui/crudMantenimiento/Frm_Producto.java</file>
+            <file>file:/C:/Users/ETHAN/OneDrive/Documentos/ProyectoRestaurante2026_2/src/sql/3.VIEWS.sql</file>
         </group>
     </open-files>
 </project-private>
