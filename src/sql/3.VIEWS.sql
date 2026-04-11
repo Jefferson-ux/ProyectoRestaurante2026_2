@@ -239,19 +239,19 @@ FROM proveedor;
 
 
 
-/* vista_proveedor_producto */
 CREATE OR REPLACE VIEW vista_proveedor_producto AS
 SELECT
+    pp.id_proveedor AS `ID Proveedor`, -- IMPORTANTE PARA JAVA
+    pp.id_producto AS `ID Producto`,   -- IMPORTANTE PARA JAVA
     pr.razon_social AS `Proveedor`,
     p.nombre_producto AS `Producto`,
     pp.precio_compra AS `Precio de Compra`,
     pp.tiempo_entrega AS `Tiempo de Entrega (días)`,
-    pp.fecha_registro AS `Fecha de Registro`
+    pp.fecha_registro AS `Fecha de Registro`,
+    pp.estado AS `Estado`
 FROM proveedor_producto pp
-INNER JOIN producto p
-    ON pp.id_producto = p.id_producto
-INNER JOIN proveedor pr
-    ON pp.id_proveedor = pr.id_proveedor;
+INNER JOIN producto p ON pp.id_producto = p.id_producto
+INNER JOIN proveedor pr ON pp.id_proveedor = pr.id_proveedor;
 
 
 

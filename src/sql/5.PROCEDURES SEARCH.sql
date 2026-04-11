@@ -257,20 +257,17 @@ DELIMITER ;
    13. PROVEEDOR_PRODUCTO
    Valida precio, tiempo de entrega y existencia de proveedor y producto.
    ============================================================ */
-DROP PROCEDURE IF EXISTS buscar_proveedor;
+DROP PROCEDURE IF EXISTS buscar_proveedor_producto;
 DELIMITER $$
 
-CREATE PROCEDURE buscar_proveedor (
+CREATE PROCEDURE buscar_proveedor_producto (
     IN p_param VARCHAR(100)
 )
 BEGIN
     SELECT *
-    FROM vista_proveedor
-    WHERE `RUC` LIKE CONCAT('%', p_param, '%')
-       OR `Razón Social (Nombre del Proveedor)` LIKE CONCAT('%', p_param, '%')
-       OR `Teléfono de contacto` LIKE CONCAT('%', p_param, '%')
-       OR `Correo de contacto` LIKE CONCAT('%', p_param, '%')
-       OR `Dirección` LIKE CONCAT('%', p_param, '%');
+    FROM vista_proveedor_producto
+    WHERE `Proveedor` LIKE CONCAT('%', p_param, '%')
+       OR `Producto` LIKE CONCAT('%', p_param, '%');
 END$$
 DELIMITER ;
 

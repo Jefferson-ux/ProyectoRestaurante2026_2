@@ -480,6 +480,9 @@ public class Frm_Proveedor extends javax.swing.JFrame {
                     case 1043 -> JOptionPane.showMessageDialog(this, "Aviso: Este proveedor ya existe en el sistema pero está INACTIVO.\nPor favor, búsquelo en la sección de inactivos para reactivarlo.", "Proveedor Inactivo", JOptionPane.INFORMATION_MESSAGE);
                     default -> JOptionPane.showMessageDialog(this, "Error de base de datos (" + errorCode + "):\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
+            }catch(IllegalArgumentException e){
+                // Aquí capturamos el mensaje que escribiste en el 'throw' del DAO
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
             }
         }
     }//GEN-LAST:event_BTN_GuardarActionPerformed

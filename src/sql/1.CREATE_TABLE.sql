@@ -271,11 +271,13 @@ CREATE TABLE proveedor_producto (
     precio_compra DECIMAL(10,2) NOT NULL,
     tiempo_entrega INT NOT NULL,
     fecha_registro DATE NOT NULL,
+    estado TINYINT NOT NULL DEFAULT 1,
     PRIMARY KEY (id_proveedor, id_producto),
     FOREIGN KEY (id_proveedor) REFERENCES proveedor(id_proveedor),
     FOREIGN KEY (id_producto) REFERENCES producto(id_producto),
     CHECK (precio_compra >= 0),
-    CHECK (tiempo_entrega >= 0)
+    CHECK (tiempo_entrega >= 0),
+    CHECK (estado IN (0, 1)) 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
   /*==========================================*/

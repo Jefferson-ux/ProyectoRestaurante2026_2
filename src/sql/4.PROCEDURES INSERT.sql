@@ -637,32 +637,29 @@ CREATE PROCEDURE insertar_producto(
     IN p_id_unidad_medida INT
 )
 BEGIN
-    DECLARE v_count INT;
+    DECLARE v_count INT DEFAULT 0;
     DECLARE v_estado_existente TINYINT;
-    DECLARE v_estado_um TINYINT;
+    DECLARE v_estado_um TINYINT DEFAULT NULL; -- Inicializado aquí directamente
     DECLARE v_obs TEXT DEFAULT TRIM(p_observacion);
 
-    -- 1. Validar que el nombre no esté vacío PRIMERO
+    -- 1. Validar nombre vacío
     IF p_nombre IS NULL OR TRIM(p_nombre) = '' THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Error: El nombre del producto no puede estar vacío.',
         MYSQL_ERRNO = 1029;
     END IF;
 
-    -- 2. Validar nombre duplicado y su estado (Lógica solicitada)
+    -- 2. Validar nombre duplicado
     SELECT COUNT(*), MAX(estado) INTO v_count, v_estado_existente
     FROM producto
-    WHERE UPPER(TRIM(nombre_producto)) = UPPER(TRIM(p_nombre))
-    GROUP BY nombre_producto;
+    WHERE UPPER(TRIM(nombre_producto)) = UPPER(TRIM(p_nombre));
 
     IF v_count > 0 THEN
         IF v_estado_existente = 0 THEN
-            -- El producto existe pero está desactivado
             SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El producto ya existe pero está INACTIVO. Debe reactivarlo en el panel de gestión.',
+            SET MESSAGE_TEXT = 'El producto ya existe pero está INACTIVO. Debe reactivarlo.',
             MYSQL_ERRNO = 1043;
         ELSE
-            -- El producto ya está activo
             SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Ya existe un producto ACTIVO con este nombre.',
             MYSQL_ERRNO = 1034;
@@ -685,8 +682,8 @@ BEGIN
 
     IF v_estado_um IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La unidad de medida no existe.', MYSQL_ERRNO = 1033;
-    ELSIF v_estado_um = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La unidad de medida seleccionada está inactiva.', MYSQL_ERRNO = 1034;
+    ELSEIF v_estado_um = 0 THEN -- En MariaDB se prefiere ELSEIF todo junto o bloques claros
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La unidad de medida está inactiva.', MYSQL_ERRNO = 1035;
     END IF;
 
     -- 5. Ejecutar inserción
@@ -704,7 +701,7 @@ BEGIN
         p_precio_unitario,
         p_stock_minimo,
         p_stock_actual,
-        IF(v_obs = '', NULL, v_obs),
+        NULLIF(v_obs, ''),
         p_id_unidad_medida,
         1
     );
@@ -813,12 +810,12 @@ BEGIN
     )
     VALUES(
         TRIM(p_ruc),
-        UPPER(TRIM(p_razon_social)), -- Mayúsculas para uniformidad en reportes
+        UPPER(TRIM(p_razon_social)),
         TRIM(p_telefono),
-        LOWER(TRIM(p_correo)),        -- Minúsculas para correos
+        LOWER(TRIM(p_correo)),     
         TRIM(p_direccion),
         TRIM(p_observacion),
-        1                             -- Estado activo por defecto
+        1                           
     );
 
     COMMIT;
@@ -837,9 +834,9 @@ DELIMITER ;
    13. PROVEEDOR_PRODUCTO
    Valida precio, tiempo de entrega y existencia de proveedor y producto.
    ============================================================ */
-DROP PROCEDURE IF EXISTS insertar_proveedor_producto;
-DELIMITER $$
 
+DELIMITER $$
+DROP PROCEDURE IF EXISTS insertar_proveedor_producto$$
 CREATE PROCEDURE insertar_proveedor_producto(
     IN p_id_proveedor INT,
     IN p_id_producto INT,
@@ -848,56 +845,48 @@ CREATE PROCEDURE insertar_proveedor_producto(
 )
 BEGIN
     DECLARE v_count INT;
-	DECLARE v_msg VARCHAR(500);
+    DECLARE v_estado_existente TINYINT;
 
+    -- 1. Validaciones de valores (CHECKs lógicos)
     IF p_precio_compra < 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El precio de compra debe ser mayor o igual a 0.',
-        MYSQL_ERRNO = 1041;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El precio no puede ser negativo.', MYSQL_ERRNO = 1041;
     END IF;
 
-    IF p_tiempo_entrega_dias < 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El tiempo de entrega debe ser mayor o igual a 0.',
-        MYSQL_ERRNO = 1042;
+    -- 2. VALIDACIÓN DE DUPLICADOS (Crucial por tu Primary Key)
+    SELECT COUNT(*), MAX(estado) INTO v_count, v_estado_existente 
+    FROM proveedor_producto 
+    WHERE id_proveedor = p_id_proveedor AND id_producto = p_id_producto;
+
+    IF v_count > 0 THEN
+        IF v_estado_existente = 0 THEN
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'Esta relación ya existe pero está INACTIVA. Debe reactivarla en lugar de insertar.',
+            MYSQL_ERRNO = 1046;
+        ELSE
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'El proveedor ya tiene asignado este producto actualmente.',
+            MYSQL_ERRNO = 1047;
+        END IF;
     END IF;
 
-    SELECT COUNT(*) INTO v_count
-    FROM proveedor
-    WHERE id_proveedor = p_id_proveedor;
-
-    IF v_count = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El proveedor no existe.',
-        MYSQL_ERRNO = 1043;
-    END IF;
-
-    SELECT COUNT(*) INTO v_count
-    FROM producto
-    WHERE id_producto = p_id_producto;
-
-    IF v_count = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El producto no existe.',
-        MYSQL_ERRNO = 1044;
-    END IF;
-
-    INSERT INTO proveedor_producto(
-        id_proveedor,
-        id_producto,
-        precio_compra,
-        tiempo_entrega,
-        fecha_registro_pp
-    )
-    VALUES(
-        p_id_proveedor,
-        p_id_producto,
-        p_precio_compra,
-        p_tiempo_entrega_dias,
-        NOW()
+    -- 3. Inserción (Si pasó las validaciones)
+    INSERT INTO proveedor_producto (
+        id_proveedor, 
+        id_producto, 
+        precio_compra, 
+        tiempo_entrega, 
+        fecha_registro, 
+        estado
+    ) VALUES (
+        p_id_proveedor, 
+        p_id_producto, 
+        p_precio_compra, 
+        p_tiempo_entrega_dias, 
+        CURDATE(), 
+        1
     );
 
-    SELECT 'Proveedor-Producto insertado exitosamente.' AS mensaje;
+    SELECT 'Relación registrada con éxito.' AS mensaje;
 
 END$$
 

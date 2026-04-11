@@ -29,13 +29,25 @@ public class ProductoMethod {
         }
     }
     
-    public ResultSet combobox_ListarUnidadMedidas() throws SQLException {
-        String sql = "select `Unidad de Medida` from vista_unidad_medida";
-        Statement st =conn.createStatement(); // Creamos el statements
-        ResultSet rs=st.executeQuery(sql); // Ejecutamos la consulta
-        return rs; // Devolvemos los resultados 
-    }
+    public ResultSet combobox_listarUnidadMedida() throws SQLException{
+        String sql = "Select * from vista_unidad_medida";/*SQL Query*/
+        Statement st = conn.createStatement(); /*Creamos la sentencia*/
+        return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
+    } 
     
+    public int obtenerCodigoUnidad(String nombre) throws SQLException {
+        String sql = "SELECT `ID` FROM vista_unidad_medida WHERE `Unidad de Medida` = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, nombre);
+        ResultSet rsAux = ps.executeQuery();
+        
+        if (rsAux.next()){
+            return rsAux.getInt("ID");
+        }else{
+            return -1; //No se encontro
+        }
+    }
+   
     public boolean existeProductoConNombre(String nombre, int id_producto) throws SQLException {
         String sql = "SELECT 1 FROM Producto "
             + "WHERE LOWER(nombre_producto) = LOWER(?) "
@@ -129,8 +141,8 @@ public class ProductoMethod {
         }
         String sql = "{CALL CambiarEstadoProducto(?, ?)}";
         CallableStatement cs = conn.prepareCall(sql);
-        cs.setInt(1, codigoProducto);  // Código del proveedor
+        cs.setInt(1, codigoProducto);  // Código del producto
         cs.setInt(2, 0);              // Estado: 0 = desactivado
         cs.execute();
-    }  
+    }
 }

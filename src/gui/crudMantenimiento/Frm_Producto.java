@@ -8,8 +8,6 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 //Metodo de producto
 import logic.dao.ProductoMethod;
-//Metodo de unidad medida para el jcombobox
-import logic.dao.UnidadMedidaMethod;
  /*excel*/
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,7 +30,6 @@ public class Frm_Producto extends javax.swing.JFrame {
     
     //Objeto conexión a la base de datos
     ProductoMethod PR = new ProductoMethod();
-    UnidadMedidaMethod UM = new UnidadMedidaMethod();
     ConnectionDB CBD = new ConnectionDB();
 
     //VAriable para comprobar cambios en mdoificar
@@ -818,7 +815,7 @@ public class Frm_Producto extends javax.swing.JFrame {
 
             try {
                 // 3. Obtener el ID de la unidad y llamar al método para insertar
-                int codigoUnidad = UM.obtenerCodigoUnidad(nombreUnidad);
+                int codigoUnidad = PR.obtenerCodigoUnidad(nombreUnidad);
 
                 this.PR.insertarProducto(nombre, precioUnitario, stockMinimo, stockActual, observacion, codigoUnidad);
 
@@ -843,6 +840,9 @@ public class Frm_Producto extends javax.swing.JFrame {
                     default ->
                     JOptionPane.showMessageDialog(this, "Error de base de datos (" + errorCode + "):\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
+            }catch(IllegalArgumentException e){
+                // Aquí capturamos el mensaje que escribiste en el 'throw' del DAO
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
             }
         }
     }//GEN-LAST:event_BTN_GuardarActionPerformed
@@ -916,6 +916,7 @@ public class Frm_Producto extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "La observación no puede exceder los 500 caracteres.", "Validación", JOptionPane.WARNING_MESSAGE);
                 return;
             }
+            
 
             // 2. Confirmación del usuario
             int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea modificar los datos del producto \"" + nuevoNombre + "\"?", "Confirmación", JOptionPane.YES_NO_OPTION);
@@ -923,7 +924,7 @@ public class Frm_Producto extends javax.swing.JFrame {
             if (respuesta == JOptionPane.YES_OPTION) {
                 try {
                     // 3. Obtener ID de Unidad y llamar al DAO
-                    int codigoUnidad = UM.obtenerCodigoUnidad(nombreUnidad);
+                    int codigoUnidad = PR.obtenerCodigoUnidad(nombreUnidad);
 
                     this.PR.modificarProducto(codigoProducto, nuevoNombre, precio, stockMinimo, stockActual, nuevaObservacion, codigoUnidad);
 
@@ -1026,7 +1027,7 @@ public class Frm_Producto extends javax.swing.JFrame {
             jComboBox_unidad_medida.removeAllItems();
             jComboBox_unidad_medida.addItem("<<Seleccionar>>"); // Opción por defecto
 
-            ResultSet rs = UM.listarUnidadMedida();
+            ResultSet rs = PR.combobox_listarUnidadMedida();
             while (rs.next()) {
                 jComboBox_unidad_medida.addItem(rs.getString("Unidad de Medida"));
             }
