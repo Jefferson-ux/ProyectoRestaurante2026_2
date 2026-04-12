@@ -146,7 +146,7 @@ INNER JOIN tipo_pago tp ON f.id_tipo_pago = tp.id_tipo_pago;
 /* vista_genero */
 CREATE OR REPLACE VIEW vista_genero AS
 SELECT
-  nombre_genero  AS `Género`
+    nombre_genero  AS `Genero`
 FROM genero;
 
 

@@ -747,10 +747,6 @@ public class Frm_Producto extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_BTN_Cerrar1ActionPerformed
 
-    private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
-        limpiarCamposProducto();
-    }//GEN-LAST:event_BTN_NuevoActionPerformed
-
     private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
         // 1. Capturar y limpiar datos
         String nombre = txtNombreProducto.getText().trim();
@@ -956,6 +952,10 @@ public class Frm_Producto extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Asegúrese de ingresar valores numéricos válidos en Precio y Stock.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_BTN_ModificarActionPerformed
+
+    private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
+        limpiarCamposProducto();
+    }//GEN-LAST:event_BTN_NuevoActionPerformed
 
     /**
      * @param args the command line arguments

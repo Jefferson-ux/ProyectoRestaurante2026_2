@@ -1,32 +1,29 @@
 package gui.crudMantenimiento;
 
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.FontFactory;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
-import static com.mysql.cj.conf.PropertyKey.logger;
-import java.io.File;
-import java.io.FileOutputStream;
+import com.formdev.flatlaf.FlatLightLaf;
 import java.sql.ResultSet;
+import connection.ConnectionDB;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-
-//Metodo de Empleado
+//Metodo de producto
 import logic.dao.EmpleadoMethod;
-//Metodo de genero para el jcombobox
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+ /*excel*/
+import java.io.File;
+import java.io.FileOutputStream;
+import javax.swing.JFileChooser;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+
+/*pdf*/
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.*;
+import java.awt.HeadlessException;
+import java.text.ParseException;
+//Date
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Frm_Empleado extends javax.swing.JFrame {
 
@@ -35,16 +32,40 @@ public class Frm_Empleado extends javax.swing.JFrame {
     
     //Objeto conexión a la base de datos
     EmpleadoMethod EM = new EmpleadoMethod();
+    ConnectionDB CBD = new ConnectionDB();
+
+    //VAriable para comprobar cambios en mdoificar
+    private String dniOriginal;
+    private String nombreOriginal;
+    private String apellidoOriginal;
+    private String fechanacimientoOriginal;
+    private String fecharegistroOriginal;
+    private String direccionOriginal;
+    private String correo1Original;
+    private String correo2Original;
+    private String telefono1Original;
+    private String telefono2Original;
+    private String ObservacionOriginal;
+    private String generoOriginal = "";
+    
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Frm_Empleado.class.getName());
+
     
     public Frm_Empleado() {
+        FlatLightLaf.setup();
         initComponents();
+        //titulo
+        this.setTitle("Mantenimiento de Empleados");
+        
+        //Posicion
         this.setLocationRelativeTo(null);
-
-        this.EM = new EmpleadoMethod();
-            
-        // Definir los encabezados de la tabla
+       
+        //Metodo para cargar el combobox
+        cargarGenero();
+        
+        //definir los encabezados de la tabla
         String titulos[] = {"ID", "DNI", "Nombres", "Apellidos", "F. de Nac", "F. de Regitro", "Dirección", 
-        "Correo Principal", "Correo Secundario", "Telefono Principal", "Telefono Secundario", "Genero", "Observaciones"};
+        "Correo Principal", "Correo Secundario", "Telefono Principal", "Telefono Secundario", "Genero", "Observaciones", "Estado"};
         
         // Asignar los titulos al modelo
         modeloTablaEmpleado.setColumnIdentifiers(titulos);
@@ -52,7 +73,30 @@ public class Frm_Empleado extends javax.swing.JFrame {
         // Establecer el modelo de la JTable
         JTABLE_Mant_Empleado.setModel(modeloTablaEmpleado);
         
+        //ocultar columnas sesibles o internas: solo visual, noafecta al modelo, ocultar columna "id_empeado, 
+        // correo2, telefono2, observacion y estado"
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setMinWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setMaxWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(0).setWidth(0);
+        
+        
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setMinWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setMaxWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(8).setWidth(0);
+        
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(10).setMinWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(10).setMaxWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(10).setWidth(0);
+        
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(12).setMinWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(12).setMaxWidth(0);
+        JTABLE_Mant_Empleado.getColumnModel().getColumn(12).setWidth(0); 
 
+        //Desabilitar campo de codigo (solo se mostrara no se escribe)
+        txtcodigoempleado.setEnabled(false);
+        BTN_Nuevo.setEnabled(false);
+        BTN_Guardar.setEnabled(false);
+        BTN_Modificar.setEnabled(false);
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -78,7 +122,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
         txtcorreo2 = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
-        txtdniempleado1 = new javax.swing.JTextField();
+        txtdniempleado = new javax.swing.JTextField();
         jLabel14 = new javax.swing.JLabel();
         txtcorreo1 = new javax.swing.JTextField();
         txtobservaciones = new javax.swing.JTextField();
@@ -86,22 +130,24 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        BTN_EXCEL = new javax.swing.JButton();
+        BTN_Cerrar1 = new javax.swing.JButton();
+        BTN_PDF = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        BTN_ListarEmpleados = new javax.swing.JButton();
+        BTN_Desactivar = new javax.swing.JButton();
+        BTN_Modificar = new javax.swing.JButton();
+        BTN_Guardar = new javax.swing.JButton();
+        BTN_Nuevo = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         JTABLE_Mant_Empleado = new javax.swing.JTable();
-        BTN_EXCEL = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         TXT_BuscarEmpleados = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        BTN_Cerrar1 = new javax.swing.JButton();
-        BTN_PDF = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
-        BTN_VerEmpleados = new javax.swing.JButton();
-        BTN_Cambiar_Estado = new javax.swing.JButton();
-        BTN_Modificar = new javax.swing.JButton();
-        BTN_Guardar = new javax.swing.JButton();
-        BTN_Nuevo = new javax.swing.JButton();
-        BTN_Cancel = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        jCheckBoxListarInactivos = new javax.swing.JCheckBox();
+        jCheckBoxActivar = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -136,6 +182,11 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 140, -1));
 
         jComboBox_genero.addActionListener(this::jComboBox_generoActionPerformed);
+        jComboBox_genero.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jComboBox_generoKeyReleased(evt);
+            }
+        });
         jPanel1.add(jComboBox_genero, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 250, 120, 30));
 
         txtNombreEmpleado.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -232,13 +283,13 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jLabel13.setText("Nombre del Empleado");
         jPanel1.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 20, 140, -1));
 
-        txtdniempleado1.setEditable(false);
-        txtdniempleado1.setBackground(new java.awt.Color(255, 255, 255));
-        txtdniempleado1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        txtdniempleado1.setForeground(new java.awt.Color(0, 0, 204));
-        txtdniempleado1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtdniempleado1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtdniempleado1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 40, 120, 30));
+        txtdniempleado.setBackground(new java.awt.Color(255, 255, 255));
+        txtdniempleado.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtdniempleado.setForeground(new java.awt.Color(0, 0, 204));
+        txtdniempleado.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtdniempleado.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtdniempleado.addActionListener(this::txtdniempleadoActionPerformed);
+        jPanel1.add(txtdniempleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 40, 120, 30));
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel14.setText("Correo");
@@ -259,6 +310,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
         txtobservaciones.setForeground(new java.awt.Color(0, 0, 204));
         txtobservaciones.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtobservaciones.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtobservaciones.addActionListener(this::txtobservacionesActionPerformed);
         txtobservaciones.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 txtobservacionesKeyTyped(evt);
@@ -286,7 +338,53 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 170, 100, -1));
         jPanel1.add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 122, 170, 30));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 730, 300));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 760, 350));
+
+        BTN_EXCEL.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_EXCEL.setText("     Exportar XLSX");
+        BTN_EXCEL.addActionListener(this::BTN_EXCELActionPerformed);
+        getContentPane().add(BTN_EXCEL, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 750, 170, 50));
+
+        BTN_Cerrar1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Cerrar1.setText("     Cerrar");
+        BTN_Cerrar1.addActionListener(this::BTN_Cerrar1ActionPerformed);
+        getContentPane().add(BTN_Cerrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 750, 165, 50));
+
+        BTN_PDF.setText("     Exportar PDF");
+        BTN_PDF.addActionListener(this::BTN_PDFActionPerformed);
+        getContentPane().add(BTN_PDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 750, 170, 50));
+
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        BTN_ListarEmpleados.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_ListarEmpleados.setText("LISTAR EMPLEADOS");
+        BTN_ListarEmpleados.addActionListener(this::BTN_ListarEmpleadosActionPerformed);
+        jPanel3.add(BTN_ListarEmpleados, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 110, 165, 50));
+
+        BTN_Desactivar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Desactivar.setText("DESACTIVAR");
+        BTN_Desactivar.addActionListener(this::BTN_DesactivarActionPerformed);
+        jPanel3.add(BTN_Desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 420, 165, 48));
+
+        BTN_Modificar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Modificar.setText("    MODIFICAR");
+        BTN_Modificar.addActionListener(this::BTN_ModificarActionPerformed);
+        jPanel3.add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 420, 165, 48));
+
+        BTN_Guardar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Guardar.setText("     GUARDAR");
+        BTN_Guardar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                BTN_GuardarMouseClicked(evt);
+            }
+        });
+        BTN_Guardar.addActionListener(this::BTN_GuardarActionPerformed);
+        jPanel3.add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 420, 165, 48));
+
+        BTN_Nuevo.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Nuevo.setText("      NUEVO");
+        BTN_Nuevo.addActionListener(this::BTN_NuevoActionPerformed);
+        jPanel3.add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 420, 165, 48));
 
         JTABLE_Mant_Empleado.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         JTABLE_Mant_Empleado.setForeground(new java.awt.Color(0, 0, 204));
@@ -308,12 +406,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(JTABLE_Mant_Empleado);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 920, 220));
-
-        BTN_EXCEL.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_EXCEL.setText("     Exportar XLSX");
-        BTN_EXCEL.addActionListener(this::BTN_EXCELActionPerformed);
-        getContentPane().add(BTN_EXCEL, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 650, 170, 50));
+        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 530, 1020, 220));
 
         jPanel2.setBackground(new java.awt.Color(0, 0, 0));
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -337,55 +430,25 @@ public class Frm_Empleado extends javax.swing.JFrame {
         jLabel5.setText("BUSCAR");
         jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 10, 120, 30));
 
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 920, 50));
+        jPanel3.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 480, 1010, 50));
 
-        BTN_Cerrar1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Cerrar1.setText("     Cerrar");
-        BTN_Cerrar1.addActionListener(this::BTN_Cerrar1ActionPerformed);
-        getContentPane().add(BTN_Cerrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(732, 650, 165, 50));
+        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Acciones", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 12), new java.awt.Color(0, 0, 204))); // NOI18N
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        BTN_PDF.setText("     Exportar PDF");
-        BTN_PDF.addActionListener(this::BTN_PDFActionPerformed);
-        getContentPane().add(BTN_PDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 650, 170, 50));
+        jCheckBoxListarInactivos.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jCheckBoxListarInactivos.setText("Listar Empleados desactivados");
+        jCheckBoxListarInactivos.addActionListener(this::jCheckBoxListarInactivosActionPerformed);
+        jPanel4.add(jCheckBoxListarInactivos, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 190, 30));
 
-        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jCheckBoxActivar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jCheckBoxActivar.setText("Reactivar Empleado");
+        jCheckBoxActivar.addActionListener(this::jCheckBoxActivarActionPerformed);
+        jPanel4.add(jCheckBoxActivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, 140, -1));
 
-        BTN_VerEmpleados.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_VerEmpleados.setText("VER EMPLEADOS");
-        BTN_VerEmpleados.addActionListener(this::BTN_VerEmpleadosActionPerformed);
-        jPanel3.add(BTN_VerEmpleados, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 30, 165, 50));
+        jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 190, 210, 120));
 
-        BTN_Cambiar_Estado.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Cambiar_Estado.setText("CAMBIAR ESTADO");
-        BTN_Cambiar_Estado.addActionListener(this::BTN_Cambiar_EstadoActionPerformed);
-        jPanel3.add(BTN_Cambiar_Estado, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 280, 165, 48));
-
-        BTN_Modificar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Modificar.setText("    MODIFICAR");
-        BTN_Modificar.addActionListener(this::BTN_ModificarActionPerformed);
-        jPanel3.add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 220, 165, 48));
-
-        BTN_Guardar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Guardar.setText("     GUARDAR");
-        BTN_Guardar.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                BTN_GuardarMouseClicked(evt);
-            }
-        });
-        BTN_Guardar.addActionListener(this::BTN_GuardarActionPerformed);
-        jPanel3.add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 160, 165, 48));
-
-        BTN_Nuevo.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Nuevo.setText("      NUEVO");
-        BTN_Nuevo.addActionListener(this::BTN_NuevoActionPerformed);
-        jPanel3.add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 100, 165, 48));
-
-        BTN_Cancel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Cancel.setText("     CANCELAR");
-        BTN_Cancel.addActionListener(this::BTN_CancelActionPerformed);
-        jPanel3.add(BTN_Cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 100, 165, 48));
-
-        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 930, 720));
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 1010, 820));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -394,17 +457,13 @@ public class Frm_Empleado extends javax.swing.JFrame {
  
     }//GEN-LAST:event_txtNombreEmpleadoKeyTyped
 
-    private void JTABLE_Mant_EmpleadoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTABLE_Mant_EmpleadoMouseClicked
-       
-    }//GEN-LAST:event_JTABLE_Mant_EmpleadoMouseClicked
-
     private void BTN_EXCELActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_EXCELActionPerformed
        try {
             // 1. Crear un nuevo libro de Excel (.xlsx)
             XSSFWorkbook workbook = new XSSFWorkbook();
 
             // 2. Crear una hoja dentro del libro
-            XSSFSheet sheet = workbook.createSheet("Facultades");
+            XSSFSheet sheet = workbook.createSheet("Empleados");
 
             // 3. Escribir la fila de encabezados desde el JTable
             XSSFRow headerRow = sheet.createRow(0); // Fila 0 para encabezados
@@ -428,6 +487,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
 
             // 6. Si el usuario acepta guardar, crear archivo
             if (seleccion == JFileChooser.APPROVE_OPTION) {
+
                 File archivo = fileChooser.getSelectedFile();
 
                 // 7. Asegurar extensión .xlsx
@@ -485,319 +545,77 @@ public class Frm_Empleado extends javax.swing.JFrame {
             if (seleccion == JFileChooser.APPROVE_OPTION) {
                 File archivo = fileChooser.getSelectedFile();
                 if (!archivo.getAbsolutePath().endsWith(".pdf")) {
-                archivo = new File(archivo.getAbsolutePath() + ".pdf");
-            }
-
-            Document document = new Document();
-            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(archivo));
-            document.open();
-
-            // 1. Agregar LOGO (ajusta la ruta según tu proyecto)
-            String logoPath = "src/Icons/Fondo Universidad.jpg"; // Asegúrate que la imagen exista
-            try {
-                Image logo = Image.getInstance(logoPath);
-                 logo.scaleToFit(100, 100);
-                logo.setAlignment(Image.ALIGN_LEFT);
-                document.add(logo);
-            } catch (Exception e) {
-                System.out.println("⚠️ No se pudo cargar el logo: " + e.getMessage());
-            }
-
-            //2. Agregar FECHA y HORA
-            String fechaHora = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
-            Paragraph fecha = new Paragraph("Fecha de Exportación: " + fechaHora,
-            FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.DARK_GRAY));
-            fecha.setAlignment(Element.ALIGN_RIGHT);
-            document.add(fecha);
-
-            // TÍTULO
-            Paragraph titulo = new Paragraph("LISTADO DE FACULTADES",
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, BaseColor.BLUE));
-            titulo.setAlignment(Element.ALIGN_CENTER);
-            document.add(titulo);
-            document.add(new Paragraph(" ")); // espacio
-
-            // TABLA DE DATOS
-            PdfPTable pdfTable = new PdfPTable(JTABLE_Mant_Empleado.getColumnCount());
-            pdfTable.setWidthPercentage(100);
-
-            // Encabezados
-            for (int i = 0; i < JTABLE_Mant_Empleado.getColumnCount(); i++) {
-                PdfPCell cell = new PdfPCell(new Phrase(JTABLE_Mant_Empleado.getColumnName(i)));
-                cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                pdfTable.addCell(cell);
-            }
-
-            // Filas de datos
-            for (int row = 0; row < JTABLE_Mant_Empleado.getRowCount(); row++) {
-                for (int col = 0; col < JTABLE_Mant_Empleado.getColumnCount(); col++) {
-                    Object value = JTABLE_Mant_Empleado.getValueAt(row, col);
-                    pdfTable.addCell(value != null ? value.toString() : "");
+                    archivo = new File(archivo.getAbsolutePath() + ".pdf");
                 }
+
+                Document document = new Document();
+                PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(archivo));
+                document.open();
+
+                // 1. Agregar LOGO (ajusta la ruta según tu proyecto)
+                String logoPath = "src/Icons/Fondo Universidad.jpg"; // Asegúrate que la imagen exista
+                try {
+                    Image logo = Image.getInstance(logoPath);
+                    logo.scaleToFit(100, 100);
+                    logo.setAlignment(Image.ALIGN_LEFT);
+                    document.add(logo);
+                } catch (Exception e) {
+                    System.out.println("⚠️ No se pudo cargar el logo: " + e.getMessage());
+                }
+
+                //2. Agregar FECHA y HORA
+                String fechaHora = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
+                Paragraph fecha = new Paragraph("Fecha de Exportación: " + fechaHora,
+                    FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.DARK_GRAY));
+                fecha.setAlignment(Element.ALIGN_RIGHT);
+                document.add(fecha);
+
+                // TÍTULO
+                Paragraph titulo = new Paragraph("LISTADO DE Empleados",
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, BaseColor.BLUE));
+                titulo.setAlignment(Element.ALIGN_CENTER);
+                document.add(titulo);
+                document.add(new Paragraph(" ")); // espacio
+
+                // TABLA DE DATOS
+                PdfPTable pdfTable = new PdfPTable(JTABLE_Mant_Empleado.getColumnCount());
+                pdfTable.setWidthPercentage(100);
+
+                // Encabezados
+                for (int i = 0; i < JTABLE_Mant_Empleado.getColumnCount(); i++) {
+                    PdfPCell cell = new PdfPCell(new Phrase(JTABLE_Mant_Empleado.getColumnName(i)));
+                    cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                    pdfTable.addCell(cell);
+                }
+
+                // Filas de datos
+                for (int row = 0; row < JTABLE_Mant_Empleado.getRowCount(); row++) {
+                    for (int col = 0; col < JTABLE_Mant_Empleado.getColumnCount(); col++) {
+                        Object value = JTABLE_Mant_Empleado.getValueAt(row, col);
+                        pdfTable.addCell(value != null ? value.toString() : "");
+                    }
+                }
+
+                document.add(pdfTable);
+
+                // Pie de página con nombre del usuario
+                document.add(new Paragraph(" "));
+                String usuario = "Wilmer Vera Ostios"; // Puedes hacerlo dinámico si lo obtienes de sesión
+                Paragraph pie = new Paragraph("Exportado por: " + usuario,
+                    FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10, BaseColor.GRAY));
+                pie.setAlignment(Element.ALIGN_RIGHT);
+                document.add(pie);
+
+                document.close();
+                writer.close();
+
+                JOptionPane.showMessageDialog(this, "✅ PDF exportado correctamente:\n" + archivo.getAbsolutePath());
             }
-
-            document.add(pdfTable);
-
-            // Pie de página con nombre del usuario
-            document.add(new Paragraph(" "));
-            String usuario = "Wilmer Vera Ostios"; // Puedes hacerlo dinámico si lo obtienes de sesión
-            Paragraph pie = new Paragraph("Exportado por: " + usuario,
-                FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10, BaseColor.GRAY));
-            pie.setAlignment(Element.ALIGN_RIGHT);
-            document.add(pie);
-
-            document.close();
-            writer.close();
-
-            JOptionPane.showMessageDialog(this, "✅ PDF exportado correctamente:\n" + archivo.getAbsolutePath());
-        } 
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "❌ Error al exportar a PDF:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_BTN_PDFActionPerformed
-
-    private void BTN_VerEmpleadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerEmpleadosActionPerformed
-        listarEmpleados();
-    }//GEN-LAST:event_BTN_VerEmpleadosActionPerformed
-
-    private void BTN_Cambiar_EstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_Cambiar_EstadoActionPerformed
-             // 1. Obtener la fila seleccionada de tu JTable de empleados
-    int filaSeleccionada = JTABLE_Mant_Empleado.getSelectedRow(); 
-
-    if (filaSeleccionada == -1) {
-        JOptionPane.showMessageDialog(this, "Seleccione un empleado de la tabla.", 
-            "Aviso", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    // 2. Obtener el código del empleado (asumiendo que está en la columna 0)
-    int codigoEmpleado = Integer.parseInt(JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 0).toString());
-
-    // 3. Ventana de confirmación
-    int confirmacion = JOptionPane.showConfirmDialog(this, 
-        "¿Está seguro de dar de baja al empleado seleccionado?", 
-        "Confirmar baja", JOptionPane.YES_NO_OPTION);
-
-    if (confirmacion == JOptionPane.YES_OPTION) {
-        try {
-            // 4. Llamar al método de tu clase lógica PR
-            // Nota: Asegúrate de tener el método 'darDeBajaEmpleado' en EmpleadoMethod.java
-            EM.darDeBajaEmpleado(codigoEmpleado); 
-
-            JOptionPane.showMessageDialog(this, "✅ Empleado dado de baja correctamente.");
-            
-            // 5. Refrescar la tabla y limpiar el formulario
-            listarEmpleados(); 
-            limpiarCampos(); 
-
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error al dar de baja: " + ex.getMessage(), 
-                "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    }//GEN-LAST:event_BTN_Cambiar_EstadoActionPerformed
-
-    private void BTN_ModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ModificarActionPerformed
-        try {
-    // 1. Obtener datos de los campos de texto
-    String dni = txtdniempleado1.getText().trim(); 
-    String nombres = txtNombreEmpleado.getText().trim();
-    String apellidos = txtApellidoEmpleado.getText().trim();
-    java.util.Date fechaNacimiento = jDateChooser1.getDate();
-    String direccion = txtdireccion.getText().trim();
-    String correo1 = txtcorreo1.getText().trim();
-    String correo2 = txtcorreo2.getText().trim();
-    String telefono1 = txttelefono1.getText().trim();
-    String telefono2 = txttelefono2.getText().trim();
-    String generoSeleccionado = jComboBox_genero.getSelectedItem().toString();
-    String observacion = txtobservaciones.getText().trim();
-
-    // 2. Validar campos obligatorios
-    if (dni.isEmpty() || nombres.isEmpty() || apellidos.isEmpty() || direccion.isEmpty() || correo1.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos obligatorios.", "Validación", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    // 3. Validar formato de DNI (8 dígitos)
-    if (dni.length() != 8 || !dni.matches("\\d+")) {
-        JOptionPane.showMessageDialog(this, "El DNI debe tener exactamente 8 números.", "Validación", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    // 4. Formatear la fecha para MySQL
-    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-    String fechaFormateada = (fechaNacimiento != null) ? sdf.format(fechaNacimiento) : null;
-
-    // 5. Obtener ID del género desde la lógica
-    int idGenero = EM.obtenerIdGenero(generoSeleccionado);
-
-    // 6. Confirmación de la operación
-    int confirmar = JOptionPane.showConfirmDialog(this, "¿Está seguro de actualizar los datos de este empleado?", "Confirmar Actualización", JOptionPane.YES_NO_OPTION);
-
-    if (confirmar == JOptionPane.YES_OPTION) {
-        // 7. Llamada al método de la capa lógica
-        EM.actualizarEmpleado(
-            dni, 
-            nombres, 
-            apellidos, 
-            fechaFormateada, 
-            direccion, 
-            telefono1, 
-            telefono2, 
-            correo1, 
-            correo2, 
-            idGenero, 
-            observacion
-        );
-
-        // 8. Actualizar la interfaz
-        listarEmpleados(); 
-        limpiarCampos();
-        JOptionPane.showMessageDialog(this, "Empleado actualizado con éxito.");
-    }
-
-} catch (IllegalArgumentException e) {
-    // Captura errores de validación de correo o duplicados
-    JOptionPane.showMessageDialog(this, e.getMessage(), "Atención", JOptionPane.WARNING_MESSAGE);
-} catch (SQLException e) {
-    // Captura errores de conexión o del procedimiento almacenado
-    JOptionPane.showMessageDialog(this, "Error en la base de datos: " + e.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
-}
-    }//GEN-LAST:event_BTN_ModificarActionPerformed
-
-    private void BTN_GuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BTN_GuardarMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_BTN_GuardarMouseClicked
-
-    private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
-    try {
-        String dni = txtdniempleado1.getText().trim();
-        String nombres = txtNombreEmpleado.getText().trim();
-        String apellidos = txtApellidoEmpleado.getText().trim();
-        java.util.Date fechaNacimiento = jDateChooser1.getDate();
-        String direccion = txtdireccion.getText().trim();
-        String correo1 = txtcorreo1.getText().trim();
-        String correo2 = txtcorreo2.getText().trim();
-        String telefono1 = txttelefono1.getText().trim();
-        String telefono2 = txttelefono2.getText().trim();
-        String generoSeleccionado = jComboBox_genero.getSelectedItem().toString();
-        String observacion = txtobservaciones.getText().trim();
-
-    // Validaciones de campos obligatorios
-    if (dni.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese el DNI del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txtdniempleado1.requestFocus();
-      return;
-    }
-    if (nombres.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese los nombres del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txtNombreEmpleado.requestFocus();
-      return;
-    }
-    if (apellidos.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese los apellidos del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txtApellidoEmpleado.requestFocus();
-      return;
-    }
-    if (direccion.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese la direccion del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txtdireccion.requestFocus();
-      return;
-    }
-    if (correo1.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese el correo del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txtcorreo1.requestFocus();
-      return;
-    }    
-    if (telefono1.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese el telefono del empleado", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txttelefono1.requestFocus();
-      return;
-    }  
-    if (fechaNacimiento == null) {
-        JOptionPane.showMessageDialog(this, "Seleccione una fecha de nacimiento");
-        return;
-    }
-    
-    // Validacion rapida de DNI para evitar error por tipo
-    if (dni.length() != 8 || !dni.matches("\\d+")) {
-        JOptionPane.showMessageDialog(this, "Ingrese un DNI válido de 8 digitos");
-        return;
-    }
-    
-    // Validar teléfonos
-    if(!telefono2.isEmpty() && telefono1.equals(telefono2)) {
-        JOptionPane.showMessageDialog(this, "Telefono 1 y Telefono 2 no pueden ser"
-            + "iguales.", "Validacion", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    // Obtener el codigo del genero
-    int id_genero = EM.obtenerIdGenero(generoSeleccionado);
-    if (id_genero == -1) {
-        JOptionPane.showMessageDialog(this, "El genero seleccionado no es valido");
-        return;
-    }
-    
-    // Convertir fecha a formato SQL
-    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-    String fechaFormateada = sdf.format(fechaNacimiento);
-    
-    // Intentar registrar (Validacion completa esta en el metodo)
-    if (txtcodigoempleado.getText().isEmpty()) {
-        
-        EM.insertarEmpleado(
-            dni,
-            nombres,
-            apellidos,
-            fechaFormateada,
-            direccion,
-            telefono1,
-            telefono2,
-            correo1,
-            correo2,
-            id_genero,
-            observacion
-        );
-
-        JOptionPane.showMessageDialog(this, "Empleado registrado correctamente.");
-        listarEmpleados();
-        limpiarCampos();
-        } else {
-    }
-
-    } catch (IllegalArgumentException ex) {
-    JOptionPane.showMessageDialog(this, ex.getMessage(), "Validacion", JOptionPane.WARNING_MESSAGE);
-    
-    } catch (SQLException ex) {
-    JOptionPane.showMessageDialog(this, "Error al guardar empleado " + ex.getMessage(), 
-        "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    }//GEN-LAST:event_BTN_GuardarActionPerformed
-
-    private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
-        this.limpiarCampos();
-        BTN_Guardar.setEnabled(true);
-        BTN_Modificar.setEnabled(false);
-        
-    }//GEN-LAST:event_BTN_NuevoActionPerformed
-
-    private void BTN_CancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_CancelActionPerformed
-        JTABLE_Mant_Empleado.setRowSelectionAllowed(true);
-        JTABLE_Mant_Empleado.setColumnSelectionAllowed(true);
-        JTABLE_Mant_Empleado.setCellSelectionEnabled(true);
-
-        BTN_Guardar.setEnabled(true);
-        BTN_Cambiar_Estado.setEnabled(false);
-        BTN_Modificar.setEnabled(false);
-        BTN_Nuevo.setVisible(true);
-        BTN_Nuevo.setEnabled(true);
-        BTN_Cancel.setVisible(false);
-        JTABLE_Mant_Empleado.setEnabled(true);
-    }//GEN-LAST:event_BTN_CancelActionPerformed
 
     private void txttelefono2KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txttelefono2KeyTyped
         // TODO add your handling code here:
@@ -820,8 +638,6 @@ public class Frm_Empleado extends javax.swing.JFrame {
     }//GEN-LAST:event_txtcorreo2KeyTyped
 
     private void jComboBox_generoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_generoActionPerformed
-    
-
 
     }//GEN-LAST:event_jComboBox_generoActionPerformed
 
@@ -836,6 +652,492 @@ public class Frm_Empleado extends javax.swing.JFrame {
     private void txttelefono1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txttelefono1KeyTyped
         // TODO add your handling code here:
     }//GEN-LAST:event_txttelefono1KeyTyped
+
+    private void jCheckBoxListarInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxListarInactivosActionPerformed
+        this.listarEmpleadosInactivos();
+        this.BTN_ListarEmpleados.setEnabled(true);
+    }//GEN-LAST:event_jCheckBoxListarInactivosActionPerformed
+
+    private void jCheckBoxActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxActivarActionPerformed
+        // 1. Obtener fila seleccionada de la tabla de empleados
+    int filaSeleccionada = JTABLE_Mant_Empleado.getSelectedRow();
+
+    // 2. Validar selección inicial
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Seleccione un empleado de la tabla para reactivarlo.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        if (jCheckBoxActivar.isSelected()) {
+            jCheckBoxActivar.setSelected(false);
+        }
+        return;
+    }
+
+    // 3. Obtener datos de la fila de forma segura
+    // Asumiendo Columna 0 = ID, Columna 1 = Nombres, Columna 2 = Apellidos, Columna 13 = Estado
+    int idEmpleado = Integer.parseInt(JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 0).toString());
+    String nombreEmp = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 1).toString().trim();
+    String apellidoEmp = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 2).toString().trim();
+    String nombreCompleto = nombreEmp + " " + apellidoEmp;
+    String estadoActual = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 13).toString().trim();
+
+    // 4. Validar si ya está activo (evitar llamadas innecesarias)
+    if (estadoActual.equalsIgnoreCase("Activo")) {
+        JOptionPane.showMessageDialog(this,
+            "El empleado '" + nombreCompleto + "' ya se encuentra activo.",
+            "Información", JOptionPane.INFORMATION_MESSAGE);
+        jCheckBoxActivar.setSelected(false);
+        return;
+    }
+
+    // 5. Confirmación profesional
+    int confirmacion = JOptionPane.showConfirmDialog(this,
+        "¿Desea reactivar al empleado: " + nombreCompleto + "?\n"
+        + "Esto permitirá que vuelva a figurar en las planillas y contratos.",
+        "Confirmar Reactivación",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.QUESTION_MESSAGE);
+
+    if (confirmacion == JOptionPane.YES_OPTION) {
+        try {
+            // 6. Ejecutar la reactivación usando tu clase de lógica (ejemplo: emDAO)
+            // Cambia 'emDAO' por el nombre de tu objeto que contiene reactivarEmpleado
+            EM.reactivarEmpleado(idEmpleado);
+            JOptionPane.showMessageDialog(this,
+                    "¡Éxito! El empleado '" + nombreCompleto + "' ha sido reactivado.",
+                    "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
+            // 7. Sincronizar Interfaz
+            if (jCheckBoxListarInactivos != null) {
+                jCheckBoxListarInactivos.setSelected(false);
+            }
+            jCheckBoxActivar.setSelected(false);
+            // Refrescar tabla y limpiar formulario
+            listarEmpleados(); // Tu método para cargar la JTable
+            limpiarCamposEmpleado(); // Tu método para vaciar los JTextFields
+        } catch (SQLException ex) {
+            System.getLogger(Frm_Empleado.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    } else {
+        // Si cancela, desmarcamos el checkbox
+        jCheckBoxActivar.setSelected(false);
+    }
+    }//GEN-LAST:event_jCheckBoxActivarActionPerformed
+
+    private void JTABLE_Mant_EmpleadoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTABLE_Mant_EmpleadoMouseClicked
+    int filaSeleccionada = JTABLE_Mant_Empleado.getSelectedRow();
+
+// 1. Configuración de botones generales
+BTN_Modificar.setEnabled(filaSeleccionada != -1); 
+BTN_Guardar.setEnabled(false);
+BTN_Nuevo.setVisible(true);
+BTN_Nuevo.setEnabled(true);
+
+// 2. Lógica de habilitación para desactivar / activar
+if (jCheckBoxListarInactivos.isSelected()) {
+    BTN_Desactivar.setEnabled(false);
+    jCheckBoxActivar.setEnabled(filaSeleccionada != -1);
+} else {
+    BTN_Desactivar.setEnabled(filaSeleccionada != -1);
+    jCheckBoxActivar.setEnabled(false);
+}
+
+// 3. Extracción de datos si hay una fila seleccionada
+if (filaSeleccionada != -1) {
+    try {
+        // --- ASIGNACIÓN SEGÚN LOS ÍNDICES DE TU VISTA SQL ---
+        String id        = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 0).toString().trim(); // ID
+        String dni       = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 1).toString().trim(); // DNI
+        String nombres   = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 2).toString().trim(); // Nombre
+        String apellidos = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 3).toString().trim(); // Apellido
+        
+        // Columna 4: Fecha de Nacimiento
+        Object fechaNacObj = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 4);
+        if (fechaNacObj instanceof java.util.Date) {
+            jDateChooser1.setDate((java.util.Date) fechaNacObj);
+        } else if (fechaNacObj != null) {
+            java.util.Date fecha = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(fechaNacObj.toString());
+            jDateChooser1.setDate(fecha);
+        }
+
+        // Columna 5: Fecha de Registro (Solo para variable original)
+        Object fechaRegObj = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 5);
+        fecharegistroOriginal = (fechaRegObj != null) ? fechaRegObj.toString() : "";
+
+        // Columna 6 en adelante
+        String residencia = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 6).toString().trim();
+        String correo1    = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 7).toString().trim();
+        
+        Object c2         = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 8);
+        String correo2    = (c2 != null) ? c2.toString().trim() : "";
+        
+        String telf1      = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 9).toString().trim();
+        
+        Object t2         = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 10);
+        String telf2      = (t2 != null) ? t2.toString().trim() : "";
+
+        // AQUÍ EL CAMBIO CLAVE:
+        // Columna 11: Genero (M/F)
+        String genero     = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 11).toString().trim();
+        
+        // Columna 12: Observaciones
+        Object obs        = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 12);
+        String observacion = (obs != null) ? obs.toString().trim() : "";
+
+        // 4. Mostrar en los controles (TextFields)
+        txtcodigoempleado.setText(id);
+        txtdniempleado.setText(dni);
+        txtNombreEmpleado.setText(nombres);
+        txtApellidoEmpleado.setText(apellidos);
+        txtdireccion.setText(residencia);
+        txtcorreo1.setText(correo1);
+        txtcorreo2.setText(correo2);
+        txttelefono1.setText(telf1);
+        txttelefono2.setText(telf2);
+        txtobservaciones.setText(observacion); // Ahora sí mostrará la observación real
+
+        // 5. Guardar valores originales
+        dniOriginal = dni;
+        nombreOriginal = nombres;
+        apellidoOriginal = apellidos;
+        fechanacimientoOriginal = (fechaNacObj != null) ? fechaNacObj.toString() : "";
+        direccionOriginal = residencia;
+        correo1Original = correo1;
+        correo2Original = correo2;
+        telefono1Original = telf1;
+        telefono2Original = telf2;
+        ObservacionOriginal = observacion;
+        generoOriginal = genero;
+
+        // 6. Sincronizar JComboBox de Género
+        boolean encontrado = false;
+        for (int i = 0; i < jComboBox_genero.getItemCount(); i++) {
+            // Comparamos contra la letra (M/F) o el nombre completo según tengas el combo
+            String item = jComboBox_genero.getItemAt(i).trim();
+            if (item.equalsIgnoreCase(genero) || item.startsWith(genero)) {
+                jComboBox_genero.setSelectedIndex(i);
+                encontrado = true;
+                break;
+            }
+        }
+
+        if (!encontrado && !genero.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El género '" + genero + "' no coincide con el catálogo.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
+
+    } catch (HeadlessException | ParseException e) {
+        System.err.println("Error al cargar datos de la tabla: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+    }//GEN-LAST:event_JTABLE_Mant_EmpleadoMouseClicked
+
+    private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
+        limpiarCamposEmpleado();
+        txtdniempleado.setEditable(true);
+    }//GEN-LAST:event_BTN_NuevoActionPerformed
+
+    private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
+        // 1. Capturar y limpiar datos de los campos de texto
+    String dni = txtdniempleado.getText().trim();
+    String nombres = txtNombreEmpleado.getText().trim();
+    String apellidos = txtApellidoEmpleado.getText().trim();
+    String residencia = txtdireccion.getText().trim();
+    String correo1 = txtcorreo1.getText().trim();
+    String correo2 = txtcorreo2.getText().trim();
+    String telf1 = txttelefono1.getText().trim();
+    String telf2 = txttelefono2.getText().trim();
+    String observacion = txtobservaciones.getText().trim();
+    String generoNombre = (String) jComboBox_genero.getSelectedItem();
+
+    // --- 2. VALIDACIONES DE CAMPOS OBLIGATORIOS ---
+    if (campoVacio(txtdniempleado, "DNI") || campoVacio(txtNombreEmpleado, "Nombres") || 
+        campoVacio(txtApellidoEmpleado, "Apellidos") || campoVacio(txtdireccion, "Dirección")) {
+        return;
+    }
+
+    if (generoNombre == null || generoNombre.equals("Seleccione...")) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar un género.", "Validación", JOptionPane.WARNING_MESSAGE);
+        jComboBox_genero.requestFocus();
+        return;
+    }
+
+    // --- 3. VALIDACIONES DE FORMATO (RegEx) ---
+    // DNI: 8 dígitos
+    if (!dni.matches("^[0-9]{8}$")) {
+        JOptionPane.showMessageDialog(this, "El DNI debe tener exactamente 8 números.", "Validación", JOptionPane.WARNING_MESSAGE);
+        txtdniempleado.requestFocus();
+        return;
+    }
+
+    // Correo Principal
+    if (campoVacio(txtcorreo1, "Correo Principal") || 
+        !correo1.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+        JOptionPane.showMessageDialog(this, "Ingrese un correo principal válido.", "Validación", JOptionPane.WARNING_MESSAGE);
+        txtcorreo1.requestFocus();
+        return;
+    }
+
+    // Teléfono Principal (7 a 15 dígitos)
+    if (campoVacio(txttelefono1, "Teléfono Principal") || !telf1.matches("^[0-9]{7,15}$")) {
+        JOptionPane.showMessageDialog(this, "El teléfono debe contener entre 7 y 15 números.", "Validación", JOptionPane.WARNING_MESSAGE);
+        txttelefono1.requestFocus();
+        return;
+    }
+
+    // --- 4. VALIDACIÓN DE FECHA (Manejo de java.sql.Date y Mayoría de edad) ---
+    if (jDateChooser1.getDate() == null) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar una fecha de nacimiento.", "Validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // Convertimos la fecha del JDateChooser al tipo que espera tu DAO (java.sql.Date)
+    java.sql.Date fechaNacSql = new java.sql.Date(jDateChooser1.getDate().getTime());
+    
+    // Cálculo de edad usando la API de Java 8+
+    long edad = java.time.temporal.ChronoUnit.YEARS.between(
+            fechaNacSql.toLocalDate(), java.time.LocalDate.now());
+
+    if (edad < 18) {
+        JOptionPane.showMessageDialog(this, "El empleado debe ser mayor de edad (actualmente tiene " + edad + " años).", "Validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // --- 5. CONFIRMACIÓN Y REGISTRO ---
+    int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea registrar este nuevo empleado?", "Confirmación", JOptionPane.YES_NO_OPTION);
+    
+    if (respuesta == JOptionPane.YES_OPTION) {
+        try {
+            // Obtener el ID del género según el nombre seleccionado desde tu DAO
+            int idGenero = EM.obtenerGenero(generoNombre);
+
+            // Llamada al método del DAO
+            // Seteamos null en fechaRegistro para que el Procedimiento use su valor por defecto (CURRENT_TIMESTAMP)
+            this.EM.insertarEmpleado(dni, nombres, apellidos, fechaNacSql, null, residencia, 
+                                    correo1, correo2, telf1, telf2, observacion, idGenero);
+
+            JOptionPane.showMessageDialog(this, "¡Empleado registrado correctamente!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            // 6. Actualizar tabla y limpiar c
+                this.listarEmpleados();
+                this.limpiarCamposEmpleado();
+
+        } catch (SQLException ex) {
+            // Manejo de errores personalizados según los SIGNAL de tu Base de Datos
+            int errorCode = ex.getErrorCode();
+
+            switch (errorCode) {
+                case 1062 -> JOptionPane.showMessageDialog(this, "Error: El DNI o Correo ya existen en la base de datos.", "Duplicado", JOptionPane.ERROR_MESSAGE);
+                case 4002 -> JOptionPane.showMessageDialog(this, "Error: El DNI ya está registrado en un empleado activo.", "Duplicado", JOptionPane.ERROR_MESSAGE);
+                case 4020 -> JOptionPane.showMessageDialog(this, "Aviso: Este DNI pertenece a un empleado INACTIVO.\nDebe reactivarlo desde la pestaña de desactivados.", "Empleado Inactivo", JOptionPane.WARNING_MESSAGE);
+                case 4009 -> JOptionPane.showMessageDialog(this, "Error: El correo principal y secundario no pueden ser iguales.", "Error Datos", JOptionPane.ERROR_MESSAGE);
+                case 4012 -> JOptionPane.showMessageDialog(this, "Error: Los teléfonos no pueden ser iguales.", "Error Datos", JOptionPane.ERROR_MESSAGE);
+                default -> JOptionPane.showMessageDialog(this, "Error de base de datos (" + errorCode + "):\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error inesperado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    }//GEN-LAST:event_BTN_GuardarActionPerformed
+
+    private void BTN_GuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BTN_GuardarMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BTN_GuardarMouseClicked
+
+    private void BTN_ModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ModificarActionPerformed
+        try {
+        // 1. Capturar datos y limpiar espacios
+        String idStr = txtcodigoempleado.getText().trim();
+        String nuevoDni = txtdniempleado.getText().trim();
+        String nuevosNombres = txtNombreEmpleado.getText().trim();
+        String nuevosApellidos = txtApellidoEmpleado.getText().trim();
+        String nuevaResidencia = txtdireccion.getText().trim();
+        String nuevoCorreo1 = txtcorreo1.getText().trim();
+        String nuevoCorreo2 = txtcorreo2.getText().trim();
+        String nuevoTelf1 = txttelefono1.getText().trim();
+        String nuevoTelf2 = txttelefono2.getText().trim();
+        String nuevaObs = txtobservaciones.getText().trim();
+        String generoNombre = (String) jComboBox_genero.getSelectedItem();
+
+        // --- VALIDACIONES DE CAMPOS VACÍOS ---
+        if (idStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un empleado de la tabla.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (campoVacio(txtdniempleado, "DNI") || 
+            campoVacio(txtNombreEmpleado, "Nombres") || 
+            campoVacio(txtApellidoEmpleado, "Apellidos")) return;
+
+        if (generoNombre == null || generoNombre.equals("Seleccione...")) {
+            JOptionPane.showMessageDialog(this, "Seleccione un género válido.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // --- VALIDACIÓN DE CAMBIOS ---
+        if (nuevoDni.equals(dniOriginal) &&
+            nuevosNombres.equalsIgnoreCase(nombreOriginal) &&
+            nuevosApellidos.equalsIgnoreCase(apellidoOriginal) &&
+            nuevoCorreo1.equalsIgnoreCase(correo1Original) &&
+            nuevoCorreo2.equalsIgnoreCase(correo2Original) &&
+            nuevoTelf1.equals(telefono1Original) &&
+            nuevoTelf2.equals(telefono2Original) &&
+            nuevaObs.equals(ObservacionOriginal) &&
+            generoNombre.equalsIgnoreCase(generoOriginal)) {
+
+            JOptionPane.showMessageDialog(this, "No se detectaron cambios en los datos del empleado.", "Información", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // --- VALIDACIONES DE FORMATO ---
+        if (!nuevoDni.matches("^[0-9]{8}$")) {
+            JOptionPane.showMessageDialog(this, "DNI inválido (debe tener 8 dígitos).", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (jDateChooser1.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Seleccione la fecha de nacimiento.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 2. Confirmación
+        int respuesta = JOptionPane.showConfirmDialog(this, 
+            "¿Desea actualizar los datos de: " + nuevosNombres + " " + nuevosApellidos + "?", 
+            "Confirmación", JOptionPane.YES_NO_OPTION);
+
+        if (respuesta == JOptionPane.YES_OPTION) {
+            try {
+                int idEmpleado = Integer.parseInt(idStr);
+                int idGenero = EM.obtenerGenero(generoNombre);
+
+                // ✅ Fecha correcta
+                java.sql.Date fNac = new java.sql.Date(jDateChooser1.getDate().getTime());
+
+                // 🚫 Fecha registro NO se modifica → se manda null
+                this.EM.modificarEmpleado(
+                    idEmpleado, 
+                    nuevoDni, 
+                    nuevosNombres, 
+                    nuevosApellidos, 
+                    fNac, 
+                    null, 
+                    nuevaResidencia, 
+                    nuevoCorreo1, 
+                    nuevoCorreo2, 
+                    nuevoTelf1, 
+                    nuevoTelf2, 
+                    nuevaObs, 
+                    idGenero
+                );
+
+                JOptionPane.showMessageDialog(this, "Empleado actualizado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+                // 3. Refrescar
+                this.listarEmpleados();
+                this.limpiarCamposEmpleado();
+
+            } catch (SQLException ex) {
+                int errorCode = ex.getErrorCode();
+
+                switch (errorCode) {
+                    case 20201 -> JOptionPane.showMessageDialog(this, "Error: El empleado ya no existe.", "Error ID", JOptionPane.ERROR_MESSAGE);
+                    case 20215 -> JOptionPane.showMessageDialog(this, "Error: No se puede editar un empleado INACTIVO.", "Error Estado", JOptionPane.WARNING_MESSAGE);
+                    case 20203, 1062 -> JOptionPane.showMessageDialog(this, "Error: El DNI ya está registrado en otro empleado.", "DNI Duplicado", JOptionPane.ERROR_MESSAGE);
+                    case 5006 -> JOptionPane.showMessageDialog(this, "Error: El empleado debe ser mayor de edad.", "Validación", JOptionPane.ERROR_MESSAGE);
+                    case 20209 -> JOptionPane.showMessageDialog(this, "Error: Los correos no pueden ser iguales.", "Validación", JOptionPane.ERROR_MESSAGE);
+                    case 20212 -> JOptionPane.showMessageDialog(this, "Error: Los teléfonos no pueden ser iguales.", "Validación", JOptionPane.ERROR_MESSAGE);
+                    default -> JOptionPane.showMessageDialog(this, "Error (" + errorCode + "):\n" + ex.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error crítico: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_BTN_ModificarActionPerformed
+
+    private void BTN_DesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_DesactivarActionPerformed
+        // 1. Obtener la fila seleccionada de la tabla de empleados
+    int filaSeleccionada = JTABLE_Mant_Empleado.getSelectedRow(); 
+
+    // Validación inicial: ¿Seleccionó algo?
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Seleccione un empleado de la tabla para desactivarlo.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // 2. Obtener datos de la fila de forma segura
+    // Columna 0: ID, Columna 1: Nombre, Columna 2: Apellido, Columna 13: Estado
+    int idEmpleado = Integer.parseInt(JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 0).toString());
+    String nombreCompleto = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 1).toString().trim() + " " +
+                           JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 2).toString().trim();
+    
+    // El estado en tu vista de empleados suele estar en la columna 13
+    String estadoActual = JTABLE_Mant_Empleado.getValueAt(filaSeleccionada, 13).toString().trim();
+
+    // 3. Validar si ya está desactivado para no trabajar en vano
+    if (estadoActual.equalsIgnoreCase("Inactivo")) {
+        JOptionPane.showMessageDialog(this, "El empleado '" + nombreCompleto + "' ya se encuentra desactivado.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+        return;
+    }
+
+    // 4. Confirmación profesional
+    int confirmacion = JOptionPane.showConfirmDialog(this,
+        "¿Está seguro de que desea desactivar al empleado: " + nombreCompleto + "?\n"
+        + "Esto lo inhabilitará para nuevas operaciones pero mantendrá su historial en la base de datos.",
+        "Confirmar Desactivación", 
+        JOptionPane.YES_NO_OPTION, 
+        JOptionPane.QUESTION_MESSAGE);
+
+    if (confirmacion == JOptionPane.YES_OPTION) {
+        try {
+            // 5. Llamada al método del DAO (usando el objeto emDAO que creamos antes)
+            EM.desactivarEmpleado(idEmpleado);
+
+            JOptionPane.showMessageDialog(this, "Empleado desactivado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            // 6. Actualizar interfaz respetando el filtro de inactivos
+            // Si el checkbox de 'Listar Inactivos' no está marcado, el registro debe desaparecer de la vista
+            if (jCheckBoxListarInactivos != null && jCheckBoxListarInactivos.isSelected()) {
+                listarEmpleadosInactivos(); // Método para ver solo los de estado 0
+            } else {
+                listarEmpleados(); // El registro desaparece de la lista de activos (estado 1)
+            }
+
+            // 7. Limpiar el formulario
+            limpiarCamposEmpleado();
+
+        } catch (SQLException ex) {
+            // Manejo de errores basado en el código de error del Procedure (20220 = No existe)
+            int errorCode = ex.getErrorCode();
+            String mensajeError = (errorCode == 20220) ? "El empleado no existe en la base de datos." : ex.getMessage();
+
+            JOptionPane.showMessageDialog(this,
+                "No se pudo cambiar el estado del empleado.\nDetalle: " + mensajeError,
+                "Error de Base de Datos",
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    }//GEN-LAST:event_BTN_DesactivarActionPerformed
+
+    private void BTN_ListarEmpleadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ListarEmpleadosActionPerformed
+        this.listarEmpleados();
+        this.BTN_Nuevo.setEnabled(true);
+        this.BTN_Guardar.setEnabled(false);
+        this.BTN_Modificar.setEnabled(false);
+        this.BTN_ListarEmpleados.setEnabled(false);
+        this.jCheckBoxListarInactivos.setSelected(false);
+        jPanel3.requestFocus();
+    }//GEN-LAST:event_BTN_ListarEmpleadosActionPerformed
+
+    private void txtdniempleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtdniempleadoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtdniempleadoActionPerformed
+
+    private void txtobservacionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtobservacionesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtobservacionesActionPerformed
+
+    private void jComboBox_generoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jComboBox_generoKeyReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox_generoKeyReleased
 
     /**
      * @param args the command line arguments
@@ -863,17 +1165,18 @@ public class Frm_Empleado extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton BTN_Cambiar_Estado;
-    private javax.swing.JButton BTN_Cancel;
     private javax.swing.JButton BTN_Cerrar1;
+    private javax.swing.JButton BTN_Desactivar;
     private javax.swing.JButton BTN_EXCEL;
     private javax.swing.JButton BTN_Guardar;
+    private javax.swing.JButton BTN_ListarEmpleados;
     private javax.swing.JButton BTN_Modificar;
     private javax.swing.JButton BTN_Nuevo;
     private javax.swing.JButton BTN_PDF;
-    private javax.swing.JButton BTN_VerEmpleados;
     private javax.swing.JTable JTABLE_Mant_Empleado;
     private javax.swing.JTextField TXT_BuscarEmpleados;
+    private javax.swing.JCheckBox jCheckBoxActivar;
+    private javax.swing.JCheckBox jCheckBoxListarInactivos;
     private javax.swing.JComboBox<String> jComboBox_genero;
     private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;
@@ -895,6 +1198,7 @@ public class Frm_Empleado extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField txtApellidoEmpleado;
     private javax.swing.JTextField txtNombreEmpleado;
@@ -902,116 +1206,171 @@ public class Frm_Empleado extends javax.swing.JFrame {
     private javax.swing.JTextField txtcorreo1;
     private javax.swing.JTextField txtcorreo2;
     private javax.swing.JTextField txtdireccion;
-    private javax.swing.JTextField txtdniempleado1;
+    private javax.swing.JTextField txtdniempleado;
     private javax.swing.JTextField txtfecharegistro;
     private javax.swing.JTextField txtobservaciones;
     private javax.swing.JTextField txttelefono1;
     private javax.swing.JTextField txttelefono2;
     // End of variables declaration//GEN-END:variables
    
+    private void cargarGenero() {
+        try {
+            jComboBox_genero.removeAllItems();
+            jComboBox_genero.addItem("<<Seleccionar>>"); // Opción por defecto
+
+            ResultSet rs = EM.combobox_listarGenero();
+            while (rs.next()) {
+                jComboBox_genero.addItem(rs.getString("Genero"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar el genero: " + e.getMessage());
+        }
+    }
+    
+    //Validara campos vacios
+    private boolean campoVacio(javax.swing.JTextField txt, String nombreCampo) {
+        if (txt.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El campo " + nombreCampo + " es obligatorio.", "Campo requerido", JOptionPane.WARNING_MESSAGE);
+            txt.requestFocus();
+            return true; // Sí está vacío
+        }
+        return false; // No está vacío
+    }  
+    
     //método para mostrar registros en el jtable
     private void listarEmpleados() {
         try {
-            JTABLE_Mant_Empleado.setAutoCreateRowSorter(true);
-            // Limpiar la tabla antes de volver a llenarla
-            modeloTablaEmpleado.setRowCount(0);
+        JTABLE_Mant_Empleado.setAutoCreateRowSorter(true);
+        modeloTablaEmpleado.setRowCount(0); // modeloTablaEmpleado debe estar declarado arriba
 
-            // Llamar al método ya implementado en la clase de conexión
-            ResultSet rs = this.EM.listarEmpleados();
+        // emDAO es tu objeto de la clase EmpleadoMethod
+        ResultSet rs = EM.listarEmpleados(); 
 
-            // Recorrer los resultados y agregarlos a la tabla
-            while (rs.next()) {
-                Object fila[] = {
-                    rs.getInt("Codigo de Empleado"),
-                    rs.getString("DNI"),
-                    rs.getString("Nombre de Empleado"),
-                    rs.getString("Apellido de Empleado"), 
-                    rs.getDate("Fecha de Nacimiento"), 
-                    rs.getString("Fecha de Registro"),    
-                    rs.getString("Lugar de Residencia"),    
-                    rs.getString("Correo Principal"),    
-                    rs.getString("Correo Secundario"),    
-                    rs.getString("Teléfono Principal"),    
-                    rs.getString("Teléfono Secundario"),    
-                    rs.getString("Género"),
-                    rs.getString("Observaciones"),   
-                };
-                modeloTablaEmpleado.addRow(fila);
+        while (rs.next()) {
+            Object fila[] = {
+                rs.getInt("ID"), 
+                rs.getString("DNI"),
+                rs.getString("Nombre de Empleado"),
+                rs.getString("Apellido de Empleado"),
+                rs.getDate("Fecha de Nacimiento"),
+                rs.getTimestamp("Fecha de Registro"),
+                rs.getString("Lugar de Residencia"),
+                rs.getString("Correo Principal"),
+                rs.getString("Correo Secundario"),
+                rs.getString("Telefono Principal"),
+                rs.getString("Telefono Secundario"),
+                rs.getString("Genero"),
+                rs.getString("Observaciones"),
+                rs.getInt("Estado") == 1 ? "Activo" : "Inactivo"
+            };
+            modeloTablaEmpleado.addRow(fila);
             }
-
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al listar empleados: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error al cargar empleados: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     
-    /* Limpiar Cajas de Empleado */
-    private void limpiarCampos() {
-        txtcodigoempleado.setText("");          
-        txtdniempleado1.setText("");             
-        txtNombreEmpleado.setText("");         
-        txtApellidoEmpleado.setText("");       
-        jDateChooser1.setDate(null);  
-        txtfecharegistro.setText(null);  
-        txtdireccion.setText("");       
-        txtcorreo1.setText("");         
-        txtcorreo2.setText("");         
-        txttelefono1.setText("");       
-        txttelefono2.setText("");       
-        jComboBox_genero.setSelectedIndex(0); 
-        txtobservaciones.setText(""); 
-    }
-    
-    public void buscarEmpleadoPorNombre() {
-        modeloTablaEmpleado.setRowCount(0);
-        String nombre = TXT_BuscarEmpleados.getText().trim();
-        try {
-            //Llama al método que retorna los datos de Mesaes
-            ResultSet rs = this.EM.buscarEmpleados(nombre);
-            while (rs.next()) {
-                Object[] fila = {
-                    rs.getInt("Codigo de Empleado"),
-                    rs.getString("DNI"),
-                    rs.getString("Nombre de Empleado"),
-                    rs.getString("Apellido de Empleado"), 
-                    rs.getDate("Fecha de Nacimiento"), 
-                    rs.getString("Fecha de Registro"),    
-                    rs.getString("Lugar de Residencia"),    
-                    rs.getString("Correo Principal"),    
-                    rs.getString("Correo Secundario"),    
-                    rs.getString("Teléfono Principal"),    
-                    rs.getString("Teléfono Secundario"),    
-                    rs.getString("Género"),
-                    rs.getString("Observaciones"),   
-                };
-                modeloTablaEmpleado.addRow(fila);
-            }
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al buscar Mesaes:\n" + e.getMessage(),
-                    "Error de búsqueda", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    // Dentro de Frm_Empleado.java
-
-    private void llenarComboGenero() {
+    private void listarEmpleadosInactivos() {
     try {
-        // 1. Limpiamos por seguridad
-        jComboBox_genero.removeAllItems(); 
-        
-        // 2. Pedimos la lista a la lógica (EmpleadoMethod)
-        // Usamos java.util.List para evitar conflictos con otras librerías
-        java.util.List<String> lista = EM.listarGeneros(); 
-        
-        // 3. Agregamos un ítem inicial neutro
-        jComboBox_genero.addItem("Seleccione...");
-        
-        // 4. Llenamos con los datos de la DB
-        for (String genero : lista) {
-            jComboBox_genero.addItem(genero);
+        JTABLE_Mant_Empleado.setAutoCreateRowSorter(true);
+        modeloTablaEmpleado.setRowCount(0);
+
+        ResultSet rs = EM.listarEmpleadosDesactivados(); 
+
+        while (rs.next()) {
+            Object fila[] = {
+                rs.getInt("ID"), 
+                rs.getString("DNI"),
+                rs.getString("Nombre de Empleado"),
+                rs.getString("Apellido de Empleado"),
+                rs.getDate("Fecha de Nacimiento"),
+                rs.getTimestamp("Fecha de Registro"),
+                rs.getString("Lugar de Residencia"),
+                rs.getString("Correo Principal"),
+                rs.getString("Correo Secundario"),
+                rs.getString("Telefono Principal"),
+                rs.getString("Telefono Secundario"),
+                rs.getString("Genero"),
+                rs.getString("Observaciones"),
+                rs.getInt("Estado") == 1 ? "Activo" : "Inactivo"
+            };
+            modeloTablaEmpleado.addRow(fila);
         }
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Error al llenar combo: " + ex.getMessage());
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error al cargar inactivos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+    private void limpiarCamposEmpleado() {
+    txtcodigoempleado.setText("");
+    txtdniempleado.setText("");
+    txtNombreEmpleado.setText("");
+    txtApellidoEmpleado.setText("");
+    jDateChooser1.setDate(null);
+    txtdireccion.setText("");
+    txtcorreo1.setText("");
+    txtcorreo2.setText("");
+    txttelefono1.setText("");
+    txttelefono2.setText("");
+    txtobservaciones.setText("");
+    jComboBox_genero.setSelectedIndex(0);
+
+    // Control de botones
+    BTN_Guardar.setEnabled(true);
+    BTN_Nuevo.setEnabled(false);
+    BTN_Modificar.setEnabled(false);
+    
+    // Si tienes un botón para volver a listar
+    if(BTN_ListarEmpleados != null) BTN_ListarEmpleados.setEnabled(true);
+}
+
+    
+ public void buscarEmpleadoPorNombre() {
+    modeloTablaEmpleado.setRowCount(0);
+    String criterio = TXT_BuscarEmpleados.getText().trim();
+    
+    try {
+        // Lógica de filtro inicial
+        if (criterio.isEmpty()) {
+            if (jCheckBoxListarInactivos.isSelected()) {
+                this.listarEmpleadosInactivos();
+            } else {
+                this.listarEmpleados();
+            }
+            return;
+        }
+
+        boolean hayResultados = false;
+        // Llama al método de búsqueda de tu DAO
+        ResultSet rs = this.EM.buscarEmpleado(criterio);
+
+        while (rs.next()) {
+            hayResultados = true;
+            Object[] fila = {
+                rs.getInt("id_empleado"),
+                rs.getString("dni_empleado"),
+                rs.getString("nombre_empleado"),
+                rs.getString("apellido_empleado"),
+                rs.getDate("fecha_nacimiento"),
+                rs.getTimestamp("fecha_registro"),
+                rs.getString("direccion_empleado"),
+                rs.getString("correo_principal"),
+                rs.getString("correo_secundario"),
+                rs.getString("telefono_principal"),
+                rs.getString("telefono_secundario"),
+                rs.getString("observacion_empleado"),
+                rs.getString("genero"),
+                rs.getInt("estado") == 1 ? "Activo" : "Inactivo"
+            };
+            modeloTablaEmpleado.addRow(fila);
+        }
+
+        if (!hayResultados) {
+            JOptionPane.showMessageDialog(this, "No se encontraron coincidencias para: " + criterio,
+                    "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Error en la búsqueda:\n" + e.getMessage(),
+                "Error de búsqueda", JOptionPane.ERROR_MESSAGE);
     }
 }
 }
