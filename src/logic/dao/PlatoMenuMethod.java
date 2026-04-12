@@ -70,7 +70,7 @@ public class PlatoMenuMethod {
          if (existePlatoConNombre(nombre, id)) {
     throw new IllegalArgumentException("Ya existe un plato con ese nombre en el menú.");
 }
-        String sql = "{CALL Update_Plato_Menu(?,?,?,?,?)}";/*Llamada al procedimiento*/
+        String sql = "{CALL actualizar_plato_menu(?,?,?,?,?)}";/*Llamada al procedimiento*/
         try (PreparedStatement ps = conn.prepareCall(sql)){
             ps.setInt(1,id);
             ps.setString(2, nombre);
@@ -85,7 +85,7 @@ public class PlatoMenuMethod {
 
        /* DESACTIVATE --> DESACTIVAR DATOS */
      public void desactivarPlatoMenu(int id) throws SQLException{
-        String sql = "{CALL Desactivar_PlatoMenu(?)}";/*Llamada al procedimiento*/
+        String sql = "{CALL desactivar_plato_menu(?)}";/*Llamada al procedimiento*/
         try
             (PreparedStatement ps =conn.prepareCall(sql)){
             ps.setInt(1,id);

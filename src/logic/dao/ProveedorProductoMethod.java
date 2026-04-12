@@ -126,7 +126,7 @@ public class ProveedorProductoMethod {
 
         // 1. Llamada al procedimiento Update_ProveedorProducto
         // El orden es: id_prov, id_prod, precio, tiempo, fecha
-        String sql = "{CALL Update_ProveedorProducto(?,?,?,?,?)}";
+        String sql = "{CALL actualizar_proveedorproducto(?,?,?,?,?)}";
 
         try (CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, idProveedor);
@@ -165,7 +165,7 @@ public class ProveedorProductoMethod {
             throw new IllegalArgumentException("Los códigos de proveedor y producto deben ser válidos.");
         }
 
-        String sql = "{CALL CambiarEstadoProveedorProducto(?, ?, ?)}";
+        String sql = "{CALL cambiar_estado_proveedorproducto(?, ?, ?)}";
 
         try (CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, idProveedor);
