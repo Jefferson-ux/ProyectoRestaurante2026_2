@@ -18,10 +18,13 @@ import javax.swing.JOptionPane;
  */
 public class JD_BuscarPedido extends javax.swing.JDialog {
     
-    // 1. Variable para referenciar al formulario que te llamó
+    //Utilizamos el logger para registrar errores o informcaión importante
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(JD_BuscarPedido.class.getName());
+    
+    //Intansiar tabla y Método
     DefaultTableModel modeloTablaPedido;
     FacturaMethod FC = new FacturaMethod();
+    
     private gui.crudMantenimiento.Frm_Factura formularioPadre;
 
     public JD_BuscarPedido(java.awt.Frame parent, boolean modal) {
@@ -39,7 +42,41 @@ public class JD_BuscarPedido extends javax.swing.JDialog {
     // Configurar el modelo de la tabla
     String[] titulos = {"ID", "Fecha", "DNI Cli", "Nombre Cli", "Apellidos Cli", "DNI Emp", "Nombre Emp", "Apellidos Emp", "Cliente", "Empleado", "Tipo", "Platos"};
     modeloTablaPedido = new DefaultTableModel(null, titulos);
-    jTable1.setModel(modeloTablaPedido);
+    JTABLE_pedidos.setModel(modeloTablaPedido);
+    
+    //Cambiamos el ancho que ocuparán cada tabla
+    JTABLE_pedidos.getColumnModel().getColumn(1).setPreferredWidth(50);
+    JTABLE_pedidos.getColumnModel().getColumn(9).setPreferredWidth(180);
+    JTABLE_pedidos.getColumnModel().getColumn(8).setPreferredWidth(150);
+    
+    //Ocultamos campos redudundantes de Pedido
+    JTABLE_pedidos.getColumnModel().getColumn(0).setMaxWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(0).setMinWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(0).setPreferredWidth(0);
+    
+    JTABLE_pedidos.getColumnModel().getColumn(2).setMaxWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(2).setMinWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(2).setPreferredWidth(0);
+    
+    JTABLE_pedidos.getColumnModel().getColumn(3).setMaxWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(3).setMinWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(3).setPreferredWidth(0);
+    
+    JTABLE_pedidos.getColumnModel().getColumn(4).setMaxWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(4).setMinWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(4).setPreferredWidth(0);
+    
+    JTABLE_pedidos.getColumnModel().getColumn(5).setMaxWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(5).setMinWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(5).setPreferredWidth(0);
+    
+    JTABLE_pedidos.getColumnModel().getColumn(6).setMaxWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(6).setMinWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(6).setPreferredWidth(0);
+    
+    JTABLE_pedidos.getColumnModel().getColumn(7).setMaxWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(7).setMinWidth(0);
+    JTABLE_pedidos.getColumnModel().getColumn(7).setPreferredWidth(0);
     
     listarPedidos();
 }
@@ -54,14 +91,14 @@ public class JD_BuscarPedido extends javax.swing.JDialog {
     private void initComponents() {
 
         jLabel2 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        JTABLE_pedidos = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
+        TXT_BuscarPedidos = new javax.swing.JTextField();
         jButtonCerrar = new javax.swing.JButton();
         jButtonElegir = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
-        TXT_BuscarPedidos = new javax.swing.JTextField();
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -70,22 +107,9 @@ public class JD_BuscarPedido extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jButtonCerrar.setText("CERRAR");
-        jButtonCerrar.addActionListener(this::jButtonCerrarActionPerformed);
-        getContentPane().add(jButtonCerrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 380, 140, 40));
-
-        jButtonElegir.setText("ELEGIR");
-        jButtonElegir.addActionListener(this::jButtonElegirActionPerformed);
-        getContentPane().add(jButtonElegir, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 380, 140, 40));
-
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setText("Seleccionar Pedido");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 20, 430, -1));
-
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        JTABLE_pedidos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -96,17 +120,17 @@ public class JD_BuscarPedido extends javax.swing.JDialog {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+        JTABLE_pedidos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jTable1MouseClicked(evt);
+                JTABLE_pedidosMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(JTABLE_pedidos);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 120, 1010, 210));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 720, 210));
 
         jLabel1.setText("BUSCAR");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 80, -1, -1));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 80, -1, -1));
 
         TXT_BuscarPedidos.addActionListener(this::TXT_BuscarPedidosActionPerformed);
         TXT_BuscarPedidos.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -114,37 +138,30 @@ public class JD_BuscarPedido extends javax.swing.JDialog {
                 TXT_BuscarPedidosKeyReleased(evt);
             }
         });
-        jPanel1.add(TXT_BuscarPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 80, 340, -1));
+        jPanel1.add(TXT_BuscarPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 80, 340, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1020, 450));
+        jButtonCerrar.setText("CERRAR");
+        jButtonCerrar.addActionListener(this::jButtonCerrarActionPerformed);
+        jPanel1.add(jButtonCerrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 360, 140, 40));
+
+        jButtonElegir.setText("ELEGIR");
+        jButtonElegir.addActionListener(this::jButtonElegirActionPerformed);
+        jPanel1.add(jButtonElegir, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 360, 140, 40));
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel3.setText("Seleccionar Pedido");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 20, 430, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 750, 450));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
-                                    
-    // Si el usuario hace doble clic en una fila
-    if (evt.getClickCount() == 2) {
-        int fila = jTable1.getSelectedRow();
-        if (fila != -1) {
-            // 1. Extraemos los datos de las columnas específicas
-            // ID (Col 0), Cliente CONCAT (Col 8), Empleado CONCAT (Col 9)
-            String idPedido = jTable1.getValueAt(fila, 0).toString();
-            String clienteFull = jTable1.getValueAt(fila, 8).toString();
-            String empleadoFull = jTable1.getValueAt(fila, 9).toString();
+    private void JTABLE_pedidosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTABLE_pedidosMouseClicked
+      //
 
-            // 2. Pasamos los datos al formulario padre
-            // Asegúrate de que estos componentes en Frm_Factura1 sean PUBLIC
-            formularioPadre.TXT_idPedido.setText(idPedido);
-            formularioPadre.seleccionarEnCombo(formularioPadre.jComboBox_Cliente, clienteFull);
-            formularioPadre.seleccionarEnCombo(formularioPadre.jComboBox_Empleado, empleadoFull);
-
-            // 3. Cerramos el diálogo
-            this.dispose();
-        }
-    }
-
-    }//GEN-LAST:event_jTable1MouseClicked
+    }//GEN-LAST:event_JTABLE_pedidosMouseClicked
 
     private void TXT_BuscarPedidosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TXT_BuscarPedidosActionPerformed
         // TODO add your handling code here:
@@ -159,10 +176,10 @@ public class JD_BuscarPedido extends javax.swing.JDialog {
     }//GEN-LAST:event_jButtonCerrarActionPerformed
 
     private void jButtonElegirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonElegirActionPerformed
-    int fila = jTable1.getSelectedRow();
+    int fila = JTABLE_pedidos.getSelectedRow();
     if (fila != -1) {
         // Como el RowSorter puede cambiar el orden visual, usamos convertRowIndexToModel
-        int filaReal = jTable1.convertRowIndexToModel(fila);
+        int filaReal = JTABLE_pedidos.convertRowIndexToModel(fila);
         
         String idPedido = modeloTablaPedido.getValueAt(filaReal, 0).toString();
         String clienteFull = modeloTablaPedido.getValueAt(filaReal, 8).toString();
@@ -217,6 +234,7 @@ public class JD_BuscarPedido extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable JTABLE_pedidos;
     private javax.swing.JTextField TXT_BuscarPedidos;
     private javax.swing.JButton jButtonCerrar;
     private javax.swing.JButton jButtonElegir;
@@ -225,12 +243,11 @@ public class JD_BuscarPedido extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
     private void listarPedidos() {
     try {
         // 1. Limpiar tabla y activar buscador
-        jTable1.setAutoCreateRowSorter(true);
+        JTABLE_pedidos.setAutoCreateRowSorter(true);
         modeloTablaPedido.setRowCount(0);
 
         // 2. Obtener datos (Usamos la instancia de tu clase de métodos, ej: FC)
@@ -263,7 +280,7 @@ public class JD_BuscarPedido extends javax.swing.JDialog {
         String texto = TXT_BuscarPedidos.getText().toLowerCase();
         // Filtro simple usando RowSorter
         javax.swing.table.TableRowSorter<DefaultTableModel> sorter = new javax.swing.table.TableRowSorter<>(modeloTablaPedido);
-        jTable1.setRowSorter(sorter);
+        JTABLE_pedidos.setRowSorter(sorter);
         sorter.setRowFilter(javax.swing.RowFilter.regexFilter("(?i)" + texto));
     }
 }

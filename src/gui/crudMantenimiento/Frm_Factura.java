@@ -910,16 +910,7 @@ private String tipoPagoOriginal;
             JOptionPane.showMessageDialog(this, "Error al cargar los tipos de pago: " + e.getMessage());
         }
     }
-    
-    //Validara campos vacios
-    private boolean campoVacio(javax.swing.JTextField txt, String nombreCampo) {
-        if (txt.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El campo " + nombreCampo + " es obligatorio.", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-            txt.requestFocus();
-            return true; // Sí está vacío
-        }
-        return false; // No está vacío
-    }
+   
     
     //método para listar productos
     private void listarFacturas() {
@@ -1024,6 +1015,7 @@ private String tipoPagoOriginal;
         }
     }
     
+    //Permite verificar si el nombre buscado esta en el jcombobox
     void seleccionarEnCombo(javax.swing.JComboBox combo, String nombreTabla) {
         if (nombreTabla == null || nombreTabla.trim().isEmpty()) {
             combo.setSelectedIndex(0);
