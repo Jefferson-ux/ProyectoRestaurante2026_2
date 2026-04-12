@@ -107,7 +107,7 @@ public class ProductoMethod {
     /* UPDATE --> ACTUALIZAR DATOS */
     public void modificarProducto(int id, String nombre, double precio, int stock_minimo, int stock_actual, String observacion, int id_unidad) throws SQLException {
         // El orden del PROCEDURE Update_Producto es: id, nombre, precio, stock_minimo, stock_actual, obs, id_unidad
-        String sql = "{CALL Update_Producto(?,?,?,?,?,?,?)}";
+        String sql = "{CALL actualizar_producto(?,?,?,?,?,?,?)}";
        try (CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, id);
             cs.setString(2, nombre);
@@ -128,7 +128,7 @@ public class ProductoMethod {
         if (codigoProducto <= 0) {
             throw new IllegalArgumentException("El código del proveedor es inválido.");
         }
-        String sql = "{CALL CambiarEstadoProducto(?, ?)}";
+        String sql = "{CALL cambiar_estado_producto(?, ?)}";
         CallableStatement cs = conn.prepareCall(sql);
         cs.setInt(1, codigoProducto);  // Código del proveedor
         cs.setInt(2, 1);              // Estado: 1 = activo
@@ -139,7 +139,7 @@ public class ProductoMethod {
         if (codigoProducto <= 0) {
             throw new IllegalArgumentException("El código del proveedor es inválido.");
         }
-        String sql = "{CALL CambiarEstadoProducto(?, ?)}";
+        String sql = "{CALL cambiar_estado_producto(?, ?)}";
         CallableStatement cs = conn.prepareCall(sql);
         cs.setInt(1, codigoProducto);  // Código del producto
         cs.setInt(2, 0);              // Estado: 0 = desactivado

@@ -50,25 +50,22 @@ WHERE estado = 1;
    ============================================================ */
 CREATE OR REPLACE VIEW vista_contrato AS
 SELECT
-    c.id_contrato   AS `ID`,
-    tc.nombre_tipo_contrato      AS `Tipo de Contrato`,
-    e.nombre_empleado            AS `Empleado`,
-    e.dni_empleado               AS `DNI del Empleado`,
-    ca.nombre_cargo              AS `Cargo`,
-    c.descripcion_contrato 		 AS `Descripciones`,
-    c.fecha_contrato             AS `Fecha de Contrato`,
-    t.nombre_turno               AS `Turno`,
-    -- Cambiamos TO_CHAR por TIME_FORMAT
+    c.id_contrato               AS `ID`,
+    tc.nombre_tipo_contrato     AS `Tipo de Contrato`,
+    CONCAT(e.nombre_empleado, ' - ', e.dni_empleado) AS `Empleado`,
+    ca.nombre_cargo             AS `Cargo`,
+    c.descripcion_contrato      AS `Descripción`,
+    DATE_FORMAT(c.fecha_contrato, '%d/%m/%Y %H:%i') AS `Fecha de Contrato`,
+    t.nombre_turno              AS `Turno`,
     TIME_FORMAT(t.horario_inicio, '%H:%i') AS `Horario Inicio`,
-    TIME_FORMAT(t.horario_final, '%H:%i')  AS `Horario Final`
+    TIME_FORMAT(t.horario_final, '%H:%i')  AS `Horario Final`,
+    c.estado                    AS `Estado`
 FROM contrato c
-INNER JOIN turno t          ON c.id_turno = t.id_turno
-INNER JOIN empleado e       ON c.id_empleado = e.id_empleado
-INNER JOIN tipo_contrato tc ON c.id_tipo_contrato = tc.id_tipo_contrato
--- Se une con contrato, ya no con empleado 
-INNER JOIN cargo ca         ON c.id_cargo = ca.id_cargo
-WHERE
-    c.estado = 1;
+INNER JOIN turno t              ON c.id_turno = t.id_turno
+INNER JOIN empleado e           ON c.id_empleado = e.id_empleado
+INNER JOIN tipo_contrato tc     ON c.id_tipo_contrato = tc.id_tipo_contrato
+INNER JOIN cargo ca             ON c.id_cargo = ca.id_cargo;
+
 
 
 
@@ -207,10 +204,6 @@ SELECT
 FROM plato_menu pm
 INNER JOIN categoria c ON pm.id_categoria = c.id_categoria
 WHERE pm.estado = 1;
-
-
-
-
 
 
 /* vista_producto */
