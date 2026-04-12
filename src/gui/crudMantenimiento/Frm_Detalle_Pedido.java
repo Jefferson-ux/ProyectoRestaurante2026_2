@@ -127,14 +127,7 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
     if (i != 2 && i != 6) { 
         JTABLE_Mant_DetallePedido.getColumnModel().getColumn(i).setCellRenderer(tcr);
     }
-}    
-        
-        
-        
-        
-        
-        
-        
+}
         
         tcr.setHorizontalAlignment(SwingConstants.CENTER);
 
