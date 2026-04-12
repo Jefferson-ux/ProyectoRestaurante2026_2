@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
 public class ClienteMethod {
-
     private final Connection conn;
     
     public ClienteMethod() {
@@ -29,88 +28,114 @@ public class ClienteMethod {
         }
     }
     
-       /* VIEWS --> MOSTRAR DATOS */
-           public ResultSet listarMesas() throws SQLException{
-        String sql = "Select * from vista_mesa";/*SQL Query*/
-        Statement st = conn.createStatement(); /*Creamos la sentencia*/
-        return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
-    }
-       
-       
-       /* SEARCH --> BUSCAR DATOS */
-    public ResultSet buscarMesas(String nombre) throws SQLException{
-        String sql = "CALL buscar_mesa(?)";/*Llamada al procedimiento*/
-        CallableStatement cs = conn.prepareCall(sql);/*Usamos CallableStatement*/
-        cs.setString(1, nombre);    /*Asignamos parámetros*/
-        return cs.executeQuery(); 
-    }       
-
-
-
-       /* INSERT--> AGREGAR DATOS */
-    public void insertarMesas(String nombre, int capacidad) throws SQLException{
-        if (existeMesaConNumero(nombre, 0)) {
-    throw new IllegalArgumentException("El número de mesa ya está registrado.");
-}
-        String sql = "{CALL insertar_mesa(?,?)}";//Llamada al procedimiento
-        try 
-            (PreparedStatement ps =conn.prepareCall(sql)){
-            ps.setString(1, nombre);
-            ps.setInt(2, capacidad);
-            ps.execute();
-            System.out.println("Mesa insertada con éxito");
-        }
-    } 
-
-
-    public void modificarMesas(int id, String nuevoNombre,int nuevaCapacidad) throws SQLException{
-        if (existeMesaConNumero(nuevoNombre, id)) {
-    throw new IllegalArgumentException("El número de mesa ya está registrado.");
-}
-        String sql = "{CALL Update_Mesa(?,?,?)}";/*Llamada al procedimiento*/
-        try (PreparedStatement ps = conn.prepareCall(sql)){
-            ps.setInt(1,id);
-            ps.setString(2, nuevoNombre);
-            ps.setInt(3, nuevaCapacidad);
-            ps.executeUpdate();
-            System.out.println("Mesa modificada");
-        }                   
-
-    }
-
-
-
-
-       /* DESACTIVATE --> DESACTIVAR DATOS */
-     public void downFacultades(int id) throws SQLException{
-        String sql = "CALL vera_DesactivarFacultad(?)";/*Llamada al procedimiento*/
-        try 
-            (PreparedStatement ps =conn.prepareCall(sql)){
-            ps.setInt(1,id);
-            ps.executeUpdate();
-            System.out.println("Facultad desactivada");
-        }   
-    }                     
-  
-     
-     public boolean existeMesaConNumero(String numeroMesa, int codigoMesa) throws SQLException {
-    String sql = "SELECT 1 FROM mesa "
-               + "WHERE numero_mesa = ? "
-               + "AND id_mesa <> ?";
+    public boolean existeClienteConDni(String dni, int id_cliente) throws SQLException {
+    String sql = "SELECT 1 FROM cliente "
+               + "WHERE dni_cliente = ? "
+               + "AND id_cliente <> ?";
     
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, numeroMesa);
-        ps.setInt(2, codigoMesa);
-        try (ResultSet rs = ps.executeQuery()) {
-            return rs.next();
-        }
+    PreparedStatement ps = conn.prepareStatement(sql);
+    ps.setString(1, dni.trim());
+    ps.setInt(2, id_cliente); // 0 si es insertar
+    
+    ResultSet rs = ps.executeQuery();
+    return rs.next(); // true = ya existe
+    }
+    
+    public ResultSet listarCliente() throws SQLException {
+    String sql = "SELECT * FROM vista_cliente WHERE `Estado` = 1"; // solo activos
+    Statement st = conn.createStatement();
+    return st.executeQuery(sql);
+    }
+    
+    public ResultSet listarClienteInactivo() throws SQLException {
+    String sql = "SELECT * FROM vista_cliente WHERE `Estado` = 0";
+    Statement st = conn.createStatement();
+    return st.executeQuery(sql);
+    }
+    
+    public ResultSet buscarCliente(String parametro) throws SQLException {
+    String sql = "CALL buscar_cliente(?)"; // tu procedure
+    
+    CallableStatement cs = conn.prepareCall(sql);
+    cs.setString(1, parametro.trim()); // importante limpiar espacios
+    
+    return cs.executeQuery();
+    }
+    
+    public void insertarCliente(String dni, String nombre, String apellido, 
+                            String correo, String telefono, String observacion) throws SQLException {
+    
+    // 🔴 VALIDACIÓN PREVIA (como hiciste con proveedor)
+    if (existeClienteConDni(dni, 0)) {
+        throw new IllegalArgumentException("Ya existe un cliente con ese DNI.");
+    }
+
+    String sql = "CALL insertar_cliente(?,?,?,?,?,?)"; // tu procedure
+
+    try (CallableStatement cs = conn.prepareCall(sql)) {
+
+        cs.setString(1, dni.trim());
+        cs.setString(2, nombre.trim());
+        cs.setString(3, apellido.trim());
+        cs.setString(4, correo != null ? correo.trim() : null);
+        cs.setString(5, telefono != null ? telefono.trim() : null);
+        cs.setString(6, observacion != null ? observacion.trim() : null);
+
+        cs.execute();
+
+        System.out.println("Cliente insertado con éxito");
     }
 }
-       
-         //======================================//  
-        // Métodos de los COMBOBOX - VIEW de FK //
-       //======================================//            
-      
+    
+    public void modificarCliente(int id, String dni, String nombre, String apellido,
+                             String correo, String telefono, String observacion) throws SQLException {
 
+    String sql = "CALL actualizar_cliente(?,?,?,?,?,?,?)"; // tu procedure
 
+    try (CallableStatement cs = conn.prepareCall(sql)) {
+
+        cs.setInt(1, id);
+        cs.setString(2, dni.trim());
+        cs.setString(3, nombre.trim());
+        cs.setString(4, apellido.trim());
+        cs.setString(5, correo != null ? correo.trim() : null);
+        cs.setString(6, telefono != null ? telefono.trim() : null);
+        cs.setString(7, observacion != null ? observacion.trim() : null);
+
+        cs.execute();
+
+        System.out.println("Cliente modificado correctamente");
+    }
 }
+    public void reactivarCliente(int idCliente) throws SQLException {
+    if (idCliente <= 0) {
+        throw new IllegalArgumentException("El ID del cliente es inválido.");
+    }
+
+    String sql = "{CALL cambiar_estado_cliente(?, ?)}";
+
+    try (CallableStatement cs = conn.prepareCall(sql)) {
+        cs.setInt(1, idCliente); // ID del cliente
+        cs.setInt(2, 1);         // Estado: 1 = activo
+
+        ResultSet rs = cs.executeQuery();
+
+        if (rs.next()) {
+            System.out.println(rs.getString("mensaje"));
+        }
+    }
+    }
+    
+    public void desactivarCliente(int idCliente) throws SQLException {
+        if (idCliente <= 0) {
+            throw new IllegalArgumentException("El código del cliente es inválido.");
+        }
+        String sql = "{CALL cambiar_estado_cliente(?, ?)}";
+        CallableStatement cs = conn.prepareCall(sql);
+        cs.setInt(1, idCliente);  // Código del proveedor
+        cs.setInt(2, 0);              // Estado: 0 = desactivado
+        cs.execute();
+    }
+}
+    
+ 

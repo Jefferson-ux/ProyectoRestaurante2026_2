@@ -82,7 +82,6 @@ BEGIN
     SELECT CONCAT('Producto "', (SELECT nombre_producto FROM producto WHERE id_producto = p_id_producto), 
                   '" actualizado a estado: ', p_nuevo_estado) AS mensaje;
 END$$
-
 DELIMITER ;
 
 /* ===================================================
