@@ -45,7 +45,8 @@ BEGIN
     SELECT *
     FROM vista_cliente
     WHERE `Nombre de Cliente` LIKE CONCAT('%', p_param, '%')
-      OR `Apellido de Cliente` LIKE CONCAT('%', p_param, '%');
+      OR `Apellido de Cliente` LIKE CONCAT('%', p_param, '%')
+      OR `DNI` LIKE CONCAT('%', p_param, '%');
 END //
 DELIMITER ;
 

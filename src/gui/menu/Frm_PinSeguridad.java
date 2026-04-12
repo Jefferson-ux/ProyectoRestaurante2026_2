@@ -6,7 +6,7 @@ package gui.menu;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import javax.swing.JOptionPane;
-import gui.menu.Frm_LoginAcesso;
+import gui.menu.Frm_LoginAcceso;
 
 
 
@@ -24,7 +24,6 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
         FlatLightLaf.setup();
         initComponents();
         this.setLocationRelativeTo(null);
-        this.setTitle("Pin de seguridad");
         this.setResizable(false);
         btningresar.setEnabled(false);
         btn_delete.setText("");
@@ -285,7 +284,7 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
         if (pass.equals(pinCorrecto)) {
             JOptionPane.showMessageDialog(this, "Bienvenido al sistema académico\nAcceso concedido correctamente","Acceso permitido",JOptionPane.INFORMATION_MESSAGE);
 
-            Frm_LoginAcesso menu = new Frm_LoginAcesso();
+            Frm_LoginAcceso menu = new Frm_LoginAcceso();
             menu.setVisible(true);
             this.dispose();
 

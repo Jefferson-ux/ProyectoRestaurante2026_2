@@ -5,6 +5,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 public class DetallePedidoMethod {
 private Connection conn;
@@ -27,7 +28,20 @@ private Connection conn;
     public DetallePedidoMethod(Connection existingConn) {
         this.conn = existingConn;
     }
+    
+    
+    
+    public ResultSet listarDetalle() throws SQLException{
+        String sql = "Select * from vista_detalle_pedido";/*SQL Query*/
+        
+        Statement st = conn.createStatement(); /*Creamos la sentencia*/
+        return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
+    }
+    
+    
 
+    
+    
     // ============================================================
     // 1. MÉTODO INSERT (CREATE)
     // ============================================================
@@ -113,6 +127,39 @@ public boolean actualizarDetalle(int idDetalle, int nuevaCantidad, String nuevaO
     
     
     
+
+
+// PLATILLO
+// 1. Listar el nombre concatenado (ej: "Lomo Saltado - S/ 25.00") para el ComboBox
+public ResultSet comboListarPlatillos() throws SQLException {
+    // Usamos el nombre de la columna que tengas en tu vista_plato_menu
+    // Asumiendo que se llama 'Nombre de Platillo' o similar según tu SQL anterior
+    String sql = "SELECT `Nombre del Plato` FROM vista_plato_menu";
+    Statement st = conn.createStatement();
+    return st.executeQuery(sql);
+}
+
+// 2. Obtener el ID real (PK) a partir del texto seleccionado en el Combo
+public int obtenerIdPlatilloPorNombre(String nombrePlatillo) throws SQLException {
+    // Buscamos el ID original comparando con el alias de la vista
+    String sql = "SELECT `ID` FROM vista_plato_menu WHERE `Nombre del Plato` = ?";
+    
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, nombrePlatillo);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("ID");
+            }
+            return -1; // No encontrado
+        }
+    }
+}
+
+
+
+
+
+
     
     
     // ============================================================
@@ -138,4 +185,96 @@ public boolean actualizarDetalle(int idDetalle, int nuevaCantidad, String nuevaO
             this.observacion = obs;
         }
     }
+    
+    public double obtenerPrecioPorPlatoMenu(String plato) throws SQLException {
+    // Buscamos en la vista comparando el campo concatenado
+    String sql = "SELECT precio_plato FROM plato_menu WHERE nombre_plato = ?";
+    
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, plato);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getDouble("precio_plato");
+            }
+            return 0; // No encontrado
+        }
+    }
+}
+    
+    
+    
+           public ResultSet listarPedido(int id) throws SQLException{
+        String sql = "Select * from vista_pedido where `ID`=?";/*SQL Query*/
+        
+        
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, id);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                ;
+            }
+            
+        }
+    }
+        
+        
+        Statement st = conn.createStatement(); /*Creamos la sentencia*/
+        return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
+    }
+    
+    
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+
+    public ResultSet listarEmpleados() throws SQLException {
+        String sql = "SELECT * FROM vista_empleado";
+        Statement st = conn.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+        return rs;
+    }
+    
+    public ResultSet buscarEmpleados(String texto) throws SQLException {
+        String sql = "{CALL buscar_empleado(?)}";
+            CallableStatement cs = conn.prepareCall(sql);
+            cs.setString(1, texto);
+            ResultSet rs = cs.executeQuery();
+            return rs;
+    }
+    
+    public ResultSet listarCliente() throws SQLException {
+        String sql = "SELECT * FROM vista_cliente";
+        Statement st = conn.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+        return rs;
+    }
+    
+    public ResultSet buscarCliente(String texto) throws SQLException {
+        String sql = "{CALL buscar_cliente(?)}";
+            CallableStatement cs = conn.prepareCall(sql);
+            cs.setString(1, texto);
+            ResultSet rs = cs.executeQuery();
+            return rs;
+    }    
+           
+           
+           
+           
+           
+           
 }
