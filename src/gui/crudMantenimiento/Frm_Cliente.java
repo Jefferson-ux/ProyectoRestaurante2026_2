@@ -1,73 +1,75 @@
+
 package gui.crudMantenimiento;
-
 import com.formdev.flatlaf.FlatLightLaf;
-import gui.menu.Frm_MenuPrincipal;
-import java.awt.Image;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.JOptionPane;
-
-   /*Método de Mesa*/
-import logic.dao.MesaMethod;
-
-
-  /*excel*/
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.ImageIcon;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.JFileChooser;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
+//Metodo de proveedor
 import logic.dao.ClienteMethod;
-
-//import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-//import org.apache.poi.xssf.usermodel.XSSFSheet;
-//import org.apache.poi.xssf.usermodel.XSSFRow;
-
-/*pdf*/
-//import com.itextpdf.text.*;
-//import com.itextpdf.text.pdf.*;
-//import java.text.SimpleDateFormat;
-//import java.util.Date;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class Frm_Cliente extends javax.swing.JFrame {
-
     DefaultTableModel modeloTablaCliente = new DefaultTableModel();
     //Objeto conexión a la base de datos
-    ClienteMethod methods;
-
+    ClienteMethod CM = new ClienteMethod();
+    
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Frm_Cliente.class.getName());
+    
+   
     public Frm_Cliente() {
         FlatLightLaf.setup();
         initComponents();
         this.setLocationRelativeTo(null);
-        this.setTitle("Mantenimiento de las mesa");
+        this.setTitle("Mantenimiento de clientes");
+        
+        this.CM = new ClienteMethod();
 
-        ImageIcon icono = new ImageIcon(getClass().getResource("/assets/icon_user.png"));
-        // 2. Extraemos la imagen del objeto ImageIcon
-        Image imagen = icono.getImage();
-        // 3. Lo asignamos a la ventana
-        this.setIconImage(imagen);
+        String[] header = {"ID","DNI","Nombre","Apellido","Correo","Telefono","Observaciones","Estado"};
 
-        this.methods = new MesaMethod();
-
-        txtnumeroMesa.setEditable(false);
-        txtcapacidad.setEditable(false);
-
-        String[] header = {"ID ", "Número de Mesa","Capacidad"};
-
-        modeloTablaMesa.setColumnIdentifiers(header);
-        JTABLE_Mant_Mesa.setModel(modeloTablaMesa);
+        modeloTablaCliente.setColumnIdentifiers(header);
+        JTABLE_Mant_Cliente.setModel(modeloTablaCliente);
+        
+        //Ocultar ID
+        JTABLE_Mant_Cliente.getColumnModel().getColumn(0).setMinWidth(0);
+        JTABLE_Mant_Cliente.getColumnModel().getColumn(0).setMaxWidth(0);
+        JTABLE_Mant_Cliente.getColumnModel().getColumn(0).setWidth(0);
+        
+        //Ocultar Observacion y estado
+        JTABLE_Mant_Cliente.getColumnModel().getColumn(6).setMinWidth(0);
+        JTABLE_Mant_Cliente.getColumnModel().getColumn(6).setMaxWidth(0);
+        JTABLE_Mant_Cliente.getColumnModel().getColumn(6).setWidth(0);
+        
+        JTABLE_Mant_Cliente.getColumnModel().getColumn(7).setMinWidth(0);
+        JTABLE_Mant_Cliente.getColumnModel().getColumn(7).setMaxWidth(0);
+        JTABLE_Mant_Cliente.getColumnModel().getColumn(7).setWidth(0);
 
         //Desactivar button
-        BTN_Nuevo.setEnabled(false);
-        BTN_Desactivar.setEnabled(false);
         BTN_Guardar.setEnabled(false);
         BTN_Modificar.setEnabled(false);
-        txtcodigomesa.setEnabled(false);
-
+        BTN_Modificar.setEnabled(false);
+        BTN_Desactivar.setEnabled(false);
+        BTN_VerProveedor.setEnabled(true);
     }
 
+   
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -76,90 +78,155 @@ public class Frm_Cliente extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        txtcodigomesa = new javax.swing.JTextField();
-        BTN_VerMesas = new javax.swing.JButton();
+        txtnombreCliente = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        txtnumeroMesa = new javax.swing.JTextField();
-        txtcapacidad = new javax.swing.JFormattedTextField();
+        txttelefonoCliente = new javax.swing.JTextField();
+        txtDniCliente = new javax.swing.JTextField();
+        txtApellidoCliente = new javax.swing.JTextField();
+        txtcorreoCliente = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        txtcodigoCliente = new javax.swing.JTextField();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        txtobservaciones = new javax.swing.JTextArea();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        JTABLE_Mant_Mesa = new javax.swing.JTable();
+        JTABLE_Mant_Cliente = new javax.swing.JTable();
         BTN_Nuevo = new javax.swing.JButton();
-        BTN_Cancel = new javax.swing.JButton();
-        BTN_Guardar = new javax.swing.JButton();
         BTN_Modificar = new javax.swing.JButton();
-        BTN_Desactivar = new javax.swing.JButton();
         BTN_EXCEL = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
-        TXT_BuscarMesas = new javax.swing.JTextField();
+        TXT_BuscarCliente = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         BTN_Cerrar1 = new javax.swing.JButton();
         BTN_PDF = new javax.swing.JButton();
+        BTN_Desactivar = new javax.swing.JButton();
+        jPanel5 = new javax.swing.JPanel();
+        jCheckBoxListarInactivos = new javax.swing.JCheckBox();
+        jCheckBoxActivar = new javax.swing.JCheckBox();
         jPanel3 = new javax.swing.JPanel();
-        BTN_Back = new javax.swing.JButton();
+        BTN_VerProveedor = new javax.swing.JButton();
+        BTN_Guardar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel1.setText("MANTENIMIENTO DE MESAS");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 0, 240, 30));
+        jLabel1.setText("MANTENIMIENTO DE CLIENTES");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 0, 240, 30));
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder(new java.awt.Color(204, 0, 51), null));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel2.setText("Codigo de Mesa");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, -1));
+        jLabel2.setText("CORREO");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 40, -1, -1));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel3.setText("Capacidad");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, -1, -1));
+        jLabel3.setText("TELEFONO");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 70, -1, -1));
 
-        txtcodigomesa.setEditable(false);
-        txtcodigomesa.setBackground(new java.awt.Color(255, 255, 255));
-        txtcodigomesa.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        txtcodigomesa.setForeground(new java.awt.Color(0, 0, 204));
-        txtcodigomesa.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtcodigomesa.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtcodigomesa, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 20, 330, 30));
-
-        BTN_VerMesas.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_VerMesas.setText("VER MESAS");
-        BTN_VerMesas.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_VerMesasActionPerformed(evt);
+        txtnombreCliente.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtnombreCliente.setForeground(new java.awt.Color(0, 0, 204));
+        txtnombreCliente.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtnombreCliente.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtnombreCliente.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtnombreClienteKeyTyped(evt);
             }
         });
-        jPanel1.add(BTN_VerMesas, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 20, 180, 50));
+        jPanel1.add(txtnombreCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 70, 250, -1));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel6.setText("Número de mesa");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, -1));
+        jLabel6.setText("Observaciones");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 120, -1, -1));
 
-        txtnumeroMesa.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        txtnumeroMesa.setForeground(new java.awt.Color(0, 0, 204));
-        txtnumeroMesa.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtnumeroMesa.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        txtnumeroMesa.addKeyListener(new java.awt.event.KeyAdapter() {
+        txttelefonoCliente.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txttelefonoCliente.setForeground(new java.awt.Color(0, 0, 204));
+        txttelefonoCliente.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txttelefonoCliente.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txttelefonoCliente.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtnumeroMesaKeyTyped(evt);
+                txttelefonoClienteKeyTyped(evt);
             }
         });
-        jPanel1.add(txtnumeroMesa, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 59, 330, 30));
+        jPanel1.add(txttelefonoCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 70, 250, -1));
 
-        txtcapacidad.setForeground(new java.awt.Color(0, 0, 204));
-        txtcapacidad.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
-        txtcapacidad.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtcapacidad.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jPanel1.add(txtcapacidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 100, 330, 30));
+        txtDniCliente.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtDniCliente.setForeground(new java.awt.Color(0, 0, 204));
+        txtDniCliente.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtDniCliente.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtDniCliente.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtDniClienteKeyTyped(evt);
+            }
+        });
+        jPanel1.add(txtDniCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 40, 250, 20));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 790, 170));
+        txtApellidoCliente.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtApellidoCliente.setForeground(new java.awt.Color(0, 0, 204));
+        txtApellidoCliente.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtApellidoCliente.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtApellidoCliente.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtApellidoClienteKeyTyped(evt);
+            }
+        });
+        jPanel1.add(txtApellidoCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 10, 250, -1));
 
-        JTABLE_Mant_Mesa.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        JTABLE_Mant_Mesa.setForeground(new java.awt.Color(0, 0, 204));
-        JTABLE_Mant_Mesa.setModel(new javax.swing.table.DefaultTableModel(
+        txtcorreoCliente.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtcorreoCliente.setForeground(new java.awt.Color(0, 0, 204));
+        txtcorreoCliente.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtcorreoCliente.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtcorreoCliente.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtcorreoClienteKeyTyped(evt);
+            }
+        });
+        jPanel1.add(txtcorreoCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 40, 250, 20));
+
+        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel8.setText("APELLIDO");
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 10, -1, -1));
+
+        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel9.setText("NOMBRE");
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, -1, -1));
+
+        txtcodigoCliente.setEditable(false);
+        txtcodigoCliente.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        txtcodigoCliente.setForeground(new java.awt.Color(0, 0, 204));
+        txtcodigoCliente.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtcodigoCliente.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtcodigoCliente.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtcodigoClienteKeyTyped(evt);
+            }
+        });
+        jPanel1.add(txtcodigoCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 10, 250, 20));
+
+        txtobservaciones.setColumns(20);
+        txtobservaciones.setRows(5);
+        jScrollPane3.setViewportView(txtobservaciones);
+
+        jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 140, 350, 80));
+
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel7.setText("DNI");
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, -1, -1));
+
+        jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel10.setText("Codigo");
+        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 780, 240));
+
+        JTABLE_Mant_Cliente.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        JTABLE_Mant_Cliente.setForeground(new java.awt.Color(0, 0, 204));
+        JTABLE_Mant_Cliente.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -170,34 +237,101 @@ public class Frm_Cliente extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        JTABLE_Mant_Mesa.addMouseListener(new java.awt.event.MouseAdapter() {
+        JTABLE_Mant_Cliente.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                JTABLE_Mant_MesaMouseClicked(evt);
+                JTABLE_Mant_ClienteMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(JTABLE_Mant_Mesa);
+        jScrollPane1.setViewportView(JTABLE_Mant_Cliente);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 330, 810, 220));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 410, 1060, 220));
 
         BTN_Nuevo.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_add.png"))); // NOI18N
         BTN_Nuevo.setText("      NUEVO");
-        BTN_Nuevo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_NuevoActionPerformed(evt);
-            }
-        });
-        getContentPane().add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 220, 190, 50));
+        BTN_Nuevo.addActionListener(this::BTN_NuevoActionPerformed);
+        getContentPane().add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 290, 190, 50));
 
-        BTN_Cancel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Cancel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_cancel.png"))); // NOI18N
-        BTN_Cancel.setText("     CANCELAR");
-        BTN_Cancel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_CancelActionPerformed(evt);
+        BTN_Modificar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Modificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_cancel_cogs.png"))); // NOI18N
+        BTN_Modificar.setText("    MODIFICAR");
+        BTN_Modificar.addActionListener(this::BTN_ModificarActionPerformed);
+        getContentPane().add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 290, 200, 50));
+
+        BTN_EXCEL.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_EXCEL.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/excel.png"))); // NOI18N
+        BTN_EXCEL.setText("     Exportar XLSX");
+        BTN_EXCEL.addActionListener(this::BTN_EXCELActionPerformed);
+        getContentPane().add(BTN_EXCEL, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 650, 170, 50));
+
+        jPanel2.setBackground(new java.awt.Color(0, 0, 0));
+        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("Ingresar el Nombre del Cliente");
+        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 10, -1, 30));
+
+        TXT_BuscarCliente.addActionListener(this::TXT_BuscarClienteActionPerformed);
+        TXT_BuscarCliente.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                TXT_BuscarClienteKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                TXT_BuscarClienteKeyReleased(evt);
             }
         });
-        getContentPane().add(BTN_Cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 220, 190, 48));
+        jPanel2.add(TXT_BuscarCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 10, 290, -1));
+
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setText("BUSCAR");
+        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 10, 120, 30));
+
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 360, 1060, 50));
+
+        BTN_Cerrar1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Cerrar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_cancel.png"))); // NOI18N
+        BTN_Cerrar1.setText("     Cerrar");
+        BTN_Cerrar1.addActionListener(this::BTN_Cerrar1ActionPerformed);
+        getContentPane().add(BTN_Cerrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(880, 650, 170, 50));
+
+        BTN_PDF.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/pdf.png"))); // NOI18N
+        BTN_PDF.setText("     Exportar PDF");
+        BTN_PDF.addActionListener(this::BTN_PDFActionPerformed);
+        getContentPane().add(BTN_PDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 650, 170, 50));
+
+        BTN_Desactivar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Desactivar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_delete.png"))); // NOI18N
+        BTN_Desactivar.setText("DESACTIVAR");
+        BTN_Desactivar.addActionListener(this::BTN_DesactivarActionPerformed);
+        getContentPane().add(BTN_Desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 290, 200, 50));
+
+        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Acciones", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 12), new java.awt.Color(0, 0, 204))); // NOI18N
+        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jCheckBoxListarInactivos.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jCheckBoxListarInactivos.setText("LISTAR CLIENTES DESACTIVADOS");
+        jCheckBoxListarInactivos.addActionListener(this::jCheckBoxListarInactivosActionPerformed);
+        jPanel5.add(jCheckBoxListarInactivos, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
+
+        jCheckBoxActivar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jCheckBoxActivar.setText("REACTIVACION");
+        jCheckBoxActivar.addActionListener(this::jCheckBoxActivarActionPerformed);
+        jPanel5.add(jCheckBoxActivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, -1, -1));
+
+        getContentPane().add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 140, 260, 120));
+
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        BTN_VerProveedor.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_VerProveedor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/information.png"))); // NOI18N
+        BTN_VerProveedor.setText("LISTAR CLIENTES");
+        BTN_VerProveedor.addActionListener(this::BTN_VerProveedorActionPerformed);
+        jPanel3.add(BTN_VerProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 40, 230, 50));
 
         BTN_Guardar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Guardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_save.png"))); // NOI18N
@@ -207,159 +341,67 @@ public class Frm_Cliente extends javax.swing.JFrame {
                 BTN_GuardarMouseClicked(evt);
             }
         });
-        BTN_Guardar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_GuardarActionPerformed(evt);
-            }
-        });
-        getContentPane().add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 220, 190, 50));
+        BTN_Guardar.addActionListener(this::BTN_GuardarActionPerformed);
+        jPanel3.add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 290, 190, 50));
 
-        BTN_Modificar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Modificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_update.png"))); // NOI18N
-        BTN_Modificar.setText("    MODIFICAR");
-        BTN_Modificar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_ModificarActionPerformed(evt);
-            }
-        });
-        getContentPane().add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 220, 200, 50));
-
-        BTN_Desactivar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Desactivar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_delete.png"))); // NOI18N
-        BTN_Desactivar.setText("     QUITAR");
-        BTN_Desactivar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_DesactivarActionPerformed(evt);
-            }
-        });
-        getContentPane().add(BTN_Desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 220, 180, 50));
-
-        BTN_EXCEL.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_EXCEL.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/excel.png"))); // NOI18N
-        BTN_EXCEL.setText("     Exportar XLSX");
-        BTN_EXCEL.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_EXCELActionPerformed(evt);
-            }
-        });
-        getContentPane().add(BTN_EXCEL, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 560, 170, 40));
-
-        jPanel2.setBackground(new java.awt.Color(0, 0, 0));
-        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Ingresar el Nombre de la Facultad");
-        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, -1, 30));
-
-        TXT_BuscarMesas.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                TXT_BuscarMesasActionPerformed(evt);
-            }
-        });
-        TXT_BuscarMesas.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                TXT_BuscarMesasKeyReleased(evt);
-            }
-        });
-        jPanel2.add(TXT_BuscarMesas, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 14, 290, -1));
-
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_search_white.png"))); // NOI18N
-        jLabel5.setText("BUSCAR");
-        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 10, 120, 30));
-
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 280, 810, 50));
-
-        BTN_Cerrar1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Cerrar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_close.png"))); // NOI18N
-        BTN_Cerrar1.setText("     Cerrar");
-        BTN_Cerrar1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_Cerrar1ActionPerformed(evt);
-            }
-        });
-        getContentPane().add(BTN_Cerrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 560, 130, 40));
-
-        BTN_PDF.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/pdf.png"))); // NOI18N
-        BTN_PDF.setText("     Exportar PDF");
-        BTN_PDF.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_PDFActionPerformed(evt);
-            }
-        });
-        getContentPane().add(BTN_PDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 560, 170, 40));
-
-        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        BTN_Back.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_back.png"))); // NOI18N
-        BTN_Back.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_BackActionPerformed(evt);
-            }
-        });
-        jPanel3.add(BTN_Back, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 560, 40, 40));
-
-        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 620));
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1070, 720));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void txtnombreClienteKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtnombreClienteKeyTyped
 
+    }//GEN-LAST:event_txtnombreClienteKeyTyped
 
+    private void BTN_VerProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerProveedorActionPerformed
+        this.listarClientes();
+        this.BTN_Guardar.setEnabled(false);
+        this.BTN_Modificar.setEnabled(false);
+        this.BTN_VerProveedor.setEnabled(false);
+        this.jCheckBoxListarInactivos.setSelected(false);
+        this.jPanel3.requestFocus(true);
+    }//GEN-LAST:event_BTN_VerProveedorActionPerformed
 
-    //// --> -->
-    private void JTABLE_Mant_MesaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTABLE_Mant_MesaMouseClicked
-                if (!JTABLE_Mant_Mesa.isEnabled()) {
-            return;
-        }
-        int selectRow = JTABLE_Mant_Mesa.getSelectedRow();
+    private void txttelefonoClienteKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txttelefonoClienteKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txttelefonoClienteKeyTyped
+
+    private void JTABLE_Mant_ClienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTABLE_Mant_ClienteMouseClicked
+        int selectRow = JTABLE_Mant_Cliente.getSelectedRow();
         if (selectRow >= 0) {
-            String codigo = JTABLE_Mant_Mesa.getValueAt(selectRow, 0).toString();
-            String numero_mesa = JTABLE_Mant_Mesa.getValueAt(selectRow, 1).toString();
-            String capacidad = JTABLE_Mant_Mesa.getValueAt(selectRow, 2).toString();
+            String id = JTABLE_Mant_Cliente.getValueAt(selectRow, 0).toString();
+            String dniCliente = JTABLE_Mant_Cliente.getValueAt(selectRow, 1).toString();
+            String nombreCliente = JTABLE_Mant_Cliente.getValueAt(selectRow, 2).toString();
+            String apellidoCliente = JTABLE_Mant_Cliente.getValueAt(selectRow, 3).toString();
+            String correoCliente = JTABLE_Mant_Cliente.getValueAt(selectRow, 4).toString();
+            String telefonoCliente = JTABLE_Mant_Cliente.getValueAt(selectRow, 5).toString();
 
-            txtcodigomesa.setText(codigo);
-            txtnumeroMesa.setText(numero_mesa);
-            txtcapacidad.setText(capacidad);
+            Object celdaObservacion = JTABLE_Mant_Cliente.getValueAt(selectRow, 6);
+            String observacionCliente = (celdaObservacion != null) ? celdaObservacion.toString().trim() : "";
+            
+          
+            txtcodigoCliente.setText(id);
+            txtDniCliente.setText(dniCliente);
+            txtnombreCliente.setText(nombreCliente);
+            txtApellidoCliente.setText(apellidoCliente);
+            txtcorreoCliente.setText(correoCliente);
+            txttelefonoCliente.setText(telefonoCliente);
+            txtobservaciones.setText(observacionCliente);
+            
         }
-
-        txtnumeroMesa.setEditable(true);
-        txtcapacidad.setEditable(true);
-        BTN_Guardar.setEnabled(false);
-        BTN_VerMesas.setEnabled(false);
+        if (jCheckBoxListarInactivos.isSelected()) {
+            BTN_Desactivar.setEnabled(false);
+        } else {
+            BTN_Desactivar.setEnabled(true);
+        }
+        BTN_Guardar.setEnabled(true);
         BTN_Modificar.setEnabled(true);
-        BTN_Desactivar.setEnabled(true);
-    }//GEN-LAST:event_JTABLE_Mant_MesaMouseClicked
 
-
-
-
+    }//GEN-LAST:event_JTABLE_Mant_ClienteMouseClicked
 
     private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
-        txtnumeroMesa.setText("");
-        txtcodigomesa.setText("");
-        txtcapacidad.setText("");
-
-        txtnumeroMesa.requestFocus();
-        txtcapacidad.setEnabled(true);
-        JTABLE_Mant_Mesa.setEnabled(false);
-
-        BTN_Guardar.setEnabled(true);
-        BTN_Desactivar.setEnabled(false);
-        BTN_Modificar.setEnabled(false);
-
-        JTABLE_Mant_Mesa.setEnabled(false);
-            BTN_Nuevo.setVisible(false);
-            BTN_Cancel.setVisible(true);
-
-
-        txtnumeroMesa.setEditable(true);
-        txtcapacidad.setEditable(true);
-
-
+        limpiarCamposClientes();
+        this.BTN_Nuevo.setEnabled(false);
     }//GEN-LAST:event_BTN_NuevoActionPerformed
 
     private void BTN_GuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BTN_GuardarMouseClicked
@@ -367,236 +409,228 @@ public class Frm_Cliente extends javax.swing.JFrame {
     }//GEN-LAST:event_BTN_GuardarMouseClicked
 
     private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
+    // 1. Capturar y limpiar datos
+        String dni = txtDniCliente.getText().trim();
+        String nombre = txtnombreCliente.getText().trim();
+        String apellido = txtApellidoCliente.getText().trim();
+        String correo = txtcorreoCliente.getText().trim();
+        String telefono = txttelefonoCliente.getText().trim();
+        String Observacion = txtobservaciones.getText().trim();
 
-   // 1. Validar que el campo no esté vacío
-    String nombre = txtnumeroMesa.getText().trim();
-    String capacidad = txtcapacidad.getText().trim();
-    if (nombre.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese el número de mesa", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txtnumeroMesa.requestFocus();
-      return;
-    }
-    if (capacidad.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Ingrese la capacidad de la mesa", "Campo requerido", JOptionPane.WARNING_MESSAGE);
-      txtcapacidad.requestFocus();
-      return;
-    }
-
-
-
-    int capacidadInt = Integer.parseInt(capacidad);
-
-            if (capacidadInt<=0) {
-            JOptionPane.showMessageDialog(this, "La capacidad de las mesas debe ser positiva.", "Validación", JOptionPane.WARNING_MESSAGE);
+    // --- VALIDACIONES DE CAMPOS VACÍOS ---
+        if (campoVacio(txtDniCliente, "DNI"))
+            return;
+        if (campoVacio(txtnombreCliente, "Razón Social")) {
             return;
         }
-        if (capacidadInt>=20) {
-            JOptionPane.showMessageDialog(this, "La capacidad de las mesas debe ser menor de 20.\nEsto por temas de ergonomía.", "Validación", JOptionPane.WARNING_MESSAGE);
+        if (campoVacio(txtApellidoCliente, "Teléfono")) {
+            return;
+        }
+        if (campoVacio(txtcorreoCliente, "Correo")) {
+            return;
+        }
+        if (campoVacio(txttelefonoCliente, "Dirección"))
+            return;
+
+    // --- NUEVAS VALIDACIONES DE FORMATO (Lógica de Negocio en Java) ---
+    // Validar que el RUC tenga 11 dígitos y sea numérico
+        if (dni.length() != 8 || !dni.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "El DNI debe tener exactamente 8 dígitos numéricos.", "Validación de RUC", JOptionPane.WARNING_MESSAGE);
+            txtDniCliente.requestFocus();
             return;
         }
 
-
-
-            try {
-            if (this.methods.existeMesaConNumero(nombre, 0)) {
-                JOptionPane.showMessageDialog(this, "Ya existe otra categoría con el mismo nombre.",
-                        "Validación", JOptionPane.WARNING_MESSAGE);
-                return;
-            }       } catch (SQLException ex) {
-            Logger.getLogger(Frm_Categoria.class.getName()).log(Level.SEVERE, null, ex);
+    // Validar formato de correo (opcional pero recomendado en Java)
+        if (!correo.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            JOptionPane.showMessageDialog(this, "El formato del correo electrónico no es válido.", "Validación", JOptionPane.WARNING_MESSAGE);
+            txtcorreoCliente.requestFocus();
+            return;
         }
 
-
-
+        if (Observacion.length() > 500) {
+            JOptionPane.showMessageDialog(this, "La observación no puede exceder los 500 caracteres.", "Validación", JOptionPane.WARNING_MESSAGE);
+            txtobservaciones.requestFocus();
+            return;
+        }
 
     // 2. Confirmar si el usuario desea guardar
-    int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea guardar el registro de mesas?", "Confirmación", JOptionPane.YES_NO_OPTION);
-    if (respuesta == JOptionPane.YES_OPTION) {
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea guardar el registro de cliente?", "Confirmación", JOptionPane.YES_NO_OPTION);
+        if (respuesta == JOptionPane.YES_OPTION) {
 
-      try {
-        // 3. Llamar al método para insertar
-        this.methods.insertarMesas(nombre, capacidadInt);
+            try {
+                // 3. Llamar al método para insertar
+                this.CM.insertarCliente(dni, nombre, apellido, correo, telefono, Observacion);
 
-        // 4. Mostrar mensaje de éxito
-        JOptionPane.showMessageDialog(this, "Mesa registrada correctamente", "Registro exitoso", JOptionPane.INFORMATION_MESSAGE);
+                // 4. Mostrar mensaje de éxito
+                JOptionPane.showMessageDialog(this, "Cliente registrado correctamente", "Registro exitoso", JOptionPane.INFORMATION_MESSAGE);
 
-        // 5. Actualizar tabla y limpiar campos
-        this.MostrarMesas();
+                // 5. Actualizar tabla y limpiar campos
+                this.listarClientes();// Tu método para refrescar la tabla
+                this.limpiarCamposClientes();// Tu método para limpiar TXTs
 
-      } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Error al registrar mesa:\n" + ex.getMessage(), "Error de base de datos", JOptionPane.ERROR_MESSAGE);
-      } finally {
-          JTABLE_Mant_Mesa.setEnabled(true);
-            BTN_Guardar.setEnabled(false);
-            BTN_Nuevo.setVisible(true);
-            BTN_Cancel.setVisible(false);
+            } catch (SQLException ex) {
+                // Capturamos los códigos de error personalizados definidos en el SQL (MYSQL_ERRNO)
+                int errorCode = ex.getErrorCode();
 
-            txtnumeroMesa.setEditable(false);
-            txtcapacidad.setEditable(false);
-
-      }
-    }
+                switch (errorCode) {
+                    case 1034 -> JOptionPane.showMessageDialog(this, "Error: Ya existe un cliente activo con ese RUC.", "Duplicado", JOptionPane.ERROR_MESSAGE);
+                    case 1035 -> JOptionPane.showMessageDialog(this, "Error: El correo electrónico ya está registrado.", "Duplicado", JOptionPane.ERROR_MESSAGE);
+                    case 1043 -> JOptionPane.showMessageDialog(this, "Aviso: Este cliente ya existe en el sistema pero está INACTIVO.\nPor favor, búsquelo en la sección de inactivos para reactivarlo.", "Proveedor Inactivo", JOptionPane.INFORMATION_MESSAGE);
+                    default -> JOptionPane.showMessageDialog(this, "Error de base de datos (" + errorCode + "):\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }catch(IllegalArgumentException e){
+                // Aquí capturamos el mensaje que escribiste en el 'throw' del DAO
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_BTN_GuardarActionPerformed
 
     private void BTN_ModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ModificarActionPerformed
+        // 1. Capturar datos y limpiar espacios
+        String codigoStr = txtcodigoCliente.getText().trim();
+        String dni = txtDniCliente.getText().trim();
+        String nuevoNombre = txtnombreCliente.getText().trim();
+        String nuevoApellido = txtApellidoCliente.getText().trim();
+        String nuevocorreo = txtcorreoCliente.getText().trim();
+        String nuevotelefono = txttelefonoCliente.getText().trim();
+        String nuevaObservacion = txtobservaciones.getText().trim();
 
-    try {
-        String codStr = txtcodigomesa.getText().trim();
-        String numMesa = txtnumeroMesa.getText().trim(); // El "nuevoNombre" en tu método
-        String capacidadStr = txtcapacidad.getText().trim();
-
-        if (codStr.isEmpty() || numMesa.isEmpty() || capacidadStr.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Complete todos los campos obligatorios.", "Validación", JOptionPane.WARNING_MESSAGE);
+        // --- VALIDACIONES DE CAMPOS VACÍOS (Java) ---
+        if (codigoStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un cliente de la tabla.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        int id = Integer.parseInt(codStr);
-        int capacidad = Integer.parseInt(capacidadStr);
-
-
-        if (capacidad<=0) {
-            JOptionPane.showMessageDialog(this, "La capacidad de las mesas debe ser positiva.", "Validación", JOptionPane.WARNING_MESSAGE);
+        // Validaciones en cascada
+        if (campoVacio(txtDniCliente, "RUC")) {
             return;
         }
-        if (capacidad>=20) {
-            JOptionPane.showMessageDialog(this, "La capacidad de las mesas debe ser menor de 20.\nEsto por temas de ergonomía.", "Validación", JOptionPane.WARNING_MESSAGE);
+        if (campoVacio(txtnombreCliente, "Nombre")) {
+            return;
+        }
+        if (campoVacio(txtApellidoCliente, "Apellido")) {
+            return;
+        }
+        if (campoVacio(txtcorreoCliente, "Correo")) {
+            return;
+        }
+        if (campoVacio(txttelefonoCliente, "Telefono"))
+            return;
+
+        // --- VALIDACIONES DE FORMATO (Java) ---
+        // Validar longitud de RUC
+        if (dni.length() != 8 || !dni.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "El DNI debe tener exactamente 8 dígitos numéricos.", "Validación", JOptionPane.WARNING_MESSAGE);
+            txtDniCliente.requestFocus();
             return;
         }
 
-
-
-                try {
-            if (this.methods.existeMesaConNumero(numMesa, 0)) {
-                JOptionPane.showMessageDialog(this, "Ya existe otra categoría con el mismo nombre.",
-                        "Validación", JOptionPane.WARNING_MESSAGE);
-                return;
-            }       } catch (SQLException ex) {
-            Logger.getLogger(Frm_Categoria.class.getName()).log(Level.SEVERE, null, ex);
+        // Validar formato de correo básico
+        if (!nuevocorreo.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            JOptionPane.showMessageDialog(this, "El formato del correo electrónico no es válido.", "Validación", JOptionPane.WARNING_MESSAGE);
+            txtcorreoCliente.requestFocus();
+            return;
         }
 
+        // Validar longitud de observación
+        if (nuevaObservacion.length() > 500) {
+            JOptionPane.showMessageDialog(this, "La observación no puede exceder los 500 caracteres.", "Validación", JOptionPane.WARNING_MESSAGE);
+            txtobservaciones.requestFocus();
+            return;
+        }
 
+        // Convertir Id_proveedor
+        int idCliente = Integer.parseInt(codigoStr);
 
-
-        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea modificar los datos de la mesa?", "Confirmación", JOptionPane.YES_NO_OPTION);
+        // 2. Confirmación del usuario
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea modificar este Cliente?", "Confirmación", JOptionPane.YES_NO_OPTION);
         if (respuesta == JOptionPane.YES_OPTION) {
-            // Llama a tu método: modificarMesas(int id, String nuevoNombre, int nuevaCapacidad)
-            this.methods.modificarMesas(id, numMesa, capacidad);
+            try {
+                // 3. Llamar al método del DAO
+                this.CM.modificarCliente(idCliente, dni, nuevoNombre, nuevoApellido, nuevocorreo, nuevotelefono, nuevaObservacion);
 
-            JOptionPane.showMessageDialog(this, "Mesa actualizada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            this.MostrarMesas();
-            this.limpiarCamposMesas();
-            txtnumeroMesa.setEditable(false);
-            txtcapacidad.setEditable(false);
+                // 4. Éxito
+                JOptionPane.showMessageDialog(this, "Cliente modificado correctamente", "Modificación exitosa", JOptionPane.INFORMATION_MESSAGE);
+
+                // 5. Refrescar interfaz
+                this.listarClientes();
+                limpiarCamposClientes();
+
+            } catch (SQLException ex) {
+                // --- CAPTURA DE ERRORES SEGÚN TU SQL (MYSQL_ERRNO) ---
+                int errorCode = ex.getErrorCode();
+
+                switch (errorCode) {
+                    case 20169 -> JOptionPane.showMessageDialog(this, "Error: El DNI ingresado ya pertenece a otro cliente.", "Duplicado", JOptionPane.ERROR_MESSAGE);
+                    case 20164 -> JOptionPane.showMessageDialog(this, "Error: El formato de correo es rechazado por el servidor.", "Validación SQL", JOptionPane.ERROR_MESSAGE);
+                    case 20161 -> JOptionPane.showMessageDialog(this, "Error: El Cliente que intenta editar ya no existe en la base de datos.", "Error de ID", JOptionPane.ERROR_MESSAGE);
+                    default -> JOptionPane.showMessageDialog(this, "Error crítico (" + errorCode + "):\n" + ex.getMessage(), "Error de base de datos", JOptionPane.ERROR_MESSAGE);
+                }
+            }
         }
-
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Asegúrese de que el ID y la Capacidad sean números.", "Error de formato", JOptionPane.ERROR_MESSAGE);
-    } catch (IllegalArgumentException e) {
-        // Captura: "El número de mesa ya está registrado."
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error al actualizar mesa: " + e.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
-    }
-
     }//GEN-LAST:event_BTN_ModificarActionPerformed
 
-
-
-
-            private void limpiarCamposMesas() {
-    txtcodigomesa.setText("");
-    txtnumeroMesa.setText("");
-    txtcapacidad.setText("");
-
-    // Control de botones
-    BTN_Guardar.setEnabled(true);
-    BTN_Modificar.setEnabled(false);
-    BTN_Desactivar.setEnabled(false);
-
-    BTN_VerMesas.setEnabled(false);
-}
-
-
-
-
-
-    private void BTN_DesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_DesactivarActionPerformed
-    // 1. Validar que se haya seleccionado una Mesa
-    String codStr = txtcodigomesa.getText().trim();
-    if (codStr.isEmpty()) {
-      JOptionPane.showMessageDialog(this,"Seleccione una Mesa en la tabla para desactivar.","Campo requerido",JOptionPane.WARNING_MESSAGE);
-      return;
-    }
-    int codigo = Integer.parseInt(codStr); // Convertir a entero
-    // 2. Confirmar la acción con el usuario
-    int opcion = JOptionPane.showConfirmDialog(this,"¿Está seguro de que desea desactivar esta Mesa?","Confirmar desactivación",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
-    if (opcion == JOptionPane.YES_OPTION) {
-      try {
-       // 3. Llamar al método que ejecuta el procedure de desactivación
-        this.methods.downFacultades(codigo);
-       // 4. Mostrar mensaje de éxito
-        JOptionPane.showMessageDialog(this,"Mesa desactivada correctamente.","Operación exitosa",JOptionPane.INFORMATION_MESSAGE);
-       // 5. Actualizar tabla y limpiar campos
-        this.MostrarMesas();
-       // Limpia los campos de texto
-        txtcodigomesa.setText("");
-        txtcapacidad.setText("");
-        BTN_Desactivar.setEnabled(false);
-        BTN_Modificar.setEnabled(false);
-      } catch (SQLException ex) {
-        // 6. Captura cualquier error lanzado por el procedure (por SIGNAL)
-        JOptionPane.showMessageDialog(this,"Error al desactivar Mesa:\n" + ex.getMessage(),"Error de base de datos",JOptionPane.ERROR_MESSAGE);
-      }
-   }
-    }//GEN-LAST:event_BTN_DesactivarActionPerformed
     private void BTN_EXCELActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_EXCELActionPerformed
-    /*     try {
-      // 1. Crear un nuevo libro de Excel (.xlsx)
-      XSSFWorkbook workbook = new XSSFWorkbook();
-      // 2. Crear una hoja dentro del libro
-      XSSFSheet sheet = workbook.createSheet("Mesaes");
-      // 3. Escribir la fila de encabezados desde el JTable
-      XSSFRow headerRow = sheet.createRow(0); // Fila 0 para encabezados
-      for (int i = 0; i < JTABLE_Mant_Mesa.getColumnCount(); i++) {
-        headerRow.createCell(i).setCellValue(JTABLE_Mant_Mesa.getColumnName(i));
-      }
-      // 4. Escribir los datos fila por fila desde el JTable
-      for (int i = 0; i < JTABLE_Mant_Mesa.getRowCount(); i++) {
-        XSSFRow dataRow = sheet.createRow(i + 1); // Fila 1 en adelante
-        for (int j = 0; j < JTABLE_Mant_Mesa.getColumnCount(); j++) {
-          Object valor = JTABLE_Mant_Mesa.getValueAt(i, j);
-          dataRow.createCell(j).setCellValue(valor != null ? valor.toString() : "");
+         try {
+            // 1. Crear un nuevo libro de Excel (.xlsx)
+            XSSFWorkbook workbook = new XSSFWorkbook();
+
+            // 2. Crear una hoja dentro del libro
+            XSSFSheet sheet = workbook.createSheet("Facultades");
+
+            // 3. Escribir la fila de encabezados desde el JTable
+            XSSFRow headerRow = sheet.createRow(0); // Fila 0 para encabezados
+            for (int i = 0; i < JTABLE_Mant_Cliente.getColumnCount(); i++) {
+                headerRow.createCell(i).setCellValue(JTABLE_Mant_Cliente.getColumnName(i));
+            }
+
+            // 4. Escribir los datos fila por fila desde el JTable
+            for (int i = 0; i < JTABLE_Mant_Cliente.getRowCount(); i++) {
+                XSSFRow dataRow = sheet.createRow(i + 1); // Fila 1 en adelante
+                for (int j = 0; j < JTABLE_Mant_Cliente.getColumnCount(); j++) {
+                    Object valor = JTABLE_Mant_Cliente.getValueAt(i, j);
+                    dataRow.createCell(j).setCellValue(valor != null ? valor.toString() : "");
+                }
+            }
+
+            // 5. Mostrar cuadro de diálogo para elegir ruta de guardado
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Guardar como Excel");
+            int seleccion = fileChooser.showSaveDialog(this);
+
+            // 6. Si el usuario acepta guardar, crear archivo
+            if (seleccion == JFileChooser.APPROVE_OPTION) {
+                
+                File archivo = fileChooser.getSelectedFile();
+
+                // 7. Asegurar extensión .xlsx
+                if (!archivo.getAbsolutePath().endsWith(".xlsx")) {
+                    archivo = new File(archivo.getAbsolutePath() + ".xlsx");
+                }
+
+                // 8. Guardar el archivo
+                FileOutputStream fos = new FileOutputStream(archivo);
+                workbook.write(fos);
+                fos.close(); // Cerrar el flujo de salida
+                workbook.close(); // Cerrar el libro de Excel
+
+                // 9. Confirmación al usuario
+                JOptionPane.showMessageDialog(this, "✅ Datos exportados correctamente a:\n" + archivo.getAbsolutePath());
+            }
+
+        } catch (Exception e) {
+            // Manejo de errores en caso de fallo
+            JOptionPane.showMessageDialog(this, "❌ Error al exportar a Excel:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-     }
-      // 5. Mostrar cuadro de diálogo para elegir ruta de guardado
-      JFileChooser fileChooser = new JFileChooser();
-      fileChooser.setDialogTitle("Guardar como Excel");
-      int seleccion = fileChooser.showSaveDialog(this);
-      // 6. Si el usuario acepta guardar, crear archivo
-      if (seleccion == JFileChooser.APPROVE_OPTION) {
-        File archivo = fileChooser.getSelectedFile();
-        // 7. Asegurar extensión .xlsx
-        if (!archivo.getAbsolutePath().endsWith(".xlsx")) {
-          archivo = new File(archivo.getAbsolutePath() + ".xlsx");
-        }
-        // 8. Guardar el archivo
-        FileOutputStream fos = new FileOutputStream(archivo);
-        workbook.write(fos);
-        fos.close(); // Cerrar el flujo de salida
-        workbook.close(); // Cerrar el libro de Excel
-        // 9. Confirmación al usuario
-        JOptionPane.showMessageDialog(this, "✅ Datos exportados correctamente a:\n" + archivo.getAbsolutePath());
-      }
-    } catch (Exception e) {
-      // Manejo de errores en caso de fallo
-      JOptionPane.showMessageDialog(this, "❌ Error al exportar a Excel:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-*/
     }//GEN-LAST:event_BTN_EXCELActionPerformed
 
-    private void TXT_BuscarMesasKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TXT_BuscarMesasKeyReleased
-        this.BuscarMesaPorNombre();
-    }//GEN-LAST:event_TXT_BuscarMesasKeyReleased
+    private void TXT_BuscarClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TXT_BuscarClienteActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_TXT_BuscarClienteActionPerformed
+
+    private void TXT_BuscarClienteKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TXT_BuscarClienteKeyReleased
+        this.BuscarClientesPorNombre();
+    }//GEN-LAST:event_TXT_BuscarClienteKeyReleased
 
     private void BTN_Cerrar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_Cerrar1ActionPerformed
 
@@ -616,129 +650,241 @@ public class Frm_Cliente extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_BTN_Cerrar1ActionPerformed
 
-
-
-
     private void BTN_PDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_PDFActionPerformed
-  /*
-    try {
-      JFileChooser fileChooser = new JFileChooser();
-      fileChooser.setDialogTitle("Guardar como PDF");
-      int seleccion = fileChooser.showSaveDialog(this);
-      if (seleccion == JFileChooser.APPROVE_OPTION) {
-        File archivo = fileChooser.getSelectedFile();
-        if (!archivo.getAbsolutePath().endsWith(".pdf")) {
-          archivo = new File(archivo.getAbsolutePath() + ".pdf");
-        }
-        Document document = new Document();
-        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(archivo));
-        document.open();
-        // 1. Agregar LOGO (ajusta la ruta según tu proyecto)
-        String logoPath = "src/Icons/Fondo Universidad.jpg"; // Asegúrate que la imagen exista
         try {
-          Image logo = Image.getInstance(logoPath);
-          logo.scaleToFit(100, 100);
-          logo.setAlignment(Image.ALIGN_LEFT);
-          document.add(logo);
-        } catch (Exception e) {
-          System.out.println("⚠️ No se pudo cargar el logo: " + e.getMessage());
-        }
-        //2. Agregar FECHA y HORA
-        String fechaHora = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
-        Paragraph fecha = new Paragraph("Fecha de Exportación: " + fechaHora,
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Guardar como PDF");
+            int seleccion = fileChooser.showSaveDialog(this);
+
+            if (seleccion == JFileChooser.APPROVE_OPTION) {
+                File archivo = fileChooser.getSelectedFile();
+                if (!archivo.getAbsolutePath().endsWith(".pdf")) {
+                archivo = new File(archivo.getAbsolutePath() + ".pdf");
+            }
+
+            Document document = new Document();
+            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(archivo));
+            document.open();
+
+            // 1. Agregar LOGO (ajusta la ruta según tu proyecto)
+            String logoPath = "src/Icons/Fondo Universidad.jpg"; // Asegúrate que la imagen exista
+            try {
+                Image logo = Image.getInstance(logoPath);
+                 logo.scaleToFit(100, 100);
+                logo.setAlignment(Image.ALIGN_LEFT);
+                document.add(logo);
+            } catch (Exception e) {
+                System.out.println("⚠️ No se pudo cargar el logo: " + e.getMessage());
+            }
+
+            //2. Agregar FECHA y HORA
+            String fechaHora = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
+            Paragraph fecha = new Paragraph("Fecha de Exportación: " + fechaHora,
             FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.DARK_GRAY));
-        fecha.setAlignment(Element.ALIGN_RIGHT);
-        document.add(fecha);
-        // TÍTULO
-        Paragraph titulo = new Paragraph("LISTADO DE FACULTADES",
-            FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, BaseColor.BLUE));
-        titulo.setAlignment(Element.ALIGN_CENTER);
-        document.add(titulo);
-        document.add(new Paragraph(" ")); // espacio
-        // TABLA DE DATOS
-        PdfPTable pdfTable = new PdfPTable(JTABLE_Mant_Mesa.getColumnCount());
-        pdfTable.setWidthPercentage(100);
-        // Encabezados
-        for (int i = 0; i < JTABLE_Mant_Mesa.getColumnCount(); i++) {
-          PdfPCell cell = new PdfPCell(new Phrase(JTABLE_Mant_Mesa.getColumnName(i)));
-          cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
-          pdfTable.addCell(cell);
-        }
+            fecha.setAlignment(Element.ALIGN_RIGHT);
+            document.add(fecha);
 
-        // Filas de datos
-        for (int row = 0; row < JTABLE_Mant_Mesa.getRowCount(); row++) {
-          for (int col = 0; col < JTABLE_Mant_Mesa.getColumnCount(); col++) {
-            Object value = JTABLE_Mant_Mesa.getValueAt(row, col);
-            pdfTable.addCell(value != null ? value.toString() : "");
-          }
-        }
-        document.add(pdfTable);
-        // Pie de página con nombre del usuario
-        document.add(new Paragraph(" "));
-        String usuario = "Ñiquen Maqui Jefferson"; // Puedes hacerlo dinámico si lo obtienes de sesión
-        Paragraph pie = new Paragraph("Exportado por: " + usuario,
-            FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10, BaseColor.GRAY));
-        pie.setAlignment(Element.ALIGN_RIGHT);
-        document.add(pie);
-        document.close();
-        writer.close();
-        JOptionPane.showMessageDialog(this, "✅ PDF exportado correctamente:\n" + archivo.getAbsolutePath());
-      }
-    } catch (Exception e) {
-      JOptionPane.showMessageDialog(this, "❌ Error al exportar a PDF:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
+            // TÍTULO
+            Paragraph titulo = new Paragraph("LISTADO DE FACULTADES",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, BaseColor.BLUE));
+            titulo.setAlignment(Element.ALIGN_CENTER);
+            document.add(titulo);
+            document.add(new Paragraph(" ")); // espacio
 
-       */
+            // TABLA DE DATOS
+            PdfPTable pdfTable = new PdfPTable(JTABLE_Mant_Cliente.getColumnCount());
+            pdfTable.setWidthPercentage(100);
+
+            // Encabezados
+            for (int i = 0; i < JTABLE_Mant_Cliente.getColumnCount(); i++) {
+                PdfPCell cell = new PdfPCell(new Phrase(JTABLE_Mant_Cliente.getColumnName(i)));
+                cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                pdfTable.addCell(cell);
+            }
+
+            // Filas de datos
+            for (int row = 0; row < JTABLE_Mant_Cliente.getRowCount(); row++) {
+                for (int col = 0; col < JTABLE_Mant_Cliente.getColumnCount(); col++) {
+                    Object value = JTABLE_Mant_Cliente.getValueAt(row, col);
+                    pdfTable.addCell(value != null ? value.toString() : "");
+                }
+            }
+
+            document.add(pdfTable);
+
+            // Pie de página con nombre del usuario
+            document.add(new Paragraph(" "));
+            String usuario = "Wilmer Vera Ostios"; // Puedes hacerlo dinámico si lo obtienes de sesión
+            Paragraph pie = new Paragraph("Exportado por: " + usuario,
+                FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10, BaseColor.GRAY));
+            pie.setAlignment(Element.ALIGN_RIGHT);
+            document.add(pie);
+
+            document.close();
+            writer.close();
+
+            JOptionPane.showMessageDialog(this, "✅ PDF exportado correctamente:\n" + archivo.getAbsolutePath());
+        } 
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "❌ Error al exportar a PDF:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_BTN_PDFActionPerformed
 
-
-
-
-    private void BTN_VerMesasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerMesasActionPerformed
-        this.MostrarMesas();
-
-        this.BTN_Nuevo.setEnabled(true);
-        this.BTN_Guardar.setEnabled(false);
-        this.BTN_Desactivar.setEnabled(false);
-        this.BTN_Modificar.setEnabled(false);
-        this.BTN_VerMesas.setEnabled(false);
-
-    }//GEN-LAST:event_BTN_VerMesasActionPerformed
-
-    private void TXT_BuscarMesasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TXT_BuscarMesasActionPerformed
+    private void txtDniClienteKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDniClienteKeyTyped
         // TODO add your handling code here:
-    }//GEN-LAST:event_TXT_BuscarMesasActionPerformed
+    }//GEN-LAST:event_txtDniClienteKeyTyped
 
-    private void txtnumeroMesaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtnumeroMesaKeyTyped
+    private void txtApellidoClienteKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtApellidoClienteKeyTyped
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtnumeroMesaKeyTyped
+    }//GEN-LAST:event_txtApellidoClienteKeyTyped
 
-    private void BTN_BackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_BackActionPerformed
-        Frm_MenuPrincipal mainMenu = new Frm_MenuPrincipal();
-        mainMenu.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_BTN_BackActionPerformed
+    private void txtcorreoClienteKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtcorreoClienteKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtcorreoClienteKeyTyped
 
+    private void txtcodigoClienteKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtcodigoClienteKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtcodigoClienteKeyTyped
 
-    private void BTN_CancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_CancelActionPerformed
-        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea cancelar la operación?", "Confirmación", JOptionPane.YES_NO_OPTION);
-        if (respuesta == JOptionPane.YES_OPTION) {
+    private void BTN_DesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_DesactivarActionPerformed
+        // Obtener la fila seleccionada
+        int filaSeleccionada = JTABLE_Mant_Cliente.getSelectedRow();
 
-            JTABLE_Mant_Mesa.setEnabled(true);
-            BTN_Guardar.setEnabled(false);
-            BTN_Nuevo.setVisible(true);
-            BTN_Cancel.setVisible(false);
-
-            BTN_Desactivar.setEnabled(false);
-            BTN_Modificar.setEnabled(false);
-
-
-            txtnumeroMesa.setEditable(false);
-            txtcapacidad.setEditable(false);
-            this.limpiarCamposMesas();
-
+        // Validación inicial: ¿Seleccionó algo?
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un cliente de la tabla.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-    }//GEN-LAST:event_BTN_CancelActionPerformed
+
+        // 1. Obtener datos de la fila de forma segura
+        // Usamos .toString() y trim() para evitar errores de puntero nulo o espacios
+        int idCliente = Integer.parseInt(JTABLE_Mant_Cliente.getValueAt(filaSeleccionada, 0).toString());
+        String nombreClie = JTABLE_Mant_Cliente.getValueAt(filaSeleccionada, 2).toString().trim();
+        String estadoActual = JTABLE_Mant_Cliente.getValueAt(filaSeleccionada, 7).toString().trim();
+
+        // 2. Validar si ya está desactivado para no trabajar en vano
+        if (estadoActual.equalsIgnoreCase("Inactivo")) {
+            JOptionPane.showMessageDialog(this, "El cliente '" + nombreClie + "' ya se encuentra desactivado.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // 3. Confirmación personalizada (Avisando que el historial se mantiene)
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+                "¿Está seguro de que desea desactivar al cliente: " + nombreClie + "?\n",
+                "Confirmar Desactivación", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            try {
+                // 4. Llamada al método del DAO/Manager
+                CM.desactivarCliente(idCliente);
+
+                JOptionPane.showMessageDialog(this, "Cliente desactivado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+                // 5. Actualizar interfaz respetando el filtro que el usuario tenga puesto
+                if (jCheckBoxListarInactivos.isSelected()) {
+                   listarClientesInactivos();
+                } else {
+                    listarClientes(); // El registro debería desaparecer de la lista de activos
+                }
+
+                // 6. Limpiar el formulario para evitar confusiones
+                limpiarCamposClientes();
+
+            } catch (SQLException ex) {
+                String mensajeError = (ex.getErrorCode() == 20170) ? "El cliente no existe en la base de datos." : ex.getMessage();
+
+                JOptionPane.showMessageDialog(this,
+                        "No se pudo cambiar el estado del cliente.\nDetalle: " + mensajeError,
+                        "Error de Base de Datos",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_BTN_DesactivarActionPerformed
+
+    private void jCheckBoxActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxActivarActionPerformed
+        // Obtener fila seleccionada
+        int filaSeleccionada = JTABLE_Mant_Cliente.getSelectedRow();
+
+        // 1. Validar selección inicial
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un cliente para reactivarlo.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            if (jCheckBoxActivar.isSelected()) {
+                jCheckBoxActivar.setSelected(false);
+            }
+            return;
+        }
+
+        // 2. Obtener datos de la fila de forma segura
+        int idCliente = Integer.parseInt(JTABLE_Mant_Cliente.getValueAt(filaSeleccionada, 0).toString());
+        String nombreClie = JTABLE_Mant_Cliente.getValueAt(filaSeleccionada, 2).toString().trim();
+        String estadoActual = JTABLE_Mant_Cliente.getValueAt(filaSeleccionada, 7).toString().trim();
+
+        // 3. Validar si ya está reactivado (Mensaje mejorado)
+        if (estadoActual.equalsIgnoreCase("Activo")) {
+            JOptionPane.showMessageDialog(this,
+                    "El cliente '" + nombreClie + "' ya está reactivado.",
+                    "Aviso", JOptionPane.INFORMATION_MESSAGE);
+            jCheckBoxActivar.setSelected(false);
+            return;
+        }
+
+        // 4. Confirmación con nombre y diseño profesional
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+                "¿Desea reactivar al cliente: " + nombreClie + "?",
+                "Confirmar Reactivación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            try {
+                // 5. Ejecutar la reactivación en la Base de Datos
+                CM.reactivarCliente(idCliente);
+
+                JOptionPane.showMessageDialog(this,
+                        "¡Listo! El cliente '" + nombreClie + "' ha sido reactivado con éxito.",
+                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+                // 6. Sincronizar Interfaz
+                // Regresamos a la vista de activos para ver el cambio reflejado
+                jCheckBoxListarInactivos.setSelected(false);
+                jCheckBoxActivar.setSelected(false);
+
+                // Refrescar tabla y limpiar formulario
+                listarClientes();
+                limpiarCamposClientes();
+
+            } catch (SQLException ex) {
+                // Manejo de errores específicos (20170: El registro desapareció de la DB)
+                String msj = (ex.getErrorCode() == 20170) ? "El cliente no existe en el sistema." : ex.getMessage();
+
+                JOptionPane.showMessageDialog(this,
+                        "Error al intentar reactivar:\n" + msj,
+                        "Error de Base de Datos",
+                        JOptionPane.ERROR_MESSAGE);
+
+                jCheckBoxActivar.setSelected(false);
+            }
+        } else {
+            // Si el usuario cancela la acción
+            jCheckBoxActivar.setSelected(false);
+        }
+    }//GEN-LAST:event_jCheckBoxActivarActionPerformed
+
+    private void TXT_BuscarClienteKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TXT_BuscarClienteKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_TXT_BuscarClienteKeyPressed
+
+    private void jCheckBoxListarInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxListarInactivosActionPerformed
+        this.listarClientesInactivos();
+
+        // Bloquear el botón de desactivar porque ya están inactivos
+        this.BTN_Desactivar.setEnabled(false);
+
+        this.BTN_Guardar.setEnabled(false);
+        this.BTN_Modificar.setEnabled(false);
+        this.BTN_VerProveedor.setEnabled(true);
+    }//GEN-LAST:event_jCheckBoxListarInactivosActionPerformed
 
     /**
      * @param args the command line arguments
@@ -747,7 +893,7 @@ public class Frm_Cliente extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -756,43 +902,16 @@ public class Frm_Cliente extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Frm_Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Frm_Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Frm_Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Frm_Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Frm_Cliente().setVisible(true);
-            }
-        });
+        java.awt.EventQueue.invokeLater(() -> new Frm_Cliente().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton BTN_Back;
-    private javax.swing.JButton BTN_Cancel;
     private javax.swing.JButton BTN_Cerrar1;
     private javax.swing.JButton BTN_Desactivar;
     private javax.swing.JButton BTN_EXCEL;
@@ -800,40 +919,66 @@ public class Frm_Cliente extends javax.swing.JFrame {
     private javax.swing.JButton BTN_Modificar;
     private javax.swing.JButton BTN_Nuevo;
     private javax.swing.JButton BTN_PDF;
-    private javax.swing.JButton BTN_VerMesas;
-    private javax.swing.JTable JTABLE_Mant_Mesa;
-    private javax.swing.JTextField TXT_BuscarMesas;
+    private javax.swing.JButton BTN_VerProveedor;
+    private javax.swing.JTable JTABLE_Mant_Cliente;
+    private javax.swing.JTextField TXT_BuscarCliente;
+    private javax.swing.JCheckBox jCheckBoxActivar;
+    private javax.swing.JCheckBox jCheckBoxListarInactivos;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JFormattedTextField txtcapacidad;
-    private javax.swing.JTextField txtcodigomesa;
-    private javax.swing.JTextField txtnumeroMesa;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTextField txtApellidoCliente;
+    private javax.swing.JTextField txtDniCliente;
+    private javax.swing.JTextField txtcodigoCliente;
+    private javax.swing.JTextField txtcorreoCliente;
+    private javax.swing.JTextField txtnombreCliente;
+    private javax.swing.JTextArea txtobservaciones;
+    private javax.swing.JTextField txttelefonoCliente;
     // End of variables declaration//GEN-END:variables
+    //Validar campos vacios
+    private boolean campoVacio(javax.swing.JTextField txt, String nombreCampo) {
+        if (txt.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El campo " + nombreCampo + " es obligatorio.", "Campo requerido", JOptionPane.WARNING_MESSAGE);
+            txt.requestFocus();
+            return true; // Sí está vacío
+        }
+        return false; // No está vacío
+    }
 
-//Método para mostrar las Mesaes
-    public void MostrarMesas() {
+    //Método para listar Proveedores
+    public void listarClientes() {
         //Ordenar ASC, DESC
-        JTABLE_Mant_Mesa.setAutoCreateRowSorter(true);
+        JTABLE_Mant_Cliente.setAutoCreateRowSorter(true);
         //Limpiar la tabla antes de mostrar nuevos datos
-        modeloTablaMesa.setRowCount(0);
+        modeloTablaCliente.setRowCount(0);
         try {
             //Llama al método que retorna los datos de Mesaes
-            ResultSet rs = this.methods.listarMesas();
+            ResultSet rs = this.CM.listarCliente();
             while (rs.next()) {
                 Object[] fila = {
                     rs.getInt("ID"),
-                    rs.getString("Número de Mesa"),
-                    rs.getString("Capacidad")
+                    rs.getString("DNI"),
+                    rs.getString("Nombre de Cliente"),
+                    rs.getString("Apellido de Cliente"),
+                    rs.getString("Correo Personal"),
+                    rs.getString("Telefono Personal"),
+                    rs.getString("Observaciones"),
+                    rs.getInt("Estado") == 1 ? "Activo" : "Inactivo"
                 };
-                modeloTablaMesa.addRow(fila);
+                modeloTablaCliente.addRow(fila);
             }
 
         } catch (SQLException e) {
@@ -841,28 +986,77 @@ public class Frm_Cliente extends javax.swing.JFrame {
                     "ErrorDeConsulta", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-//Método para mostrar las Mesaes
-    public void BuscarMesaPorNombre() {
-        modeloTablaMesa.setRowCount(0);
-        String nombre = TXT_BuscarMesas.getText().trim();
+    
+    public void listarClientesInactivos() {
+        //Ordenar ASC, DESC
+        JTABLE_Mant_Cliente.setAutoCreateRowSorter(true);
+        //Limpiar la tabla antes de mostrar nuevos datos
+        modeloTablaCliente.setRowCount(0);
         try {
             //Llama al método que retorna los datos de Mesaes
-            ResultSet rs = this.methods.buscarMesas(nombre);
+            ResultSet rs = this.CM.listarClienteInactivo();
             while (rs.next()) {
                 Object[] fila = {
                     rs.getInt("ID"),
-                    rs.getString("Número de Mesa"),
-                    rs.getString("Capacidad")
+                    rs.getString("DNI"),
+                    rs.getString("Nombre de Cliente"),
+                    rs.getString("Apellido de Cliente"),
+                    rs.getString("Correo Personal"),
+                    rs.getString("Telefono Personal"),
+                    rs.getString("Observaciones"),
+                    rs.getInt("Estado") == 1 ? "Activo" : "Inactivo"
                 };
-                modeloTablaMesa.addRow(fila);
+                modeloTablaCliente.addRow(fila);
             }
 
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al buscar Mesaes:\n" + e.getMessage(),
+            JOptionPane.showMessageDialog(null, "Error al mostrar los resultados:\n" + e.getMessage(),
+                    "ErrorDeConsulta", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private void limpiarCamposClientes() {
+            txtcodigoCliente.setText("");
+            txtDniCliente.setText("");
+            txtnombreCliente.setText("");
+            txtApellidoCliente.setText("");
+            txtcorreoCliente.setText("");
+            txttelefonoCliente.setText("");
+            txtobservaciones.setText("");
+            BTN_Guardar.setEnabled(true);
+            BTN_Nuevo.setEnabled(false);
+            BTN_Modificar.setEnabled(false);
+            BTN_VerProveedor.setEnabled(false);
+            this.txtDniCliente.requestFocus();
+        }
+    
+    public void BuscarClientesPorNombre() {
+        modeloTablaCliente.setRowCount(0);
+        String nombre = TXT_BuscarCliente.getText().trim();
+        try {
+            boolean hayResultados = false;
+            //Llama al método que retorna los datos de Mesaes
+            ResultSet rs = this.CM.buscarCliente(nombre);
+            while (rs.next()) {
+                hayResultados = true;
+                Object[] fila = {
+                    rs.getInt("ID"),
+                    rs.getString("DNI"),
+                    rs.getString("Nombre de Cliente"),
+                    rs.getString("Apellido de Cliente"),
+                    rs.getString("Correo Personal"),
+                    rs.getString("Telefono Personal")
+                };
+                modeloTablaCliente.addRow(fila);
+            }
+            if(!hayResultados){
+                JOptionPane.showMessageDialog(this, "No se encontraron clientes ",
+                    "Sin resultados", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al buscar Mensajes:\n" + e.getMessage(),
                     "Error de búsqueda", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-//Método para insertar nuevo valor a las Mesaes
 }

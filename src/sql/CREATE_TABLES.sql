@@ -104,7 +104,6 @@ CREATE TABLE usuario (
     id_usuario          INT AUTO_INCREMENT PRIMARY KEY,
     codigo_usuario      VARCHAR(20) NOT NULL UNIQUE,
     password_usuario    VARCHAR(255) NOT NULL,
-    observacion_usuario VARCHAR(500),
     id_cargo            INT NOT NULL,
     estado              TINYINT DEFAULT 1 NOT NULL,
     FOREIGN KEY (id_cargo) REFERENCES cargo(id_cargo),

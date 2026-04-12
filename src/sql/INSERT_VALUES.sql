@@ -147,10 +147,10 @@ INSERT INTO cargo (nombre_cargo, estado) VALUES
 /* ================================================ */
 /*  USUARIO (3)                                     */
 /* ================================================ */
-INSERT INTO usuario (codigo_usuario, password_usuario, observacion_usuario, id_cargo, estado) VALUES
-    ('USR001', 'e3b0c44298fc1c149afb4c8996fb924',  'Administrador del sistema',         1, 1),
-    ('USR002', 'a665a45920422f9d417e4867efdc4fb8', 'Usuario temporal para supervisión', 1, 1),
-    ('USR003', '6b86b273ff34fce19d6b804eff5a3f57', 'Cuenta desactivada temporalmente',  1, 0);
+INSERT INTO usuario (codigo_usuario, password_usuario, id_cargo, estado) VALUES
+    ('USR001', 'e3b0c44298fc1c149afb4c8996fb924', 1, 1),
+    ('USR002', 'a665a45920422f9d417e4867efdc4fb8', 1, 1),
+    ('USR003', '6b86b273ff34fce19d6b804eff5a3f57', 1, 0);
 
 
 
