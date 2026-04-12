@@ -573,47 +573,63 @@ CREATE PROCEDURE insertar_factura(
     IN p_id_tipo_pago INT
 )
 BEGIN
-    DECLARE v_count INT;
-	DECLARE v_msg VARCHAR(500);
+    DECLARE v_existe_pedido INT;
+    DECLARE v_ya_facturado INT;
+    DECLARE v_fecha_pedido DATE;
 
+    -- 1. VALIDAR TOTAL POSITIVO
     IF p_total <= 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Total inválido',
-        MYSQL_ERRNO = 1025;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El total debe ser mayor a cero.', MYSQL_ERRNO = 1025;
     END IF;
 
-    SELECT COUNT(*) INTO v_count
-    FROM factura
-    WHERE UPPER(TRIM(numero_comprobante)) = UPPER(TRIM(p_numero_comprobante));
-
-    IF v_count > 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Ya existe una factura con el mismo número de comprobante.',
-        MYSQL_ERRNO = 1026;
-    END IF;
-
+    -- 2. VALIDAR FORMATO DE COMPROBANTE
     IF p_numero_comprobante NOT REGEXP '^F[0-9]{3}-[0-9]{5}$' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El número de comprobante debe tener el formato FXXX-XXXXX.',
-        MYSQL_ERRNO = 1027;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Formato de comprobante inválido (Ej: F001-00001).', MYSQL_ERRNO = 1027;
     END IF;
 
+    -- 3. VALIDAR SI EL COMPROBANTE YA EXISTE (Evitar duplicado de número)
+    IF (SELECT COUNT(*) FROM factura WHERE numero_comprobante = p_numero_comprobante) > 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de comprobante ya está registrado.', MYSQL_ERRNO = 1026;
+    END IF;
+
+    -- 4. VALIDAR SI EL PEDIDO EXISTE Y OBTENER SU FECHA
+    SELECT fecha_pedido INTO v_fecha_pedido FROM pedido WHERE id_pedido = p_id_pedido;
+    
+    IF v_fecha_pedido IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El ID de pedido no existe.', MYSQL_ERRNO = 1028;
+    END IF;
+
+    -- 5. VALIDAR QUE EL PEDIDO NO TENGA YA UNA FACTURA (Relación 1:1)
+    SELECT COUNT(*) INTO v_ya_facturado FROM factura WHERE id_pedido = p_id_pedido;
+    IF v_ya_facturado > 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Este pedido ya ha sido facturado anteriormente.', MYSQL_ERRNO = 1029;
+    END IF;
+
+    -- 6. VALIDAR COHERENCIA DE FECHAS
+    -- La factura no puede ser más antigua que el pedido
+    IF p_fecha < v_fecha_pedido THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: La fecha de pago no puede ser anterior a la fecha del pedido.', MYSQL_ERRNO = 1030;
+    END IF;
+
+    -- 7. INSERTAR DATOS
     INSERT INTO factura(
         numero_comprobante,
         fecha_pago,
         total_factura,
         id_pedido,
-        id_tipo_pago
+        id_tipo_pago,
+        fecha_registro
     )
     VALUES(
-        p_numero_comprobante,
-        IFNULL(p_fecha, NOW()),
+        TRIM(p_numero_comprobante),
+        IFNULL(p_fecha, CURDATE()), -- Usamos CURDATE() si viene nulo
         p_total,
         p_id_pedido,
-        p_id_tipo_pago
+        p_id_tipo_pago,
+        DEFAULT
     );
 
-    SELECT 'Factura registrada correctamente.' AS mensaje;
+    SELECT 'Factura registrada con éxito.' AS mensaje;
 
 END$$
 

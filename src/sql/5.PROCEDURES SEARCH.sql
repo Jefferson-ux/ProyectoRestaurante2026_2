@@ -190,11 +190,11 @@ CREATE PROCEDURE buscar_factura (
 BEGIN
     SELECT *
     FROM vista_factura
-    WHERE `Número de Comprobante` LIKE CONCAT('%', p_param, '%')
+    WHERE `Comprobante` LIKE CONCAT('%', p_param, '%')
        OR `Fecha de Pago` LIKE CONCAT('%', p_param, '%')
-       OR `Fecha del Pedido` LIKE CONCAT('%', p_param, '%')
+       OR `Fecha de Pedido` LIKE CONCAT('%', p_param, '%')
        OR `Cliente` LIKE CONCAT('%', p_param, '%')
-       OR `Plato` LIKE CONCAT('%', p_param, '%');
+       OR `Empleado` LIKE CONCAT('%', p_param, '%');
 END$$
 DELIMITER ;
 

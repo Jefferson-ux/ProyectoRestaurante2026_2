@@ -128,23 +128,21 @@ WHERE  e.estado = 1;
 /* vista_factura */
 CREATE OR REPLACE VIEW vista_factura AS
 SELECT
-    f.numero_comprobante AS `Número de Comprobante`,
+    f.id_factura AS `ID`,
+    p.id_pedido AS `ID Pedido`,
+    f.numero_comprobante AS `Comprobante`,
     DATE_FORMAT(f.fecha_pago, '%d/%m/%Y') AS `Fecha de Pago`,
-    DATE_FORMAT(p.fecha_pedido, '%d/%m/%Y') AS `Fecha del Pedido`,
-    CONCAT(c.nombre_cliente, ' ', c.apellido_cliente) AS `Cliente`,
-    e.nombre_empleado AS `Empleado`,
-    pm.nombre_plato AS `Plato`,
-    d.cantidad AS `Cantidad`,
-    d.precio_unitario AS `Precio Unitario`,
-    (d.cantidad * d.precio_unitario) AS `Subtotal`,
-    f.total_factura AS `Total Factura`,
+    DATE_FORMAT(f.fecha_registro, '%d/%m/%Y %H:%i') AS `Fecha de Registro`,
+    DATE_FORMAT(p.fecha_pedido, '%d/%m/%Y') AS `Fecha de Pedido`,
+    -- Agregamos el DNI para que coincida con el JDialog y el ComboItem
+    CONCAT(c.dni_cliente, ' - ', c.nombre_cliente, ' ', c.apellido_cliente) AS `Cliente`,
+    CONCAT(e.dni_empleado, ' - ', e.nombre_empleado, ' ', e.apellido_empleado) AS `Empleado`,
+    f.total_factura AS `Total`,
     tp.nombre_tipo_pago AS `Tipo de Pago`
 FROM factura f
 INNER JOIN pedido p ON f.id_pedido = p.id_pedido
 INNER JOIN cliente c ON p.id_cliente = c.id_cliente
 INNER JOIN empleado e ON p.id_empleado = e.id_empleado
-INNER JOIN detalle_pedido d ON p.id_pedido = d.id_pedido
-INNER JOIN plato_menu pm ON d.id_plato_menu = pm.id_plato_menu
 INNER JOIN tipo_pago tp ON f.id_tipo_pago = tp.id_tipo_pago;
 
 
@@ -246,7 +244,7 @@ SELECT
 FROM proveedor;
 
 
-
+/*Vista proveedor_Producto*/
 CREATE OR REPLACE VIEW vista_proveedor_producto AS
 SELECT
     pp.id_proveedor AS `ID Proveedor`, -- IMPORTANTE PARA JAVA
