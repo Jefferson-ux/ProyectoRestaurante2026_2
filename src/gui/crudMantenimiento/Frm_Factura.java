@@ -489,7 +489,7 @@ private String tipoPagoOriginal;
         // limpiarCampos(); // Método opcional para vaciar el formulario
 
     }catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Error: El Total y el ID Pedido deben ser números.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Error: El Total deben ser números.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
     }
     // Aquí se capturan los SIGNAL SQLSTATE de tu base de datos
      catch (Exception e) {
@@ -859,15 +859,22 @@ private String tipoPagoOriginal;
     private void cargarClientes() {
         try {
             jComboBox_Cliente.removeAllItems();
-
-            // En lugar de un String puro, usamos un objeto con ID 0 o -1
             jComboBox_Cliente.addItem(new FacturaMethod.ComboItem(0, "<<Seleccionar>>"));
 
             ResultSet rs = FC.combobox_listarCliente();
             while (rs.next()) {
+                // Juntamos las piezas manualmente para que coincida con el JDialog
+                String dni = rs.getString("DNI");
+                String nombre = rs.getString("Nombre de Cliente");
+                String apellido = rs.getString("Apellido de Cliente");
+
+                // Este formato debe ser IDENTICO al del JDialog: "DNI - Nombre Apellido"
+                String formatoCompleto = dni + " - " + nombre + " " + apellido;
+
+                // Suponiendo que tu vista tiene el id_cliente
                 jComboBox_Cliente.addItem(new FacturaMethod.ComboItem(
-                        rs.getInt("id_cliente"),
-                        rs.getString("Info_Cliente")
+                        rs.getInt("ID"), // O el id_empleado si lo agregas a la vista
+                        formatoCompleto
                 ));
             }
         } catch (SQLException e) {
@@ -892,7 +899,7 @@ private String tipoPagoOriginal;
 
                 // Suponiendo que tu vista tiene el id_empleado, si no, usa el DNI como ID
                 jComboBox_Empleado.addItem(new FacturaMethod.ComboItem(
-                        rs.getInt("DNI"), // O el id_empleado si lo agregas a la vista
+                        rs.getInt("ID"), // O el id_empleado si lo agregas a la vista
                         formatoCompleto
                 ));
             }

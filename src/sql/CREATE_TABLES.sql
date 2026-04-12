@@ -203,15 +203,16 @@ CREATE TABLE detalle_pedido (
 
 
 CREATE TABLE factura (
-    id_factura          INT AUTO_INCREMENT PRIMARY KEY,
-    numero_comprobante  VARCHAR(20) NOT NULL,
-    fecha_pago          DATE NOT NULL,
-    total_factura       DECIMAL(10,2) NOT NULL,
-    id_pedido           INT UNIQUE NOT NULL,
-    id_tipo_pago        INT NOT NULL,
-    FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido),
-    FOREIGN KEY (id_tipo_pago) REFERENCES tipo_pago(id_tipo_pago),
-    CHECK (total_factura > 0)
+    id_factura INT AUTO_INCREMENT PRIMARY KEY,
+    numero_comprobante VARCHAR(20) NOT NULL UNIQUE,
+    fecha_pago DATE NOT NULL,
+    total_factura DECIMAL(10,2) NOT NULL,
+    id_pedido INT UNIQUE NOT NULL,
+    id_tipo_pago INT NOT NULL,
+    fecha_registro DATETIME(0) DEFAULT CURRENT_TIMESTAMP(0),
+    CONSTRAINT fk_factura_pedido FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido),
+    CONSTRAINT fk_factura_pago FOREIGN KEY (id_tipo_pago) REFERENCES tipo_pago(id_tipo_pago),
+    CONSTRAINT chk_total_positivo CHECK (total_factura >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
