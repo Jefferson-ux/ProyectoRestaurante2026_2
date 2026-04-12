@@ -1,7 +1,7 @@
 # Bloqueo total de carpetas de compilación
 build/
 dist/
-
+nbproject/private/
 
 # Archivos de sistema y temporales
 Thumbs.db
