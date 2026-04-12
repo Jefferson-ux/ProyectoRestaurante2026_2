@@ -85,6 +85,7 @@ private String tipoPagoOriginal;
     this.jComboBox_Cliente.setEnabled(false);
     this.jComboBox_Empleado.setEnabled(false);
     this.TXT_idPedido.setEnabled(false);
+    this.BTN_elegirPedido.setEnabled(false);
     }
 
     
@@ -112,7 +113,7 @@ private String tipoPagoOriginal;
         jLabel8 = new javax.swing.JLabel();
         TXT_idPedido = new javax.swing.JTextField();
         jComboBox_Empleado = new javax.swing.JComboBox<>();
-        jButtonelegirPedido = new javax.swing.JButton();
+        BTN_elegirPedido = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         JTABLE_Mant_Factura = new javax.swing.JTable();
         BTN_Nuevo = new javax.swing.JButton();
@@ -238,13 +239,13 @@ private String tipoPagoOriginal;
         });
         jPanel1.add(jComboBox_Empleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 70, 280, 20));
 
-        jButtonelegirPedido.setText("Elegir pedido");
-        jButtonelegirPedido.addActionListener(new java.awt.event.ActionListener() {
+        BTN_elegirPedido.setText("Elegir pedido");
+        BTN_elegirPedido.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonelegirPedidoActionPerformed(evt);
+                BTN_elegirPedidoActionPerformed(evt);
             }
         });
-        jPanel1.add(jButtonelegirPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 80, 110, 50));
+        jPanel1.add(BTN_elegirPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 80, 110, 50));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 1040, 290));
 
@@ -271,6 +272,7 @@ private String tipoPagoOriginal;
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 450, 1120, 220));
 
         BTN_Nuevo.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_add.png"))); // NOI18N
         BTN_Nuevo.setText("NUEVO");
         BTN_Nuevo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -280,6 +282,7 @@ private String tipoPagoOriginal;
         getContentPane().add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 330, 190, 50));
 
         BTN_Guardar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Guardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_save.png"))); // NOI18N
         BTN_Guardar.setText("GUARDAR");
         BTN_Guardar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -294,6 +297,7 @@ private String tipoPagoOriginal;
         getContentPane().add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 330, 190, 50));
 
         BTN_Modificar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Modificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_cancel_cogs.png"))); // NOI18N
         BTN_Modificar.setText("MODIFICAR");
         BTN_Modificar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -303,6 +307,7 @@ private String tipoPagoOriginal;
         getContentPane().add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 330, 200, 50));
 
         BTN_EXCEL.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_EXCEL.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/excel.png"))); // NOI18N
         BTN_EXCEL.setText("Exportar");
         BTN_EXCEL.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -343,6 +348,7 @@ private String tipoPagoOriginal;
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 1120, 50));
 
         BTN_Cerrar1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Cerrar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_cancel.png"))); // NOI18N
         BTN_Cerrar1.setText("Cerrar");
         BTN_Cerrar1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -351,6 +357,7 @@ private String tipoPagoOriginal;
         });
         getContentPane().add(BTN_Cerrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(950, 690, 140, 50));
 
+        BTN_PDF.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/pdf.png"))); // NOI18N
         BTN_PDF.setText("Exportar");
         BTN_PDF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -360,13 +367,14 @@ private String tipoPagoOriginal;
         getContentPane().add(BTN_PDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 690, 140, 50));
 
         BTN_ListarFacturas.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_ListarFacturas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/information.png"))); // NOI18N
         BTN_ListarFacturas.setText("LISTAR FACTURAS");
         BTN_ListarFacturas.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 BTN_ListarFacturasActionPerformed(evt);
             }
         });
-        getContentPane().add(BTN_ListarFacturas, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 330, 180, 50));
+        getContentPane().add(BTN_ListarFacturas, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 330, 210, 50));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -703,7 +711,7 @@ private String tipoPagoOriginal;
         this.BTN_Guardar.setEnabled(false);
         this.BTN_Modificar.setEnabled(false);
         this.BTN_ListarFacturas.setEnabled(false);
-        //jPanel3.requestFocus();
+        this.BTN_elegirPedido.setEnabled(true);
     }//GEN-LAST:event_BTN_ListarFacturasActionPerformed
 
     private void jLabel5KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jLabel5KeyReleased
@@ -726,8 +734,8 @@ private String tipoPagoOriginal;
         // TODO add your handling code here:
     }//GEN-LAST:event_TXT_numeroComprobanteKeyTyped
 
-    private void jButtonelegirPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonelegirPedidoActionPerformed
-                                                  
+    private void BTN_elegirPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_elegirPedidoActionPerformed
+    this.limpiarCamposFactura();                                        
     // 1. Instanciamos el diálogo (this es el JFrame principal, true es para que sea modal)
     JD_BuscarPedido buscar = new JD_BuscarPedido(this, true);
     
@@ -736,8 +744,8 @@ private String tipoPagoOriginal;
     
     // 3. Mostrar la ventana
     buscar.setVisible(true);
-
-    }//GEN-LAST:event_jButtonelegirPedidoActionPerformed
+    
+    }//GEN-LAST:event_BTN_elegirPedidoActionPerformed
 
     private void TXT_idPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TXT_idPedidoActionPerformed
         // TODO add your handling code here:
@@ -817,13 +825,13 @@ private String tipoPagoOriginal;
     private javax.swing.JButton BTN_Modificar;
     private javax.swing.JButton BTN_Nuevo;
     private javax.swing.JButton BTN_PDF;
+    private javax.swing.JButton BTN_elegirPedido;
     private javax.swing.JTable JTABLE_Mant_Factura;
     private javax.swing.JTextField TXT_BuscarFacturas;
     private javax.swing.JTextField TXT_Total;
     private javax.swing.JTextField TXT_codigoFactura;
     public javax.swing.JTextField TXT_idPedido;
     private javax.swing.JTextField TXT_numeroComprobante;
-    private javax.swing.JButton jButtonelegirPedido;
     public javax.swing.JComboBox<Object> jComboBox_Cliente;
     public javax.swing.JComboBox<Object> jComboBox_Empleado;
     private javax.swing.JComboBox<Object> jComboBox_metodoPago;
