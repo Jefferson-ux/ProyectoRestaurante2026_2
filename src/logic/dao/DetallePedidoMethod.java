@@ -80,6 +80,7 @@ private Connection conn;
             while (rs.next()) {
                 DetallePedido d = new DetallePedido();
                 d.idDetalle = rs.getInt("ID detalle");
+                d.idPlatoMenu = rs.getInt("ID plato");
                 d.nombrePlato = rs.getString("Nombre de Platillo");
                 d.cantidad = rs.getInt("Cantidad Pedida");
                 d.precioUnitario = rs.getDouble("Precio Unitario");

@@ -3,12 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/gui/crudMantenimiento/Frm_Pedido.java</file>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/logic/dao/PedidoMethod.java</file>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/sql/3.VIEWS.sql</file>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/gui/crudMantenimiento/Frm_Detalle_Pedido.java</file>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/logic/dao/DetallePedidoMethod.java</file>
-            <file>file:/C:/Users/User/Desktop/ProyectoRestaurante2026_2/src/gui/crudMantenimiento/JD_AgregarPlato.java</file>
+            <file>file:/C:/ProyectoFinal_Grupo04/ProyectoRestaurante2026_2/src/gui/crudMantenimiento/Frm_Detalle_Pedido.java</file>
+            <file>file:/C:/ProyectoFinal_Grupo04/ProyectoRestaurante2026_2/src/gui/crudMantenimiento/JD_AgregarPlato.java</file>
+            <file>file:/C:/ProyectoFinal_Grupo04/ProyectoRestaurante2026_2/src/gui/crudMantenimiento/Frm_Proveedor.java</file>
         </group>
     </open-files>
 </project-private>

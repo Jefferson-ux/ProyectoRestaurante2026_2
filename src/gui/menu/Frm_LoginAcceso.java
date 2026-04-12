@@ -71,6 +71,8 @@ public class Frm_LoginAcceso extends javax.swing.JFrame {
 
         txtcodigousuario.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         txtcodigousuario.setForeground(new java.awt.Color(0, 0, 204));
+        txtcodigousuario.setText("somos diseño grafico??????");
+        txtcodigousuario.addActionListener(this::txtcodigousuarioActionPerformed);
         jPanel1.add(txtcodigousuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 80, 290, 30));
 
         txtpassword.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -224,6 +226,10 @@ public class Frm_LoginAcceso extends javax.swing.JFrame {
             dispose();  // o this.dispose() si estás dentro del formulario
         }
     }//GEN-LAST:event_btnsalirActionPerformed
+
+    private void txtcodigousuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtcodigousuarioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtcodigousuarioActionPerformed
 
 
     

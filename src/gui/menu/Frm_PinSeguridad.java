@@ -11,7 +11,7 @@ import gui.menu.Frm_LoginAcceso;
 
 
 public class Frm_PinSeguridad extends javax.swing.JFrame {
-
+    private final String pinCorrecto = "123456";
 
     //Variable para contar el número de intentos
     private byte intentos_validos = 0;
@@ -35,7 +35,6 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
             public void insertUpdate(javax.swing.event.DocumentEvent e) { validarLongitud(); }
         });
 
-
     }
 
     private void validarLongitud() {
@@ -52,7 +51,7 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         TXTPASS = new javax.swing.JPasswordField();
-        jRadioButtonView = new javax.swing.JRadioButton();
+        radio_view = new javax.swing.JRadioButton();
         jLabel6 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         btn1 = new javax.swing.JButton();
@@ -101,9 +100,9 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
         });
         jPanel3.add(TXTPASS, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 122, 270, 25));
 
-        jRadioButtonView.setFont(new java.awt.Font("Segoe UI", 0, 8)); // NOI18N
-        jRadioButtonView.addActionListener(this::jRadioButtonViewActionPerformed);
-        jPanel3.add(jRadioButtonView, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 125, -1, -1));
+        radio_view.setFont(new java.awt.Font("Segoe UI", 0, 8)); // NOI18N
+        radio_view.addActionListener(this::radio_viewActionPerformed);
+        jPanel3.add(radio_view, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 125, -1, -1));
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -219,8 +218,8 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
 
     }//GEN-LAST:event_TXTPASSKeyTyped
 
-    private void jRadioButtonViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonViewActionPerformed
-        if (jRadioButtonView.isSelected()){
+    private void radio_viewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radio_viewActionPerformed
+        if (radio_view.isSelected()){
             //Mostrar contraseña
             TXTPASS.setEchoChar((char)0);
 
@@ -228,7 +227,7 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
             //Ocultar la conrtaseña
             TXTPASS.setEchoChar('*');
         }
-    }//GEN-LAST:event_jRadioButtonViewActionPerformed
+    }//GEN-LAST:event_radio_viewActionPerformed
 
     private void btn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn1ActionPerformed
         String PassActual = String.valueOf(TXTPASS.getPassword());
@@ -379,9 +378,9 @@ public class Frm_PinSeguridad extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JRadioButton jRadioButtonView;
+    private javax.swing.JRadioButton radio_view;
     // End of variables declaration//GEN-END:variables
-    private final String pinCorrecto = "123456";
+
 
 }
 

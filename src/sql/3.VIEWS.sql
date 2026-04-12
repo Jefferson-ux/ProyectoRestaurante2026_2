@@ -65,7 +65,7 @@ FROM contrato c
 INNER JOIN turno t          ON c.id_turno = t.id_turno
 INNER JOIN empleado e       ON c.id_empleado = e.id_empleado
 INNER JOIN tipo_contrato tc ON c.id_tipo_contrato = tc.id_tipo_contrato
--- Se une con contrato, ya no con empleado
+-- Se une con contrato, ya no con empleado 
 INNER JOIN cargo ca         ON c.id_cargo = ca.id_cargo
 WHERE
     c.estado = 1;
@@ -77,6 +77,7 @@ CREATE OR REPLACE VIEW vista_detalle_pedido AS
 SELECT
     d.id_detalle        AS `ID detalle`, 
     p.id_pedido         AS `ID pedido`,
+    pm.id_plato_menu    AS `ID plato`,
     pm.nombre_plato     AS `Nombre de Platillo`,
     d.cantidad          AS `Cantidad Pedida`,
     DATE_FORMAT(p.fecha_pedido, '%d/%m/%Y') AS `Fecha del pedido`,

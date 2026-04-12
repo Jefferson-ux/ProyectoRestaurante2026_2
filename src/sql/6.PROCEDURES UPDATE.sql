@@ -793,15 +793,14 @@ CALL Update_Mesa(
 10- PEDIDO
 Mas campos a comparación de Oracle
 **************************************/
+DROP PROCEDURE IF EXISTS Update_Pedido;
 DELIMITER //
 
 CREATE PROCEDURE Update_Pedido (
     IN p_id_pedido       INT,
-    IN p_fecha           DATETIME,
     IN p_id_cliente      INT,
     IN p_id_empleado     INT,
-    IN p_id_tipo_pedido  INT,
-    IN p_estado          TINYINT -- Campo integrado según tu tabla
+    IN p_id_tipo_pedido  INT
 )
 BEGIN
     -- Declaración de variable para validaciones
@@ -813,12 +812,8 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El pedido no existe.', MYSQL_ERRNO = 20123;
     END IF;
 
-    -- 2. Validar fecha (No NULL y no futura)
-    IF p_fecha IS NULL OR p_fecha > NOW() THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Fecha de pedido inválida o futura.', MYSQL_ERRNO = 20124;
-    END IF;
 
-    -- 3. Validar cliente
+    -- 2. Validar cliente
     SELECT COUNT(*) INTO v_existencia FROM cliente WHERE id_cliente = p_id_cliente;
     IF v_existencia = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El cliente no existe.', MYSQL_ERRNO = 20127;
@@ -836,18 +831,12 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El tipo de pedido no existe.', MYSQL_ERRNO = 20131;
     END IF;
 
-    -- 6. Validar estado (0: Anulado/Inactivo, 1: Activo/Pendiente)
-    IF p_estado IS NULL OR p_estado NOT IN (0, 1) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El estado debe ser 0 o 1.', MYSQL_ERRNO = 20133;
-    END IF;
 
     -- 7. Ejecutar actualización
     UPDATE pedido
-    SET fecha_pedido   = p_fecha,
-        id_cliente     = p_id_cliente,
+    SET id_cliente     = p_id_cliente,
         id_empleado    = p_id_empleado,
-        id_tipo_pedido = p_id_tipo_pedido,
-        estado         = p_estado
+        id_tipo_pedido = p_id_tipo_pedido
     WHERE id_pedido = p_id_pedido;
 
     -- 8. Verificar si hubo cambios

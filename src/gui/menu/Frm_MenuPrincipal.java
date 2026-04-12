@@ -126,6 +126,7 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
         panelImageReflect2 = new org.edisoncor.gui.panel.PanelImageReflect();
         BTN_Cerrar1 = new javax.swing.JButton();
         jCalendar3 = new com.toedter.calendar.JCalendar();
+        jPanel1 = new javax.swing.JPanel();
         jMenuBar2 = new javax.swing.JMenuBar();
         menuArchivo1 = new javax.swing.JMenu();
         itemSalir1 = new javax.swing.JMenuItem();
@@ -172,6 +173,7 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
         jMenuBar1.add(menuAyuda);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jTabbedPanePrincipal.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -237,8 +239,9 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
 
         BTN_Cerrar1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Cerrar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_close.png"))); // NOI18N
+        BTN_Cerrar1.setText("   CERRAR");
         BTN_Cerrar1.addActionListener(this::BTN_Cerrar1ActionPerformed);
-        panelContent.add(BTN_Cerrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 510, 50, 40));
+        panelContent.add(BTN_Cerrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 640, 150, 40));
 
         jCalendar3.setFocusable(false);
         jCalendar3.setOpaque(false);
@@ -248,6 +251,9 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
         panelContent.add(jCalendar3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, -1, 180));
 
         getContentPane().add(panelContent, new org.netbeans.lib.awtextra.AbsoluteConstraints(1240, 50, 190, 680));
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1510, 760));
 
         menuArchivo1.setText("Archivo");
 
@@ -444,6 +450,7 @@ public class Frm_MenuPrincipal extends javax.swing.JFrame {
     private com.toedter.calendar.JCalendar jCalendar3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuBar jMenuBar2;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel12;
     private javax.swing.JTabbedPane jTabbedPanePrincipal;
     private javax.swing.JMenu menuArchivo;

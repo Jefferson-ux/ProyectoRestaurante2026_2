@@ -103,6 +103,12 @@ public class Frm_Detalle_Pedido extends javax.swing.JFrame {
 
         TableColumnModel colModel = JTABLE_Mant_DetallePedido.getColumnModel();
        
+        // 1. Activa el salto de línea automático
+        txtObservaciones.setLineWrap(true);
+
+        // 2. Asegura que el salto ocurra entre palabras y no corte letras a la mitad
+        txtObservaciones.setWrapStyleWord(true);
+        
         
 // 1. Definimos el Renderer con el Fix del color azul
 DefaultTableCellRenderer tcr = new DefaultTableCellRenderer() {
@@ -226,9 +232,6 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
 
         jLabel1 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
-        BTN_VerDetalles = new javax.swing.JButton();
-        BTN_Quitar = new javax.swing.JButton();
-        BTN_Modificar = new javax.swing.JButton();
         BTN_Back = new javax.swing.JButton();
         scrollTabla = new javax.swing.JScrollPane();
         JTABLE_Mant_DetallePedido = new javax.swing.JTable();
@@ -267,7 +270,9 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         jLabel15 = new javax.swing.JLabel();
         txtNombresEmpleado = new javax.swing.JTextField();
         jLabel16 = new javax.swing.JLabel();
+        BTN_Filtrar1 = new javax.swing.JButton();
         BTN_Filtrar = new javax.swing.JButton();
+        BTN_VerDetalles = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -278,35 +283,6 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 0, 830, 30));
 
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        BTN_VerDetalles.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_VerDetalles.setText("VER DETALLES");
-        BTN_VerDetalles.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_VerDetallesActionPerformed(evt);
-            }
-        });
-        jPanel3.add(BTN_VerDetalles, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 30, 140, 50));
-
-        BTN_Quitar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Quitar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_delete.png"))); // NOI18N
-        BTN_Quitar.setText("     QUITAR");
-        BTN_Quitar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_QuitarActionPerformed(evt);
-            }
-        });
-        jPanel3.add(BTN_Quitar, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 300, 140, 48));
-
-        BTN_Modificar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Modificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_update.png"))); // NOI18N
-        BTN_Modificar.setText("    MODIFICAR");
-        BTN_Modificar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_ModificarActionPerformed(evt);
-            }
-        });
-        jPanel3.add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 230, 140, 48));
 
         BTN_Back.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_back.png"))); // NOI18N
         BTN_Back.addActionListener(new java.awt.event.ActionListener() {
@@ -401,7 +377,7 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel2.setText("Observaciones");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 150, 140, -1));
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 150, 140, -1));
 
         txtFechaRegistro.setEditable(false);
         txtFechaRegistro.setBackground(new java.awt.Color(255, 255, 255));
@@ -415,7 +391,7 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
                 txtFechaRegistroActionPerformed(evt);
             }
         });
-        jPanel1.add(txtFechaRegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 30, 170, 30));
+        jPanel1.add(txtFechaRegistro, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 180, 170, 30));
 
         txtIdPedido.setEditable(false);
         txtIdPedido.setBackground(new java.awt.Color(255, 255, 255));
@@ -423,23 +399,23 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         txtIdPedido.setForeground(new java.awt.Color(0, 0, 204));
         txtIdPedido.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtIdPedido.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtIdPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 90, 30));
+        jPanel1.add(txtIdPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, 90, 30));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel3.setText("Codigo de Detalle");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 130, -1));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 130, -1));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel6.setText("Fecha de Registro");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 10, 130, -1));
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 160, 130, -1));
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel7.setText("Cantidad");
-        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 130, 20));
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 70, 20));
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel8.setText("Precio Unitario");
-        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, 130, 20));
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 90, 100, 20));
 
         txtIdDetalle.setEditable(false);
         txtIdDetalle.setBackground(new java.awt.Color(255, 255, 255));
@@ -447,11 +423,11 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         txtIdDetalle.setForeground(new java.awt.Color(0, 0, 204));
         txtIdDetalle.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtIdDetalle.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtIdDetalle, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 90, 30));
+        jPanel1.add(txtIdDetalle, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 90, 30));
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel11.setText("Codigo de Pedido");
-        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 130, -1));
+        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 20, 100, -1));
 
         txtPlato.setEditable(false);
         txtPlato.setBackground(new java.awt.Color(255, 255, 255));
@@ -459,7 +435,7 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         txtPlato.setForeground(new java.awt.Color(0, 0, 204));
         txtPlato.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtPlato.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtPlato, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 90, 200, 30));
+        jPanel1.add(txtPlato, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 180, 200, 30));
 
         txtSubtotal.setEditable(false);
         txtSubtotal.setBackground(new java.awt.Color(255, 255, 255));
@@ -467,7 +443,7 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         txtSubtotal.setForeground(new java.awt.Color(0, 0, 204));
         txtSubtotal.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtSubtotal.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtSubtotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 270, 90, 30));
+        jPanel1.add(txtSubtotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 170, 90, 30));
 
         txtCantidad.setEditable(false);
         txtCantidad.setBackground(new java.awt.Color(255, 255, 255));
@@ -475,7 +451,7 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         txtCantidad.setForeground(new java.awt.Color(0, 0, 204));
         txtCantidad.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtCantidad.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 150, 90, 30));
+        jPanel1.add(txtCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, 90, 30));
 
         txtPrecio.setEditable(false);
         txtPrecio.setBackground(new java.awt.Color(255, 255, 255));
@@ -483,21 +459,21 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         txtPrecio.setForeground(new java.awt.Color(0, 0, 204));
         txtPrecio.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtPrecio.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(txtPrecio, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 90, 30));
+        jPanel1.add(txtPrecio, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 110, 90, 30));
 
         txtObservaciones.setColumns(20);
         txtObservaciones.setRows(5);
         jScrollPane1.setViewportView(txtObservaciones);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 170, 210, 130));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 170, 270, 70));
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel9.setText("Subtotal");
-        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 250, 90, 20));
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, 90, 20));
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel13.setText("Platillo solicitado:");
-        jPanel1.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 70, 130, -1));
+        jPanel1.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 160, 130, -1));
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "     Cliente     ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -508,11 +484,11 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         txtDniCliente.setForeground(new java.awt.Color(0, 0, 204));
         txtDniCliente.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtDniCliente.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel4.add(txtDniCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 250, 30));
+        jPanel4.add(txtDniCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 30, 200, 30));
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel14.setText("DNI ");
-        jPanel4.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 130, -1));
+        jPanel4.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 130, -1));
 
         txtNombresCliente.setEditable(false);
         txtNombresCliente.setBackground(new java.awt.Color(255, 255, 255));
@@ -525,13 +501,13 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
                 txtNombresClienteActionPerformed(evt);
             }
         });
-        jPanel4.add(txtNombresCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, 250, 30));
+        jPanel4.add(txtNombresCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 250, 30));
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel12.setText("Apellidos y Nombres:");
-        jPanel4.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 130, -1));
+        jPanel4.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 130, -1));
 
-        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 160, 310, 150));
+        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 10, 310, 140));
 
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "     Empleado     ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
         jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -542,11 +518,11 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         txtDniEmpleado.setForeground(new java.awt.Color(0, 0, 204));
         txtDniEmpleado.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtDniEmpleado.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel6.add(txtDniEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 260, 30));
+        jPanel6.add(txtDniEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, 220, 30));
 
         jLabel15.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel15.setText("DNI ");
-        jPanel6.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 130, -1));
+        jPanel6.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 130, -1));
 
         txtNombresEmpleado.setEditable(false);
         txtNombresEmpleado.setBackground(new java.awt.Color(255, 255, 255));
@@ -554,24 +530,42 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         txtNombresEmpleado.setForeground(new java.awt.Color(0, 0, 204));
         txtNombresEmpleado.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtNombresEmpleado.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel6.add(txtNombresEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, 260, 30));
+        jPanel6.add(txtNombresEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 260, 30));
 
         jLabel16.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel16.setText("Apellidos y Nombres:");
-        jPanel6.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 130, -1));
+        jPanel6.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 130, -1));
 
-        jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 10, 310, 150));
+        jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 10, 310, 140));
 
-        jPanel3.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 710, 320));
+        jPanel3.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 870, 260));
+
+        BTN_Filtrar1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_Filtrar1.setText("Filtrar por pedido");
+        BTN_Filtrar1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTN_Filtrar1ActionPerformed(evt);
+            }
+        });
+        jPanel3.add(BTN_Filtrar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 300, 140, 50));
 
         BTN_Filtrar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Filtrar.setText("FILTRAR");
+        BTN_Filtrar.setText("Filtrar por pedido");
         BTN_Filtrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 BTN_FiltrarActionPerformed(evt);
             }
         });
-        jPanel3.add(BTN_Filtrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 100, 140, 50));
+        jPanel3.add(BTN_Filtrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 300, 140, 50));
+
+        BTN_VerDetalles.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        BTN_VerDetalles.setText("VER DETALLES");
+        BTN_VerDetalles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTN_VerDetallesActionPerformed(evt);
+            }
+        });
+        jPanel3.add(BTN_VerDetalles, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 300, 140, 50));
 
         getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 910, 710));
 
@@ -588,8 +582,6 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
 
         
         
-        BTN_Modificar.setEnabled(false);
-        BTN_Quitar.setEnabled(false);
         BTN_VerDetalles.setEnabled(false);
 
     }
@@ -637,8 +629,6 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         
         
         BTN_VerDetalles.setEnabled(false);
-        BTN_Modificar.setEnabled(true);
-        BTN_Quitar.setEnabled(true); 
 
     }//GEN-LAST:event_JTABLE_Mant_DetallePedidoMouseClicked
 
@@ -821,76 +811,6 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
         this.dispose();
     }//GEN-LAST:event_BTN_BackActionPerformed
 
-    private void BTN_ModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_ModificarActionPerformed
-                                            
-    int filaSeleccionada = JTABLE_Mant_DetallePedido.getSelectedRow();
-    
-    if (filaSeleccionada == -1) {
-        JOptionPane.showMessageDialog(this, "Selecciona una fila para modificar.");
-        return;
-    }
-
-    int filaModelo = JTABLE_Mant_DetallePedido.convertRowIndexToModel(filaSeleccionada);
-    int idDetalle = (int) modeloTabla.getValueAt(filaModelo, 0);
-    
-    // Pedimos los nuevos datos (puedes mejorar esto con un JSpinner en un JDialog)
-    String inputCantidad = JOptionPane.showInputDialog(this, "Nueva Cantidad:", 
-                           modeloTabla.getValueAt(filaModelo, 3));
-    
-    if (inputCantidad != null) {
-        try {
-            int nuevaCant = Integer.parseInt(inputCantidad);
-            String nuevaObs = JOptionPane.showInputDialog(this, "Nueva Observación:", 
-                              modeloTabla.getValueAt(filaModelo, 6));
-
-            if (nuevaObs != null) {
-                // Llamamos a tu método UPDATE
-                if (methods.actualizarDetalle(idDetalle, nuevaCant, nuevaObs)) {
-                    JOptionPane.showMessageDialog(this, "Actualizado correctamente.");
-                    actualizarTablaPrincipal();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Error al actualizar en BD.");
-                }
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "La cantidad debe ser un número entero.");
-        }
-    }
-
-    }//GEN-LAST:event_BTN_ModificarActionPerformed
-
-    private void BTN_QuitarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_QuitarActionPerformed
-
-                                                   
-    int filaSeleccionada = JTABLE_Mant_DetallePedido.getSelectedRow();
-    
-    if (filaSeleccionada == -1) {
-        JOptionPane.showMessageDialog(this, "Por favor, selecciona un plato de la tabla.");
-        return;
-    }
-
-    // Convertimos el índice por si la tabla está filtrada o ordenada
-    int filaModelo = JTABLE_Mant_DetallePedido.convertRowIndexToModel(filaSeleccionada);
-    int idDetalle = (int) modeloTabla.getValueAt(filaModelo, 0);
-    String nombrePlato = modeloTabla.getValueAt(filaModelo, 2).toString();
-
-    int confirmar = JOptionPane.showConfirmDialog(this, 
-            "¿Seguro que deseas quitar '" + nombrePlato + "' del pedido?", 
-            "Confirmar eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-    if (confirmar == JOptionPane.YES_OPTION) {
-        // Usamos tu método del DAO
-        if (methods.eliminarDetalle(idDetalle)) {
-            JOptionPane.showMessageDialog(this, "Eliminado con éxito.");
-            actualizarTablaPrincipal(); // Método para recargar el SELECT
-        } else {
-            JOptionPane.showMessageDialog(this, "No se pudo eliminar el detalle.");
-        }
-    }
-
-        
-    }//GEN-LAST:event_BTN_QuitarActionPerformed
-
     private void BTN_VerDetallesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_VerDetallesActionPerformed
         this.MostrarDetalles();
         var sorter = new javax.swing.table.TableRowSorter<>(modeloTabla);
@@ -917,6 +837,10 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
     private void txtNombresClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombresClienteActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNombresClienteActionPerformed
+
+    private void BTN_Filtrar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_Filtrar1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BTN_Filtrar1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1025,9 +949,8 @@ for (int i = 0; i < JTABLE_Mant_DetallePedido.getColumnCount(); i++) {
     private javax.swing.JButton BTN_Cerrar;
     private javax.swing.JButton BTN_EXCEL;
     private javax.swing.JButton BTN_Filtrar;
-    private javax.swing.JButton BTN_Modificar;
+    private javax.swing.JButton BTN_Filtrar1;
     private javax.swing.JButton BTN_PDF;
-    private javax.swing.JButton BTN_Quitar;
     private javax.swing.JButton BTN_VerDetalles;
     private javax.swing.JTable JTABLE_Mant_DetallePedido;
     private javax.swing.JTextField TXT_BuscarPorPedido;

@@ -42,7 +42,7 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
         this.current_date = LocalDate.now();
         this.fecha_pedido = fecha;
         
-        String[] header = {"ID Detalle","Plato","Cantidad","Precio","Subtotal","Observaciones"};
+        String[] header = {"ID Plato","Plato","Cantidad","Precio","Subtotal","Observaciones"};
         modeloTabla.setColumnIdentifiers(header);
         JTABLE_Dialog.setModel(modeloTabla);
         Table_Size();
@@ -66,7 +66,8 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
     private void Table_Size() {
         // ID: Lo ocultamos
         TableColumnModel colModel = JTABLE_Dialog.getColumnModel();
- 
+
+        
         colModel.getColumn(0).setMinWidth(0);
         colModel.getColumn(0).setPreferredWidth(0);
         colModel.getColumn(0).setMaxWidth(0);
@@ -238,7 +239,7 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
         });
         jScrollPane1.setViewportView(JTABLE_Dialog);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 250, 610, 170));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 250, 630, 170));
 
         btn_guardar.setText("Guardar");
         btn_guardar.addActionListener(new java.awt.event.ActionListener() {
@@ -500,7 +501,9 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
     // 3. Referenciar al padre (Frm_Pedido) y su tabla de detalles física
     Frm_Pedido padre = (Frm_Pedido) this.getOwner();
     DefaultTableModel modeloDestino = (DefaultTableModel) padre.Table_Details.getModel();
-
+    
+    // Vacíamos la tabla destinos
+    modeloDestino.setRowCount(0);
     // 4. Trasladar la información fila por fila
     for (int i = 0; i < modeloDialog.getRowCount(); i++) {
         // Extraemos los valores directamente como Objetos/Strings
@@ -524,7 +527,6 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
             subtotal, // Se pasa como String "S/. 00.00"
             obs
         };
-
         // Agregamos la fila a la tabla del formulario principal
         modeloDestino.addRow(filaParaPadre);
     }
@@ -710,6 +712,8 @@ public void MostrarDetalles(int idPedido) {
     for (DetallePedido d : lista) {
         Object[] fila = {
             d.idDetalle,
+            //d.idPlatoMenu,
+            "XDDDD",
             d.nombrePlato,
             d.cantidad,
             String.format("S/ %.2f", d.precioUnitario), // Formateamos aquí en Java
@@ -719,6 +723,7 @@ public void MostrarDetalles(int idPedido) {
         modeloTabla.addRow(fila);
     }
 }
+
     
 
         public void detalleEmpty() {

@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -13,11 +14,16 @@ import javax.swing.table.DefaultTableModel;
 
 public class PedidoMethod {
 private Connection conn;
-
+    
+    SimpleDateFormat formatoDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     // Constructor vacío por si necesitas usarlo de forma aislada
     public PedidoMethod() {
+        
+        
+        
         ConnectionDB db = new ConnectionDB();
         this.conn = db.getConnection();
+        
         
         // Verificamos una sola vez
         if (this.conn == null) {
@@ -75,7 +81,7 @@ public int insertarPedido(String fecha,int id_cliente, int id_empleado, int id_t
     int idGenerado = -1;
     
     // Formato estándar que MySQL entiende (yyyy-MM-dd HH:mm:ss)
-    SimpleDateFormat formatoDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    
 
     try (PreparedStatement ps = conn.prepareStatement(sqlInsert,Statement.RETURN_GENERATED_KEYS)) {
         
@@ -111,19 +117,18 @@ public int insertarPedido(String fecha,int id_cliente, int id_empleado, int id_t
 
 
        /* UPDATE --> ACTUALIZAR DATOS */
-public void modificarPedido(int id_pedido,String fecha,int id_cliente, int id_empleado, int id_tipo_pedido) throws SQLException {
+public void modificarPedido(int id_pedido,int id_cliente, int id_empleado, int id_tipo_pedido) throws SQLException, ParseException {
     
     // 8 parámetros: el ID de la pedido + los 7 campos de datos
-    String sql = "{CALL Update_Pedido(?,?,?,?,?)}";
-
+    String sql = "{CALL Update_Pedido(?,?,?,?)}";
+    
     try (PreparedStatement ps = conn.prepareCall(sql)) {
         
         
         ps.setInt(1, id_pedido);
-        ps.setTimestamp(2, java.sql.Timestamp.valueOf(fecha));
-        ps.setInt(3,id_cliente);
-        ps.setInt(4, id_empleado);
-        ps.setInt(5, id_tipo_pedido);
+        ps.setInt(2,id_cliente);
+        ps.setInt(3, id_empleado);
+        ps.setInt(4, id_tipo_pedido);
 
         ps.executeUpdate();
         System.out.println("Pedido modificado con éxito");
@@ -261,7 +266,7 @@ public boolean registrarVentaCompleta(String fecha, int idCliente, int idEmplead
 public boolean guardarPedidoCompleto(String fecha, int idCli, int idEmp, int idTipo, DefaultTableModel modeloDetalle) {
     String sqlPedido = "{call insertar_pedido(?, ?, ?, ?)}";
     String sqlDetalle = "{call insertar_detalle_pedido(?, ?, ?, ?, ?)}";
-    
+
     try {
         conn.setAutoCommit(false); // Iniciamos transacción
 
@@ -283,12 +288,21 @@ public boolean guardarPedidoCompleto(String fecha, int idCli, int idEmp, int idT
         CallableStatement csD = conn.prepareCall(sqlDetalle);
         for (int i = 0; i < modeloDetalle.getRowCount(); i++) {
             csD.setInt(1, idPedidoGenerado);
+            
+             /* 
+                IN p_id_plato_menu INT,
+                IN p_cantidad INT,
+                IN p_precio_unitario DECIMAL(10,2),
+                IN p_observacion VARCHAR(500)
+            = {"ID Detalle","Plato","Cantidad","Precio","Subtotal","Observaciones"};
+            */
+            
             // Asegúrate que los índices de la tabla coincidan con tu modelo
             csD.setInt(2, Integer.parseInt(modeloDetalle.getValueAt(i, 0).toString())); // ID Plato
             csD.setInt(3, Integer.parseInt(modeloDetalle.getValueAt(i, 2).toString())); // Cantidad
-            
+
             // Limpiar formato S/ si lo tiene
-            String precioRaw = modeloDetalle.getValueAt(i, 3).toString().replace("S/", "").trim();
+            String precioRaw = modeloDetalle.getValueAt(i, 3).toString().replace("S/. ", "").trim();
             csD.setDouble(4, Double.parseDouble(precioRaw));
             
             csD.setString(5, modeloDetalle.getValueAt(i, 5).toString()); // Observación
@@ -333,10 +347,42 @@ public int obtenerIdEmpleadoPorDNI(String dni) throws SQLException {
 
 
 
+public void actualizarDetallesDesdeTabla(int idPedido, DefaultTableModel modeloDetalle) throws SQLException {
+    // 1. Primero borramos los detalles viejos de este pedido
+    String sqlDelete = "DELETE FROM detalle_pedido WHERE id_pedido = ?";
+    try (PreparedStatement psDel = conn.prepareStatement(sqlDelete)) {
+        psDel.setInt(1, idPedido);
+        psDel.executeUpdate();
+    }
 
+    // 2. Ahora insertamos todo lo que está en la tabla como si fuera nuevo
+    String sqlInsert = "INSERT INTO detalle_pedido (id_pedido, id_plato_menu, cantidad, precio_unitario, observacion_detalle) VALUES (?, ?, ?, ?, ?)";
+    
+    try (PreparedStatement psIns = conn.prepareStatement(sqlInsert)) {
+        for (int i = 0; i < modeloDetalle.getRowCount(); i++) {
+            
+            // AJUSTE DE ÍNDICES SEGÚN TU HEADER:
+            // ID Plato | 1:Plato | 2:Cantidad | 3:Precio | 4:Subtotal | 5:Obs
+            String precioTexto = modeloDetalle.getValueAt(i, 3).toString().trim();
+            String precioLimpio = precioTexto.replace("S/.", "").replace("S/", "").trim();
+            
+            
+            int idPlato = Integer.parseInt(modeloDetalle.getValueAt(i, 0).toString());
+            int cant = Integer.parseInt(modeloDetalle.getValueAt(i, 2).toString());
+            double precio = Double.parseDouble(precioLimpio);
+            
+            String obs = modeloDetalle.getValueAt(i, 5).toString();
 
+            psIns.setInt(1, idPedido);
+            psIns.setInt(2, idPlato);
+            psIns.setInt(3, cant);
+            psIns.setDouble(4, precio);
+            psIns.setString(5, obs);
 
-
-
+            psIns.addBatch();
+        }
+        psIns.executeBatch();
+    }
+}
 
 }

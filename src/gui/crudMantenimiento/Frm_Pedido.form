@@ -62,7 +62,7 @@
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="750" y="300" width="140" height="50"/>
+              <AbsoluteConstraints x="20" y="300" width="140" height="50"/>
             </Constraint>
           </Constraints>
         </Component>
@@ -75,13 +75,14 @@
               <Image iconType="3" name="/assets/icon_delete.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="     QUITAR"/>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BTN_DesactivarActionPerformed"/>
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="500" y="300" width="140" height="48"/>
+              <AbsoluteConstraints x="750" y="300" width="140" height="48"/>
             </Constraint>
           </Constraints>
         </Component>
@@ -94,13 +95,14 @@
               <Image iconType="3" name="/assets/icon_update.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="    MODIFICAR"/>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BTN_ModificarActionPerformed"/>
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="340" y="300" width="140" height="48"/>
+              <AbsoluteConstraints x="580" y="300" width="140" height="48"/>
             </Constraint>
           </Constraints>
         </Component>
@@ -113,6 +115,7 @@
               <Image iconType="3" name="/assets/icon_save.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="     GUARDAR"/>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="BTN_GuardarMouseClicked"/>
@@ -120,7 +123,7 @@
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="180" y="300" width="140" height="48"/>
+              <AbsoluteConstraints x="410" y="300" width="140" height="48"/>
             </Constraint>
           </Constraints>
         </Component>
@@ -133,13 +136,14 @@
               <Image iconType="3" name="/assets/icon_add.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="      NUEVO"/>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BTN_NuevoActionPerformed"/>
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="20" y="300" width="140" height="48"/>
+              <AbsoluteConstraints x="240" y="300" width="140" height="48"/>
             </Constraint>
           </Constraints>
         </Component>
@@ -404,6 +408,10 @@
               </Layout>
               <SubComponents>
                 <Component class="javax.swing.JTextField" name="txtDNICliente">
+                  <Properties>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                  </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtDNIClienteActionPerformed"/>
                   </Events>
@@ -427,6 +435,10 @@
                   </Constraints>
                 </Component>
                 <Component class="javax.swing.JTextField" name="txtApellidosCliente">
+                  <Properties>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                  </Properties>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
                       <AbsoluteConstraints x="30" y="150" width="180" height="22"/>
@@ -434,6 +446,10 @@
                   </Constraints>
                 </Component>
                 <Component class="javax.swing.JTextField" name="txtNombresCliente">
+                  <Properties>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                  </Properties>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
                       <AbsoluteConstraints x="30" y="100" width="180" height="22"/>
@@ -466,12 +482,13 @@
                     </Constraint>
                   </Constraints>
                 </Component>
-                <Component class="javax.swing.JButton" name="jButton2">
+                <Component class="javax.swing.JButton" name="btn_searchCliente">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Buscar"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton2ActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_searchClienteActionPerformed"/>
                   </Events>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -502,6 +519,10 @@
               </Layout>
               <SubComponents>
                 <Component class="javax.swing.JTextField" name="txtDNIEmpleado">
+                  <Properties>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                  </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtDNIEmpleadoActionPerformed"/>
                   </Events>
@@ -538,6 +559,10 @@
                   </Constraints>
                 </Component>
                 <Component class="javax.swing.JTextField" name="txtApellidosEmpleado">
+                  <Properties>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                  </Properties>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
                       <AbsoluteConstraints x="20" y="150" width="180" height="22"/>
@@ -545,6 +570,10 @@
                   </Constraints>
                 </Component>
                 <Component class="javax.swing.JTextField" name="txtNombresEmpleado">
+                  <Properties>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                  </Properties>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
                       <AbsoluteConstraints x="20" y="100" width="180" height="22"/>
@@ -564,12 +593,13 @@
                     </Constraint>
                   </Constraints>
                 </Component>
-                <Component class="javax.swing.JButton" name="searchEmpleado">
+                <Component class="javax.swing.JButton" name="btn_searchEmpleado">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Buscar"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="searchEmpleadoActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_searchEmpleadoActionPerformed"/>
                   </Events>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -635,13 +665,9 @@
             <Component class="javax.swing.JComboBox" name="comboTipoPedido">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="4">
-                    <StringItem index="0" value="Item 1"/>
-                    <StringItem index="1" value="Item 2"/>
-                    <StringItem index="2" value="Item 3"/>
-                    <StringItem index="3" value="Item 4"/>
-                  </StringArray>
+                  <StringArray count="0"/>
                 </Property>
+                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
@@ -654,7 +680,9 @@
             </Component>
             <Component class="javax.swing.JTextField" name="txtFechaPedido">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="horizontalAlignment" type="int" value="0"/>
+                <Property name="focusable" type="boolean" value="false"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtFechaPedidoActionPerformed"/>
@@ -681,6 +709,7 @@
             <Component class="javax.swing.JButton" name="btnViewDetails">
               <Properties>
                 <Property name="text" type="java.lang.String" value="A&#xf1;adir o Ver"/>
+                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnViewDetailsActionPerformed"/>
@@ -716,6 +745,8 @@
                         <Column editable="true" title="Title 4" type="java.lang.Object"/>
                       </Table>
                     </Property>
+                    <Property name="enabled" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
