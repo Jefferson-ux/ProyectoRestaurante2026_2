@@ -43,11 +43,14 @@ private Connection conn;
         Statement st = conn.createStatement(); /*Creamos la sentencia*/
         return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
     }
-           public ResultSet listar() throws SQLException{
-        String sql = "Select * from vista_pedido";/*SQL Query*/
-        Statement st = conn.createStatement(); /*Creamos la sentencia*/
-        return st.executeQuery(sql);  /*Ejecutamos el query y obtenemos el resultado */
-    }
+/* Obtener los detalles de un pedido específico */
+public ResultSet listarDetallesPorId(int idPedido) throws SQLException {
+    // Usamos tu vista que ya tiene los JOINS y el formato
+    String sql = "SELECT * FROM vista_detalle_pedido WHERE `ID pedido` = ?";
+    PreparedStatement ps = conn.prepareStatement(sql);
+    ps.setInt(1, idPedido);
+    return ps.executeQuery();
+}
            
            
 
@@ -93,15 +96,11 @@ public int insertarPedido(String fecha,int id_cliente, int id_empleado, int id_t
             }
         }
         
-
-        
     } catch (Exception e) {
         System.err.println("Error de formato o SQL: " + e.getMessage());
         throw e;
     }         
     return idGenerado;
-   
-    
 }
 
 
@@ -274,30 +273,33 @@ public boolean guardarPedidoCompleto(String fecha, int idCli, int idEmp, int idT
         csP.setInt(4, idTipo);
         csP.execute();
 
-        // 2. Obtener el ID del pedido recién creado
+        // 2. Obtener el ID generado por el AUTO_INCREMENT
         int idPedidoGenerado = 0;
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery("SELECT LAST_INSERT_ID()");
         if (rs.next()) idPedidoGenerado = rs.getInt(1);
 
-        // 3. Insertar Detalles desde la JTable
+        // 3. Insertar Detalles recorriendo la tabla del Frm_Pedido
         CallableStatement csD = conn.prepareCall(sqlDetalle);
         for (int i = 0; i < modeloDetalle.getRowCount(); i++) {
             csD.setInt(1, idPedidoGenerado);
+            // Asegúrate que los índices de la tabla coincidan con tu modelo
             csD.setInt(2, Integer.parseInt(modeloDetalle.getValueAt(i, 0).toString())); // ID Plato
             csD.setInt(3, Integer.parseInt(modeloDetalle.getValueAt(i, 2).toString())); // Cantidad
-            // Limpiar formato S/ 0.00
-            String precioLimpio = modeloDetalle.getValueAt(i, 3).toString().replaceAll("[^0-9.]", "");
-            csD.setDouble(4, Double.parseDouble(precioLimpio));
+            
+            // Limpiar formato S/ si lo tiene
+            String precioRaw = modeloDetalle.getValueAt(i, 3).toString().replace("S/", "").trim();
+            csD.setDouble(4, Double.parseDouble(precioRaw));
+            
             csD.setString(5, modeloDetalle.getValueAt(i, 5).toString()); // Observación
             csD.execute();
         }
 
-        conn.commit();
+        conn.commit(); // Si todo salió bien, guardamos
         return true;
     } catch (SQLException e) {
-        try { conn.rollback(); } catch (SQLException ex) {}
-        JOptionPane.showMessageDialog(null, "Error al guardar: " + e.getMessage());
+        try { conn.rollback(); } catch (SQLException ex) {} // Si falló algo, borramos lo insertado
+        JOptionPane.showMessageDialog(null, "Error en transacción: " + e.getMessage());
         return false;
     } finally {
         try { conn.setAutoCommit(true); } catch (SQLException e) {}
@@ -306,7 +308,25 @@ public boolean guardarPedidoCompleto(String fecha, int idCli, int idEmp, int idT
 
 
 
+// Obtener ID del Cliente por DNI
+public int obtenerIdClientePorDNI(String dni) throws SQLException {
+    String sql = "SELECT id_cliente FROM cliente WHERE dni_cliente = ?";
+    PreparedStatement ps = conn.prepareStatement(sql);
+    ps.setString(1, dni.trim());
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) return rs.getInt("id_cliente");
+    return -1;
+}
 
+// Obtener ID del Empleado por DNI
+public int obtenerIdEmpleadoPorDNI(String dni) throws SQLException {
+    String sql = "SELECT id_empleado FROM empleado WHERE dni_empleado = ?";
+    PreparedStatement ps = conn.prepareStatement(sql);
+    ps.setString(1, dni.trim());
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) return rs.getInt("id_empleado");
+    return -1;
+}
 
 
 

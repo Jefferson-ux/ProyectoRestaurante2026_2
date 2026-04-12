@@ -193,7 +193,6 @@ LEFT JOIN (
 ) totales ON p.id_pedido = totales.id_pedido
 WHERE p.estado = 1;
 
-    Select * from vista_detalle_pedido WHERE `ID pedido`=3;
 
 
 
@@ -346,3 +345,6 @@ SELECT
   nombre_unidad_medida AS `Unidad de Medida`,
   abreviatura AS `Abreviatura`
 FROM unidad_medida;
+
+
+SELECT * FROM vista_cliente;

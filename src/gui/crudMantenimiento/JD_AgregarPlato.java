@@ -14,10 +14,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import logic.dao.DetallePedidoMethod;
 import logic.dao.DetallePedidoMethod.DetallePedido;
+import gui.crudMantenimiento.Frm_Pedido;
 
 
 
 public final class JD_AgregarPlato extends javax.swing.JDialog {
+    
+    private boolean cargandoCombo = false;
     LocalDate current_date; 
     DetallePedidoMethod objetoMetodo;
     
@@ -39,7 +42,7 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
         this.current_date = LocalDate.now();
         this.fecha_pedido = fecha;
         
-        String[] header = {"ID Detalle","Plato","Cantidad","Precio","Subtotal","Observaciones","Fecha"};
+        String[] header = {"ID Detalle","Plato","Cantidad","Precio","Subtotal","Observaciones"};
         modeloTabla.setColumnIdentifiers(header);
         JTABLE_Dialog.setModel(modeloTabla);
         Table_Size();
@@ -110,7 +113,7 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
         jScrollPane1 = new javax.swing.JScrollPane();
         JTABLE_Dialog = new javax.swing.JTable();
         btn_guardar = new javax.swing.JButton();
-        btn_añadir = new javax.swing.JButton();
+        btn_anadir = new javax.swing.JButton();
         btn_actualizar = new javax.swing.JButton();
         btn_quitar = new javax.swing.JButton();
         btn_salir = new javax.swing.JButton();
@@ -238,15 +241,20 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 250, 610, 170));
 
         btn_guardar.setText("Guardar");
-        jPanel1.add(btn_guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 430, 100, 40));
-
-        btn_añadir.setText("Añadir");
-        btn_añadir.addActionListener(new java.awt.event.ActionListener() {
+        btn_guardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_añadirActionPerformed(evt);
+                btn_guardarActionPerformed(evt);
             }
         });
-        jPanel1.add(btn_añadir, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 430, 100, 40));
+        jPanel1.add(btn_guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 430, 100, 40));
+
+        btn_anadir.setText("Añadir");
+        btn_anadir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_anadirActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btn_anadir, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 430, 100, 40));
 
         btn_actualizar.setText("Actualizar");
         btn_actualizar.addActionListener(new java.awt.event.ActionListener() {
@@ -301,9 +309,8 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
             txtSubtotal.setText("0.00");
             spnCantidad.setValue(1);
             txtObservaciones.setText("");
+    this.dispose();
 
-            // Cerramos
-            this.dispose();
         }
 
     }//GEN-LAST:event_btn_salirActionPerformed
@@ -317,56 +324,44 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
     
     
     
-    private void btn_añadirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_añadirActionPerformed
-                                         
-        
-            try {
-                String seleccionado = cmbPlatillo.getSelectedItem().toString();
-                int idReal = objetoMetodo.obtenerIdPlatilloPorNombre(seleccionado);
-
-                if (idReal != -1) {
-                    // ¡Ya tienes el ID! Ahora puedes agregarlo a tu tabla temporal
-                    System.out.println("ID del plato a insertar: " + idReal);
-                }
-            } catch (SQLException e) {
-                
-            }
+    private void btn_anadirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_anadirActionPerformed
+                       
     try {
-        // 1. Validar que haya algo seleccionado en el combo
-        if (cmbPlatillo.getSelectedItem() == null) {
+        // 1. Validar que se haya seleccionado un platillo
+        if (cmbPlatillo.getSelectedIndex() <= 0) {
             JOptionPane.showMessageDialog(this, "Por favor, selecciona un platillo.");
             return;
         }
 
-        // 2. Obtener el ID Real usando TU variable 'objetoMetodo'
+        // 2. Obtener el nombre y el ID real del plato usando tu objetoMetodo
         String nombreSeleccionado = cmbPlatillo.getSelectedItem().toString();
         int idPlatillo = objetoMetodo.obtenerIdPlatilloPorNombre(nombreSeleccionado);
 
         if (idPlatillo == -1) {
-            JOptionPane.showMessageDialog(this, "No se pudo recuperar el ID del platillo.");
+            JOptionPane.showMessageDialog(this, "Error: No se pudo encontrar el ID del plato.");
             return;
         }
 
-        // 3. Capturar valores de tus Spinners
+        // 3. Capturar cantidad y precio
         int cantidad = (Integer) spnCantidad.getValue();
-        double precio = Double.parseDouble(txtPrecio.getText());
-        
         if (cantidad <= 0) {
-            JOptionPane.showMessageDialog(this, "La cantidad debe ser mayor a 0.");
+            JOptionPane.showMessageDialog(this, "La cantidad debe ser mayor a cero.");
             return;
         }
 
-        // 4. Calcular Subtotal (usando el formato que ya definiste)
-        double subtotal = Double.parseDouble(txtSubtotal.getText());
-        
-        // 5. Capturar tus Observaciones (usando tu variable 'txtObservaciones')
+        // Limpiamos el texto de precio (quitamos S/. si lo tiene) y convertimos
+        double precio = Double.parseDouble(txtPrecio.getText().replaceAll("[^0-9.]", ""));
+        double subtotal = cantidad * precio;
+
+        // 4. Capturar observaciones
         String obs = txtObservaciones.getText().trim();
         if (obs.isEmpty()) {
             obs = "Sin observaciones";
         }
 
-        // 6. Usar 'modeloTabla' que ya declaraste arriba para llenar 'JTABLE_Dialog'
-        // Estructura según tu header: {"ID","Plato","Cantidad","Precio","Subtotal","Observaciones"}
+        // 5. Agregar la fila a JTABLE_Dialog
+        // Estructura: {"ID","Plato","Cantidad","Precio","Subtotal","Observaciones"}
+        DefaultTableModel modelo = (DefaultTableModel) JTABLE_Dialog.getModel();
         Object[] fila = {
             idPlatillo, 
             nombreSeleccionado, 
@@ -375,22 +370,22 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
             String.format("S/. %.2f", subtotal),
             obs
         };
+        
+        modelo.addRow(fila);
 
-        // 7. ¡A la tabla!
-
-
-        // 8. Limpiar los campos para el siguiente plato
+        // 6. Limpiar campos de entrada para el siguiente plato (sin cerrar el diálogo)
         limpiarCamposDetalle();
+        cmbPlatillo.requestFocus();
 
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "Error de base de datos: " + ex.getMessage());
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Error en el formato del precio.");
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error inesperado: " + e.getMessage());
     }
-        
-              
-        
-    }//GEN-LAST:event_btn_añadirActionPerformed
+  
+    }//GEN-LAST:event_btn_anadirActionPerformed
 
     private void txtSubtotalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSubtotalActionPerformed
         // TODO add your handling code here:
@@ -449,6 +444,14 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
         return;
     }
 
+    // --- VALIDACIÓN CRÍTICA ---
+    if (cmbPlatillo.getSelectedIndex() <= 0) { // Si es 0, es "<<Seleccionar>>"
+        JOptionPane.showMessageDialog(this, "Por favor, elija un platillo válido de la lista.");
+        return;
+    }
+
+  
+
     try {
         // Captura de datos
         String plato = cmbPlatillo.getSelectedItem().toString();
@@ -483,13 +486,65 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
 
     }//GEN-LAST:event_btn_actualizarActionPerformed
 
+    private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_guardarActionPerformed
+                                        
+    // 1. Obtener el modelo de la tabla del JDialog (el carrito actual)
+    DefaultTableModel modeloDialog = (DefaultTableModel) JTABLE_Dialog.getModel();
+    
+    // 2. Validación de seguridad
+    if (modeloDialog.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(this, "La lista de platos está vacía. Añada al menos uno.");
+        return;
+    }
+
+    // 3. Referenciar al padre (Frm_Pedido) y su tabla de detalles física
+    Frm_Pedido padre = (Frm_Pedido) this.getOwner();
+    DefaultTableModel modeloDestino = (DefaultTableModel) padre.Table_Details.getModel();
+
+    // 4. Trasladar la información fila por fila
+    for (int i = 0; i < modeloDialog.getRowCount(); i++) {
+        // Extraemos los valores directamente como Objetos/Strings
+        Object id    = modeloDialog.getValueAt(i, 0);
+        Object plato = modeloDialog.getValueAt(i, 1);
+        Object cant  = modeloDialog.getValueAt(i, 2);
+        
+        // Pasamos el texto tal cual está en la celda (con el "S/." incluido)
+        Object precio   = modeloDialog.getValueAt(i, 3); 
+        Object subtotal = modeloDialog.getValueAt(i, 4);
+        
+        Object obs = modeloDialog.getValueAt(i, 5);
+
+        // 5. Crear la fila para la tabla Table_Details en Frm_Pedido
+        // El orden debe ser: {"ID Detalle","Plato","Cantidad","Precio","Subtotal","Observaciones"}
+        Object[] filaParaPadre = {
+            id,
+            plato,
+            cant,
+            precio,   // Se pasa como String "S/. 00.00"
+            subtotal, // Se pasa como String "S/. 00.00"
+            obs
+        };
+
+        // Agregamos la fila a la tabla del formulario principal
+        modeloDestino.addRow(filaParaPadre);
+    }
+
+    // 6. Limpiar la tabla del diálogo para que quede vacía la próxima vez
+    modeloDialog.setRowCount(0);
+    
+    // 7. Cerrar el JDialog
+    this.dispose(); 
+
+
+    }//GEN-LAST:event_btn_guardarActionPerformed
+
     private void JTABLE_DialogMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTABLE_DialogMouseClicked
-               if (!JTABLE_Dialog.isEnabled()) {
+        if (!JTABLE_Dialog.isEnabled()) {
             return;
         }
-/*
+        /*
         int selectRow = JTABLE_Dialog.getSelectedRow();
-        
+
         //String[] header = {"ID Detalle","Plato","Cantidad","Precio","Subtotal","Observaciones"};
         if (selectRow >= 0) {
             // String id = JTABLE_Dialog.getValueAt(selectRow, 0).toString().trim();
@@ -498,8 +553,7 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
             // String precio = JTABLE_Dialog.getValueAt(selectRow, 3).toString().trim();
             // String subtotal = JTABLE_Dialog.getValueAt(selectRow, 4).toString().trim();
             String observaciones = JTABLE_Dialog.getValueAt(selectRow, 5).toString().trim();
-            
-            
+
             txtIdPedido.setText(id);
             txtDNICliente.setText(dni_cliente);
             txtDNIEmpleado.setText(dni_empleado);
@@ -515,26 +569,23 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
 
             }
             txtFechaPedido.setText(fecha_pedido);
-            
+
             String nombresC = JTABLE_Dialog.getValueAt(selectRow, 8).toString().trim();
             String apellidosC = JTABLE_Dialog.getValueAt(selectRow, 9).toString().trim();
             String nombresE = JTABLE_Dialog.getValueAt(selectRow, 10).toString().trim();
             String apellidosE = JTABLE_Dialog.getValueAt(selectRow, 11).toString().trim();
-            
+
             txtNombresCliente.setText(nombresC);
             txtNombresEmpleado.setText(nombresE);
             txtApellidosCliente.setText(apellidosC);
             txtApellidosEmpleado.setText(apellidosE);
-        
 
-        
+            BTN_Guardar.setEnabled(false);
+            BTN_VerPlatos.setEnabled(false);
+            BTN_Modificar.setEnabled(true);
+            BTN_Desactivar.setEnabled(true);
 
-        BTN_Guardar.setEnabled(false);
-        BTN_VerPlatos.setEnabled(false);
-        BTN_Modificar.setEnabled(true);
-        BTN_Desactivar.setEnabled(true);
-
-    }*/
+        }*/
     }//GEN-LAST:event_JTABLE_DialogMouseClicked
 
     
@@ -581,9 +632,9 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTable JTABLE_Dialog;
+    public javax.swing.JTable JTABLE_Dialog;
     private javax.swing.JButton btn_actualizar;
-    private javax.swing.JButton btn_añadir;
+    private javax.swing.JButton btn_anadir;
     private javax.swing.JButton btn_guardar;
     private javax.swing.JButton btn_quitar;
     private javax.swing.JButton btn_salir;
@@ -613,9 +664,10 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
         txtSubtotal.setText(String.format("%.2f", p * c));
     }
     
-    public void cargarCombo() {
+ public void cargarCombo() {
+    cargandoCombo = true; // Bloqueamos los eventos
     try {
-        cmbPlatillo.removeAllItems(); // Limpiamos por si acaso
+        cmbPlatillo.removeAllItems();
         cmbPlatillo.addItem("<<Seleccionar>>");
         ResultSet rs = objetoMetodo.comboListarPlatillos();
         
@@ -624,6 +676,8 @@ public final class JD_AgregarPlato extends javax.swing.JDialog {
         }
     } catch (SQLException e) {
         JOptionPane.showMessageDialog(null, "Error al cargar platos: " + e.getMessage());
+    } finally {
+        cargandoCombo = false; // Liberamos
     }
 }
    

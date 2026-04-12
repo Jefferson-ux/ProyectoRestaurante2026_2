@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
+import logic.dao.DetallePedidoMethod.DetallePedido;
 
 //import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 //import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -78,7 +79,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
         this.methods = new PedidoMethod();
 
         // Títulos que verá el usuario
-        String[] header = {"ID","DNI Cliente","Cliente","DNI Empleado","Empleado","Tipo de Pedido","Fecha de Pedido","Cantidad de Platos","Nombre C","Apellido C","Nombre E","Apellidos E","Detalles"};
+        String[] header = {"ID","DNI Cliente","Cliente","DNI Empleado","Empleado","Tipo de Pedido","Fecha de Pedido","Cantidad de Platos","Nombre C","Apellido C","Nombre E","Apellidos E"};
 
         modeloTablaReserva.setColumnIdentifiers(header);
         JTABLE_Mant_Pedido.setModel(modeloTablaReserva);
@@ -114,7 +115,8 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
     colModel.getColumn(6).setPreferredWidth(90);
     
     // Fecha de Pedido
-    colModel.getColumn(7).setPreferredWidth(90);
+    colModel.getColumn(7).setPreferredWidth(80);
+    colModel.getColumn(7).setPreferredWidth(80);
     
     colModel.getColumn(8).setPreferredWidth(0);
     colModel.getColumn(8).setMinWidth(0);
@@ -128,6 +130,8 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
     colModel.getColumn(11).setPreferredWidth(0);
     colModel.getColumn(11).setMinWidth(0);
     colModel.getColumn(11).setMaxWidth(0);
+    
+    CreateDetailTable();
 
     // 3. Extras de la Tabla
     JTABLE_Mant_Pedido.getTableHeader().setReorderingAllowed(false); // No mover columnas
@@ -138,7 +142,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
         BTN_Nuevo.setEnabled(false);
         BTN_Desactivar.setEnabled(false);
         BTN_Guardar.setEnabled(false);
-        BTN_Cancel.setVisible(false);
+        //BTN_Cancel.setVisible(false);
         BTN_Modificar.setEnabled(false);
         txtIdPedido.setEnabled(false);
         formato = DateTimeFormatter.ofPattern("dd/MM/yy");
@@ -156,7 +160,6 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
         BTN_Modificar = new javax.swing.JButton();
         BTN_Guardar = new javax.swing.JButton();
         BTN_Nuevo = new javax.swing.JButton();
-        BTN_Cancel = new javax.swing.JButton();
         BTN_Back = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         JTABLE_Mant_Pedido = new javax.swing.JTable();
@@ -194,6 +197,8 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
         txtFechaPedido = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
         btnViewDetails = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        Table_Details = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -212,7 +217,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
                 BTN_VerPlatosActionPerformed(evt);
             }
         });
-        jPanel3.add(BTN_VerPlatos, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 30, 150, 50));
+        jPanel3.add(BTN_VerPlatos, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 300, 140, 50));
 
         BTN_Desactivar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Desactivar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_delete.png"))); // NOI18N
@@ -222,7 +227,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
                 BTN_DesactivarActionPerformed(evt);
             }
         });
-        jPanel3.add(BTN_Desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 280, 150, 48));
+        jPanel3.add(BTN_Desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 300, 140, 48));
 
         BTN_Modificar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Modificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_update.png"))); // NOI18N
@@ -232,7 +237,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
                 BTN_ModificarActionPerformed(evt);
             }
         });
-        jPanel3.add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 219, 150, 48));
+        jPanel3.add(BTN_Modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 300, 140, 48));
 
         BTN_Guardar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Guardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_save.png"))); // NOI18N
@@ -247,7 +252,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
                 BTN_GuardarActionPerformed(evt);
             }
         });
-        jPanel3.add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 157, 150, 48));
+        jPanel3.add(BTN_Guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 300, 140, 48));
 
         BTN_Nuevo.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         BTN_Nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_add.png"))); // NOI18N
@@ -257,17 +262,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
                 BTN_NuevoActionPerformed(evt);
             }
         });
-        jPanel3.add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 94, 150, 48));
-
-        BTN_Cancel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        BTN_Cancel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_cancel.png"))); // NOI18N
-        BTN_Cancel.setText("     CANCELAR");
-        BTN_Cancel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_CancelActionPerformed(evt);
-            }
-        });
-        jPanel3.add(BTN_Cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(745, 94, 150, 48));
+        jPanel3.add(BTN_Nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 140, 48));
 
         BTN_Back.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/icon_back.png"))); // NOI18N
         BTN_Back.addActionListener(new java.awt.event.ActionListener() {
@@ -297,7 +292,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
         });
         jScrollPane1.setViewportView(JTABLE_Mant_Pedido);
 
-        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 420, 920, 220));
+        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 410, 920, 230));
 
         BTN_PDF.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/pdf.png"))); // NOI18N
         BTN_PDF.setText("     Exportar PDF");
@@ -365,7 +360,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
         });
         jPanel2.add(BTN_Desactivar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(732, 280, 165, 48));
 
-        jPanel3.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 370, 920, 50));
+        jPanel3.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 360, 920, 50));
 
         panel.setBorder(javax.swing.BorderFactory.createEtchedBorder(new java.awt.Color(204, 0, 51), null));
         panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -376,7 +371,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
         txtIdPedido.setForeground(new java.awt.Color(0, 0, 204));
         txtIdPedido.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtIdPedido.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        panel.add(txtIdPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, 90, 20));
+        panel.add(txtIdPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 20));
 
         jPanelCliente.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "   Cliente Atendido   ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Segoe UI", 1, 12))); // NOI18N
         jPanelCliente.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -386,17 +381,17 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
                 txtDNIClienteActionPerformed(evt);
             }
         });
-        jPanelCliente.add(txtDNICliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, 140, 22));
+        jPanelCliente.add(txtDNICliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, 110, 22));
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel13.setText("Nombres:*");
-        jPanelCliente.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 90, -1));
-        jPanelCliente.add(txtApellidosCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 170, 220, 22));
-        jPanelCliente.add(txtNombresCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, 220, 22));
+        jPanelCliente.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 90, -1));
+        jPanelCliente.add(txtApellidosCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, 180, 22));
+        jPanelCliente.add(txtNombresCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, 180, 22));
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel14.setText("Apellidos:*");
-        jPanelCliente.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, 90, -1));
+        jPanelCliente.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, 90, -1));
 
         jLabel15.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel15.setText("DNI:*");
@@ -408,9 +403,9 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanelCliente.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 80, -1));
+        jPanelCliente.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 50, 70, -1));
 
-        panel.add(jPanelCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 90, 280, 230));
+        panel.add(jPanelCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 60, 230, 190));
 
         jPanelEmpleado.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "   Empleado Encargado   ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Segoe UI", 1, 12))); // NOI18N
         jPanelEmpleado.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -420,21 +415,21 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
                 txtDNIEmpleadoActionPerformed(evt);
             }
         });
-        jPanelEmpleado.add(txtDNIEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, 140, 22));
+        jPanelEmpleado.add(txtDNIEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 110, 22));
 
         jLabel18.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel18.setText("DNI:*");
-        jPanelEmpleado.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 90, -1));
+        jPanelEmpleado.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 90, -1));
 
         jLabel19.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel19.setText("Nombres:*");
-        jPanelEmpleado.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 90, -1));
-        jPanelEmpleado.add(txtApellidosEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 170, 220, 22));
-        jPanelEmpleado.add(txtNombresEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, 220, 22));
+        jPanelEmpleado.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 90, -1));
+        jPanelEmpleado.add(txtApellidosEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 180, 22));
+        jPanelEmpleado.add(txtNombresEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 180, 22));
 
         jLabel20.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel20.setText("Apellidos:*");
-        jPanelEmpleado.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, 90, -1));
+        jPanelEmpleado.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 90, -1));
 
         searchEmpleado.setText("Buscar");
         searchEmpleado.addActionListener(new java.awt.event.ActionListener() {
@@ -442,40 +437,41 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
                 searchEmpleadoActionPerformed(evt);
             }
         });
-        jPanelEmpleado.add(searchEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 80, -1));
+        jPanelEmpleado.add(searchEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 50, 70, -1));
 
-        panel.add(jPanelEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 280, 220));
+        panel.add(jPanelEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 220, 190));
 
         jLabel3.setFont(new java.awt.Font("Yu Gothic UI Light", 1, 36)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("→");
-        panel.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 168, 60, 60));
+        panel.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 120, 50, 60));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 3, 11)); // NOI18N
         jLabel6.setText("ID:");
-        panel.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, 30, -1));
+        panel.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 30, -1));
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel12.setText("Fecha de Pedido:");
-        panel.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 20, 130, -1));
+        panel.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 10, 130, -1));
 
         jLabel16.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel16.setText("Detalles del Pedido");
-        panel.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 20, 120, -1));
+        panel.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 10, 120, -1));
 
         comboTipoPedido.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        panel.add(comboTipoPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 40, 150, -1));
+        panel.add(comboTipoPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 30, 170, -1));
 
+        txtFechaPedido.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtFechaPedido.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtFechaPedidoActionPerformed(evt);
             }
         });
-        panel.add(txtFechaPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 40, 140, -1));
+        panel.add(txtFechaPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 30, 150, -1));
 
         jLabel17.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel17.setText("Tipo de Pedido:*");
-        panel.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 20, 130, -1));
+        panel.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 10, 130, -1));
 
         btnViewDetails.setText("Añadir o Ver");
         btnViewDetails.addActionListener(new java.awt.event.ActionListener() {
@@ -483,9 +479,26 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
                 btnViewDetailsActionPerformed(evt);
             }
         });
-        panel.add(btnViewDetails, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 40, 120, -1));
+        panel.add(btnViewDetails, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 30, 120, -1));
 
-        jPanel3.add(panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 700, 330));
+        jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+        Table_Details.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane2.setViewportView(Table_Details);
+
+        panel.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 70, 310, 180));
+
+        jPanel3.add(panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 870, 260));
 
         getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 910, 720));
 
@@ -516,22 +529,15 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
 
     ////    CLICKEO EN LA TABLA --> -->
     private void JTABLE_Mant_PedidoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTABLE_Mant_PedidoMouseClicked
-       if (!JTABLE_Mant_Pedido.isEnabled()) {
-            return;
-        }
-
-//String[] header = {"ID","DNI Cliente","Cliente","DNI Empleado","Empleado",
-        // "Tipo de Pedido","Fecha de Pedido","Cantidad de Platos"};
-        int selectRow = JTABLE_Mant_Pedido.getSelectedRow();
-        if (selectRow >= 0) {
-            String id = JTABLE_Mant_Pedido.getValueAt(selectRow, 0).toString().trim();
+// Dentro de JTABLE_Mant_PedidoMouseClicked...
+int selectRow = JTABLE_Mant_Pedido.getSelectedRow();
+if (selectRow >= 0) {
+    int idPedido = Integer.parseInt(JTABLE_Mant_Pedido.getValueAt(selectRow, 0).toString());
+                String id = JTABLE_Mant_Pedido.getValueAt(selectRow, 0).toString().trim();
             String dni_cliente = JTABLE_Mant_Pedido.getValueAt(selectRow, 1).toString().trim();
             String dni_empleado = JTABLE_Mant_Pedido.getValueAt(selectRow, 3).toString().trim();
             String tipo_pedido = JTABLE_Mant_Pedido.getValueAt(selectRow, 5).toString().trim();
             String fecha_pedido = JTABLE_Mant_Pedido.getValueAt(selectRow, 6).toString().trim();
-            String cantidad = JTABLE_Mant_Pedido.getValueAt(selectRow, 7).toString().trim();
-            
-            
             txtIdPedido.setText(id);
             txtDNICliente.setText(dni_cliente);
             txtDNIEmpleado.setText(dni_empleado);
@@ -566,8 +572,36 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
         BTN_Modificar.setEnabled(true);
         BTN_Desactivar.setEnabled(true);
 
-    }//GEN-LAST:event_JTABLE_Mant_PedidoMouseClicked
+    
+    DefaultTableModel modeloDetalle = (DefaultTableModel) Table_Details.getModel();
+    modeloDetalle.setRowCount(0);
+
+    try {
+        // Llamamos al nuevo método que acabamos de crear
+        ResultSet rs = this.methods.listarDetallesPorId(idPedido);
+        
+        while (rs.next()) {
+            Object[] fila = {
+                rs.getInt("ID detalle"),
+                rs.getString("Nombre de Platillo"),
+                rs.getInt("Cantidad Pedida"),
+                "S/. " + rs.getDouble("Precio Unitario"),
+                "S/. " + rs.getDouble("Subtotal"),
+                rs.getString("Observaciones")
+            };
+            modeloDetalle.addRow(fila);
+            
+            
+            
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error al cargar detalles: " + e.getMessage());
     }
+}
+
+
+    }//GEN-LAST:event_JTABLE_Mant_PedidoMouseClicked
+    
 
 
 
@@ -731,26 +765,6 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
         this.dispose();
     }//GEN-LAST:event_BTN_BackActionPerformed
 
-    private void BTN_CancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_CancelActionPerformed
-     /*   int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea cancelar la operación?", "Confirmación", JOptionPane.YES_NO_OPTION);
-        if (respuesta == JOptionPane.YES_OPTION) {
-
-            BTN_Guardar.setEnabled(false);
-            BTN_Desactivar.setEnabled(false);
-            BTN_Modificar.setEnabled(false);
-            BTN_Nuevo.setVisible(true);
-            BTN_Cancel.setVisible(false);
-
-            txtNombrePlato.setEditable(false);
-            txtPrecio.setEditable(false);
-            jTextAreaObservaciones.setEditable(false);
-            jComboBoxCategoria.setEnabled(false);
-
-            JTABLE_Mant_Reserva.setEnabled(true);
-
-        } */
-    }//GEN-LAST:event_BTN_CancelActionPerformed
-
     private void BTN_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_NuevoActionPerformed
 
         String string_current = String.valueOf(current_date); 
@@ -779,8 +793,27 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
         BTN_Guardar.setEnabled(true);
         BTN_Desactivar.setEnabled(false);
         BTN_Modificar.setEnabled(false);
-        BTN_Nuevo.setVisible(false);
-        BTN_Cancel.setVisible(true);
+       // BTN_Nuevo.setVisible(false);
+        //BTN_Cancel.setVisible(true);
+
+    // 1. Limpiar la JTable (Memoria visual)
+    DefaultTableModel modelo = (DefaultTableModel) Table_Details.getModel();
+    modelo.setRowCount(0);
+    
+    // 2. Resetear IDs de selección
+    this.idClienteSeleccionado = -1;
+    this.idEmpleadoSeleccionado = -1;
+    
+    // 3. Limpiar campos de texto
+    txtDNICliente.setText("");
+    txtNombresCliente.setText("");
+    txtDNIEmpleado.setText("");
+    txtNombresEmpleado.setText("");
+    
+    // 4. Opcional: Mensaje de confirmación
+    System.out.println("Nuevo pedido iniciado. Memoria limpia.");
+
+        
         
         
         
@@ -788,7 +821,15 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
 
     private void BTN_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_GuardarActionPerformed
  
-        ejecutarGuardado();
+
+    if (JTABLE_Mant_Pedido.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(this, "Agregue platos antes de guardar.");
+        return;
+    }
+    
+    // Aquí llamas a tu ejecutarGuardado() que ya tenías programado
+    ejecutarGuardado(); 
+
         
     }//GEN-LAST:event_BTN_GuardarActionPerformed
 
@@ -958,7 +999,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         
         
-        JD_Empleado buscador = new JD_Empleado(this, true);
+        JD_Cliente buscador = new JD_Cliente(this, true);
     
         // 2. Lo muestras (El programa se detiene aquí hasta que cierres el buscador)
         buscador.setVisible(true);
@@ -976,13 +1017,40 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
         String id_pedido = txtIdPedido.getText();
         String fecha = txtFechaPedido.getText();
         
-        int id_pedido_int;
+                int id_pedido_int;
         if (id_pedido.isEmpty()||id_pedido==null){
             id_pedido_int = -1;
         } else {
             id_pedido_int = Integer.parseInt(id_pedido);
         }
         dialogo = new JD_AgregarPlato(this, true,(id_pedido_int),fecha);
+        // 1. Instanciamos el JDialog
+    // 2. Obtenemos los modelos de ambas tablas
+    DefaultTableModel modeloOrigen = (DefaultTableModel) Table_Details.getModel();
+    DefaultTableModel modeloDestino = (DefaultTableModel) dialogo.modeloTabla;
+    
+    // 3. Limpiamos la tabla del Dialog antes de pasar los datos
+    modeloDestino.setRowCount(0);
+    
+    // 4. Verificamos si hay datos para pasar
+    if (modeloOrigen.getRowCount() > 0) {
+        // Recorremos fila por fila
+        for (int i = 0; i < modeloOrigen.getRowCount(); i++) {
+            Object[] fila = new Object[modeloOrigen.getColumnCount()];
+            
+            // Recorremos cada columna de la fila actual
+            for (int j = 0; j < modeloOrigen.getColumnCount(); j++) {
+                fila[j] = modeloOrigen.getValueAt(i, j);
+            }
+            
+            // Agregamos la fila clonada al modelo del JDialog
+            modeloDestino.addRow(fila);
+        }
+    }
+    
+    // 5. Centramos y mostramos el Dialog
+    dialogo.setLocationRelativeTo(this);
+    
         dialogo.setVisible(true);
     }//GEN-LAST:event_btnViewDetailsActionPerformed
 
@@ -1090,7 +1158,6 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BTN_Back;
-    private javax.swing.JButton BTN_Cancel;
     private javax.swing.JButton BTN_Cerrar1;
     private javax.swing.JButton BTN_Desactivar;
     private javax.swing.JButton BTN_Desactivar1;
@@ -1100,8 +1167,9 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
     private javax.swing.JButton BTN_Nuevo;
     private javax.swing.JButton BTN_PDF;
     private javax.swing.JButton BTN_VerPlatos;
-    private javax.swing.JTable JTABLE_Mant_Pedido;
+    public javax.swing.JTable JTABLE_Mant_Pedido;
     private javax.swing.JTextField TXT_BuscarMesas;
+    public javax.swing.JTable Table_Details;
     private javax.swing.JButton btnViewDetails;
     private javax.swing.JComboBox<String> comboTipoPedido;
     private javax.swing.JButton jButton2;
@@ -1124,6 +1192,7 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
     private javax.swing.JPanel jPanelCliente;
     private javax.swing.JPanel jPanelEmpleado;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPanel panel;
     private javax.swing.JButton searchEmpleado;
     private javax.swing.JTextField txtApellidosCliente;
@@ -1211,27 +1280,40 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
     
     
     
-    private void ejecutarGuardado() {
-    // Validaciones de IDs
-    if (idClienteSeleccionado == -1 || idEmpleadoSeleccionado == -1) {
-        JOptionPane.showMessageDialog(this, "Debe seleccionar Cliente y Empleado primero.");
-        return;
-    }
+  private void ejecutarGuardado() {
+    try {
+        // ACTUALIZACIÓN: Antes de validar, buscamos los IDs reales por el DNI que está en pantalla
+        String dniC = txtDNICliente.getText().trim();
+        String dniE = txtDNIEmpleado.getText().trim();
+        
+        // Debug para ver qué está leyendo Java de las cajas de texto
+        System.out.println("DNI Cliente capturado: [" + dniC + "]");
+        System.out.println("DNI Empleado capturado: [" + dniE + "]");
 
-    // Validar tabla no vacía
-    DefaultTableModel modelo = (DefaultTableModel) JTABLE_Mant_Pedido.getModel();
-    if (modelo.getRowCount() == 0) {
-        JOptionPane.showMessageDialog(this, "El pedido no tiene platos agregados.");
-        return;
-    }
+        this.idClienteSeleccionado = methods.obtenerIdClientePorDNI(dniC);
+        this.idEmpleadoSeleccionado = methods.obtenerIdEmpleadoPorDNI(dniE);
+        // Ahora la validación ya no fallará si el DNI existe
+        if (idClienteSeleccionado == -1 || idEmpleadoSeleccionado == -1) {
+            JOptionPane.showMessageDialog(this, "DNI de Cliente o Empleado no válido o no encontrado.");
+            return;
+        }
 
-    // Fecha (usando el formato de tu Procedure TIMESTAMP)
-    String fechaSQL = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        // Validar que la tabla de detalles (Table_Details) tenga platos
+        DefaultTableModel modeloDetalle = (DefaultTableModel) Table_Details.getModel();
+        if (modeloDetalle.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "El pedido no tiene platos agregados en la tabla de detalles.");
+            return;
+        }
 
-    PedidoMethod dao = new PedidoMethod();
-    if (dao.guardarPedidoCompleto(fechaSQL, idClienteSeleccionado, idEmpleadoSeleccionado, idTipoPedidoSeleccionado, modelo)) {
-        JOptionPane.showMessageDialog(this, "¡Pedido registrado con éxito!");
-        limpiarTodo();
+        // Resto de tu código de guardado...
+        String fechaSQL = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        
+        if (methods.guardarPedidoCompleto(fechaSQL, idClienteSeleccionado, idEmpleadoSeleccionado, idTipoPedidoSeleccionado, modeloDetalle)) {
+            JOptionPane.showMessageDialog(this, "¡Pedido registrado con éxito!");
+            limpiarTodo();
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error de base de datos: " + e.getMessage());
     }
 }
     
@@ -1269,6 +1351,30 @@ private int idTipoPedidoSeleccionado = 1; // Por defecto 1 o el que elijas
     // Foco inicial
     txtDNICliente.requestFocus();
 }
+    
+    private void CreateDetailTable (){
+        
+        DefaultTableModel detailModel = new DefaultTableModel();
+        String[] header = {"ID Detalle","Plato","Cantidad","Precio","Subtotal","Observaciones"};
+        detailModel.setColumnIdentifiers(header);
+        
+        this.Table_Details.setModel(detailModel);
+                TableColumnModel col = Table_Details.getColumnModel();
+                col.getColumn(0).setPreferredWidth(0);
+                col.getColumn(0).setMinWidth(0);
+                col.getColumn(0).setMaxWidth(0);
+        col.getColumn(1).setWidth(80);
+        col.getColumn(2).setWidth(40);
+        col.getColumn(3).setWidth(40);
+        col.getColumn(4).setWidth(40);
+        col.getColumn(5).setWidth(160);
+        
+    }
+    
+    
+    
+    
+    
     
     
 }

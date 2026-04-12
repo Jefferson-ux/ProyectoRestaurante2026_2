@@ -107,7 +107,7 @@ public final class JD_Cliente extends javax.swing.JDialog {
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("Seleccionar Empleado");
+        jLabel2.setText("Seleccionar Cliente");
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 430, -1));
 
         btnCerrar.setText("Cerrar");
