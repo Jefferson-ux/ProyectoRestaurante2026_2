@@ -1,4 +1,4 @@
-# 🍽️ Sistema de Gestión de Restaurante - "Ethan Alegre - Alegría para tu paladar"
+# 🍽️ Sistema de Gestión de Restaurante - "El Gran Banquete - Alegría para tu paladar"
 
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)
 ![FlatLaf](https://img.shields.io/badge/UI-FlatLaf-blue?style=for-the-badge)
