@@ -148,7 +148,7 @@ public class ProveedorProductoMethod {
         }
 
         // Llamada al procedimiento CambiarEstadoProveedorProducto(id_prov, id_prod, estado)
-        String sql = "{CALL CambiarEstadoProveedorProducto(?, ?, ?)}";
+        String sql = "{CALL cambiar_estado_proveedorproducto(?, ?, ?)}";
 
         try (CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, idProveedor);
